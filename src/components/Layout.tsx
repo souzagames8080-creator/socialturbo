@@ -44,7 +44,7 @@ export default function Layout({ profile }: LayoutProps) {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 fixed h-full z-40 overflow-y-auto custom-scrollbar">
+      <aside className="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 fixed h-full z-40">
         <div className="p-8 flex items-center gap-3 shrink-0">
           <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-100">
             <Facebook className="text-white w-6 h-6" />
@@ -52,7 +52,7 @@ export default function Layout({ profile }: LayoutProps) {
           <span className="font-black text-slate-800 text-xl italic tracking-tighter uppercase">Social<span className="text-blue-600">Turbo</span></span>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1">
+        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -70,7 +70,7 @@ export default function Layout({ profile }: LayoutProps) {
           ))}
         </nav>
 
-        <div className="p-6 border-t border-slate-100 space-y-4 mt-auto shrink-0">
+        <div className="p-6 border-t border-slate-100 space-y-4 shrink-0 bg-white">
           {profile && (
             <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
               <img src={profile.photoURL} alt="" className="w-10 h-10 rounded-xl shadow-sm" />

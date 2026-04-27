@@ -90,27 +90,27 @@ export default function Dashboard() {
           { 
             name: 'Free', 
             price: 'Grátis', 
-            features: ['3 dias de teste', '1 conta conectada', 'Postagens de Texto'],
+            features: ['3 dias de teste', '1 conta conectada', 'Postagens de Texto', 'Relatórios básicos'],
             active: profile?.plan === 'free',
             color: 'slate'
           },
           { 
             name: 'Basic', 
             price: 'R$ 49/mês', 
-            features: ['Contas ilimitadas', 'Postagens com Imagem', 'Agendamento 7 dias'],
+            features: ['Conexões ilimitadas', 'Postagens com Imagem', 'Agendamento 7 dias', 'Suporte via Chat'],
             active: profile?.plan === 'basic',
             color: 'blue'
           },
           { 
             name: 'Premium', 
             price: 'R$ 99/mês', 
-            features: ['Postagem de Vídeos', 'Agendamento 30 dias', 'Modo Anônimo', 'Suporte VIP'],
+            features: ['Postagem de Vídeo/Reels', 'Agendamento 30 dias', 'Modo Anônimo (Proxy)', 'Suporte VIP 24h', 'IA para Legendas'],
             active: profile?.plan === 'pro',
             color: 'purple'
           }
         ].map((plan) => (
           <div key={plan.name} className={cn(
-            "bg-white p-6 rounded-[2rem] border-2 transition-all relative overflow-hidden",
+            "bg-white p-6 rounded-[2rem] border-2 transition-all relative overflow-hidden flex flex-col h-full",
             plan.active ? `border-${plan.color === 'purple' ? 'purple-600' : 'blue-600'} shadow-xl` : "border-slate-100"
           )}>
             {plan.active && (
@@ -118,15 +118,25 @@ export default function Dashboard() {
                 Plano Atual
               </div>
             )}
-            <h4 className="font-black text-lg text-slate-800 uppercase italic mb-1">{plan.name}</h4>
-            <p className="text-blue-600 font-bold mb-4">{plan.price}</p>
-            <ul className="space-y-3">
+            <div className="mb-4">
+              <h4 className="font-black text-lg text-slate-800 uppercase italic mb-1">{plan.name}</h4>
+              <p className="text-blue-600 font-black">{plan.price}</p>
+            </div>
+            <ul className="space-y-3 mb-6 flex-1">
               {plan.features.map(f => (
-                <li key={f} className="flex items-center gap-2 text-xs font-medium text-slate-600">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> {f}
+                <li key={f} className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" /> <span className=" веду-tight">{f}</span>
                 </li>
               ))}
             </ul>
+            {!plan.active && (
+              <button className={cn(
+                "w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
+                plan.color === 'purple' ? "bg-purple-600 text-white border-purple-600 hover:bg-purple-700" : "bg-slate-50 text-slate-400 border-slate-100 hover:bg-white"
+              )}>
+                Migrar agora
+              </button>
+            )}
           </div>
         ))}
       </div>
