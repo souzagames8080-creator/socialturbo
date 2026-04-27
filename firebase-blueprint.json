@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "fbSession": { "type": "string", "description": "Encrypted Facebook session cookies or token" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Group": {
+      "title": "Facebook Group",
+      "description": "A group tracked by the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "fbGroupId": { "type": "string" },
+        "name": { "type": "string" },
+        "memberCount": { "type": "integer" },
+        "category": { "type": "string" },
+        "selected": { "type": "boolean" },
+        "lastPostAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "fbGroupId", "name"]
+    },
+    "Campaign": {
+      "title": "Campaign",
+      "description": "A mass posting campaign",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "running", "paused", "completed", "failed"] },
+        "groupIds": { "type": "array", "description": "Target group IDs" },
+        "delayMin": { "type": "integer" },
+        "delayMax": { "type": "integer" },
+        "repeatEvery": { "type": "integer", "description": "Repeat interval in minutes" },
+        "processedCount": { "type": "integer" },
+        "totalCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "text", "status", "groupIds"]
+    },
+    "Log": {
+      "title": "Automation Log",
+      "description": "Detailed logs of automation actions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "campaignId": { "type": "string" },
+        "groupId": { "type": "string" },
+        "groupName": { "type": "string" },
+        "status": { "type": "string", "enum": ["success", "error"] },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "status", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "users/{userId}/groups/{groupId}": {
+      "schema": "Group",
+      "description": "User's imported groups"
+    },
+    "users/{userId}/campaigns/{campaignId}": {
+      "schema": "Campaign",
+      "description": "User's automation campaigns"
+    },
+    "users/{userId}/logs/{logId}": {
+      "schema": "Log",
+      "description": "Execution logs"
+    }
+  }
+}
