@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { auth, googleProvider, signInWithPopup, db, doc, getDoc, setDoc, serverTimestamp } from '../lib/firebase';
+import { auth, googleProvider, signInWithPopup, db, doc, getDoc, setDoc, serverTimestamp, updateDoc } from '../lib/firebase';
 import { motion } from 'motion/react';
 import { Facebook, LogIn } from 'lucide-react';
 import { UserProfile } from '../types';

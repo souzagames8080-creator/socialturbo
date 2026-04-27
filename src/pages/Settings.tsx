@@ -9,9 +9,12 @@ import {
   AlertCircle,
   Instagram,
   Zap,
-  CheckCircle2
+  Trash2,
+  Database,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
-import { auth, db, doc, getDoc, updateDoc } from '../lib/firebase';
+import { auth, db, doc, getDoc, updateDoc, collection, getDocs, deleteDoc } from '../lib/firebase';
 import { UserProfile } from '../types';
 
 import { useOutletContext } from 'react-router-dom';
@@ -20,6 +23,7 @@ export default function Settings() {
   const { profile } = useOutletContext<{ profile: UserProfile }>();
   const [fbSession, setFbSession] = useState('');
   const [loading, setLoading] = useState(false);
+  const [clearingDb, setClearingDb] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -28,7 +32,6 @@ export default function Settings() {
 
     // Listener para o sucesso do login via popup
     const handleMessage = (event: MessageEvent) => {
-      // Validar origem se necessário, mas para postMessage entre janelas do mesmo app é seguro
       if (event.data?.type === 'FB_AUTH_SUCCESS' && event.data?.token) {
         setFbSession(event.data.token);
         updateDocInDB(event.data.token);
@@ -70,6 +73,37 @@ export default function Settings() {
     }
   };
 
+  const clearUserData = async () => {
+    if (!auth.currentUser) return;
+    
+    const confirm = window.confirm('Deseja realmente apagar TODOS os seus relatórios e campanhas? Esta ação não pode ser desfeita e ajuda a liberar espaço no sistema.');
+    if (!confirm) return;
+
+    setClearingDb(true);
+    try {
+      const uid = auth.currentUser.uid;
+      
+      // Clear Logs
+      const logsRef = collection(db, 'users', uid, 'logs');
+      const logsSnap = await getDocs(logsRef);
+      const deleteLogsPromises = logsSnap.docs.map(d => deleteDoc(d.ref));
+      
+      // Clear Campaigns
+      const campaignsRef = collection(db, 'users', uid, 'campaigns');
+      const campaignsSnap = await getDocs(campaignsRef);
+      const deleteCampaignsPromises = campaignsSnap.docs.map(d => deleteDoc(d.ref));
+
+      await Promise.all([...deleteLogsPromises, ...deleteCampaignsPromises]);
+      
+      alert('Banco de dados limpo com sucesso!');
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao limpar banco de dados.');
+    } finally {
+      setClearingDb(false);
+    }
+  };
+
   const startAutoAuth = async () => {
     try {
       const res = await fetch('/api/auth/facebook/url');
@@ -98,14 +132,14 @@ export default function Settings() {
               <h2 className="text-2xl font-bold text-slate-800">{auth.currentUser?.displayName}</h2>
               <p className="text-slate-500">{auth.currentUser?.email}</p>
               <div className="mt-2 flex gap-2">
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded-full uppercase">Plano ProAtivo</span>
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded-full uppercase">Pano {profile?.plan || 'Free'}</span>
                 <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase">Acesso Beta</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-8 space-y-12">
           {/* FB Session Section */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
@@ -123,7 +157,7 @@ export default function Settings() {
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h4 className="text-xl font-bold mb-1">Acesso Turbo (1-Clique)</h4>
-                <p className="text-blue-100 text-sm">Seu cliente só precisa clicar aqui. O sistema reconhece o Facebook logado no navegador dele automaticamente.</p>
+                <p className="text-blue-100 text-sm">O sistema reconhece o Facebook logado no seu navegador automaticamente (Modo Automático).</p>
               </div>
               <button 
                 onClick={startAutoAuth}
@@ -138,10 +172,10 @@ export default function Settings() {
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4">
                 <div className="flex items-center gap-2 text-slate-600">
                   <AlertCircle className="w-5 h-5" />
-                  <p className="text-xs font-bold uppercase">Nota para o Revendedor (Você):</p>
+                  <p className="text-xs font-bold uppercase">Nota de Desenvolvedor:</p>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Para que o botão acima funcione sem erros, você deve inserir sua <b>App Key</b> do Facebook nas configurações do servidor. Uma vez configurado, seu cliente nunca mais verá códigos ou tokens. É ligar e usar!
+                  Utilize o botão acima para uma conexão segura e rápida. Caso prefira o modo clássico, cole as credenciais abaixo.
                 </p>
               </div>
             )}
@@ -150,7 +184,7 @@ export default function Settings() {
                 value={fbSession}
                 onChange={(e) => setFbSession(e.target.value)}
                 placeholder="Cole aqui seus Cookies (JSON) ou seu Token de Acesso (EAAA...)"
-                className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 font-mono text-xs shadow-inner"
+                className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs shadow-inner"
               />
             </div>
             <button 
@@ -163,23 +197,67 @@ export default function Settings() {
             </button>
           </section>
 
-          <div className="border-t border-slate-100 pt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all text-left">
-              <div className="p-3 bg-white rounded-xl shadow-sm text-pink-600">
+          {/* Database Management Section */}
+          <section className="pt-8 border-t border-slate-100 space-y-6">
+            <div className="flex items-center gap-2">
+              <Database className="w-6 h-6 text-slate-400" />
+              <h3 className="text-lg font-bold text-slate-800">Manutenção de Dados</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="p-3 bg-white rounded-2xl shadow-sm text-red-500">
+                    <Trash2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-slate-800 uppercase italic">Limpeza Total</h4>
+                    <p className="text-xs text-slate-500 font-medium">Apague relatórios e campanhas antigas para manter seu sistema rápido.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={clearUserData}
+                  disabled={clearingDb}
+                  className="w-full py-3 bg-white border-2 border-red-100 text-red-500 font-black rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  {clearingDb ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Limpando...
+                    </>
+                  ) : (
+                    'Esvaziar Banco de Dados'
+                  )}
+                </button>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-center">
+                <p className="text-[10px] text-slate-400 font-black uppercase mb-2 tracking-widest text-center">Status do Espaço</p>
+                <div className="w-full bg-white h-3 rounded-full overflow-hidden border border-slate-100">
+                  <div className="bg-blue-600 h-full w-[15%]" />
+                </div>
+                <p className="text-center mt-3 text-xs font-black italic text-slate-800 uppercase">Uso Otimizado</p>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+            <button className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all text-left group">
+              <div className="p-3 bg-white rounded-xl shadow-sm text-pink-600 group-hover:scale-110 transition-transform">
                 <Instagram className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-bold text-slate-800 text-sm">Insta Turbo</p>
-                <p className="text-slate-500 text-xs">Conectar contas do Instagram</p>
+                <p className="text-slate-500 text-xs text leading-tight">Configurações de automação para Instagram</p>
               </div>
             </button>
-            <button className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all text-left">
-              <div className="p-3 bg-white rounded-xl shadow-sm text-slate-600">
+            <button className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all text-left group">
+              <div className="p-3 bg-white rounded-xl shadow-sm text-slate-600 group-hover:scale-110 transition-transform">
                 <Shield className="w-5 h-5" />
               </div>
               <div>
-                <p className="font-bold text-slate-800 text-sm">Proteção e Segurança</p>
-                <p className="text-slate-500 text-xs">Gerenciar sua conta e senha</p>
+                <p className="font-bold text-slate-800 text-sm">Segurança</p>
+                <p className="text-slate-500 text-xs leading-tight">Privacidade e logs de conexão</p>
               </div>
             </button>
           </div>
