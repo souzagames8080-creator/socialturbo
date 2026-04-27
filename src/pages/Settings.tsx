@@ -76,7 +76,7 @@ export default function Settings() {
   const clearUserData = async () => {
     if (!auth.currentUser) return;
     
-    const confirm = window.confirm('Deseja realmente apagar TODOS os seus relatórios e campanhas? Esta ação não pode ser desfeita e ajuda a liberar espaço no sistema.');
+    const confirm = window.confirm('⚠ ATENÇÃO: Deseja realmente esvaziar seu banco de dados? Isso apagará permanentemente todos os logs e campanhas agendadas.');
     if (!confirm) return;
 
     setClearingDb(true);
@@ -111,10 +111,10 @@ export default function Settings() {
       if (data.url) {
         window.open(data.url, 'fb_auth', 'width=600,height=700');
       } else {
-        alert(data.error || 'Erro ao iniciar conexão automática. Verifique as variáveis de ambiente.');
+        alert(data.error || 'Configuração Master Pendente: O administrador precisa configurar o Facebook App ID.');
       }
     } catch (err) {
-      alert('Erro na comunicação com o servidor.');
+      alert('Erro na comunicação com o servidor. Entre em contato com o suporte ou use o modo Manual abaixo.');
     }
   };
 
@@ -157,7 +157,7 @@ export default function Settings() {
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h4 className="text-xl font-bold mb-1">Acesso Turbo (1-Clique)</h4>
-                <p className="text-blue-100 text-sm">O sistema reconhece o Facebook logado no seu navegador automaticamente (Modo Automático).</p>
+                <p className="text-blue-100 text-sm">Seu cliente só precisa clicar aqui. O sistema reconhece o Facebook logado no navegador dele automaticamente.</p>
               </div>
               <button 
                 onClick={startAutoAuth}
@@ -172,10 +172,10 @@ export default function Settings() {
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4">
                 <div className="flex items-center gap-2 text-slate-600">
                   <AlertCircle className="w-5 h-5" />
-                  <p className="text-xs font-bold uppercase">Nota de Desenvolvedor:</p>
+                  <p className="text-xs font-bold uppercase">Nota para o Revendedor (Você):</p>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Utilize o botão acima para uma conexão segura e rápida. Caso prefira o modo clássico, cole as credenciais abaixo.
+                  Para que o botão acima funcione sem erros, você deve inserir sua <b>App Key</b> do Facebook nas configurações do servidor. Uma vez configurado, seu cliente nunca mais verá códigos ou tokens. É ligar e usar!
                 </p>
               </div>
             )}
