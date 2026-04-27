@@ -73,6 +73,20 @@ export default function Settings() {
     }
   };
 
+  const startAutoAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/facebook/url');
+      const data = await res.json();
+      if (data.url) {
+        window.open(data.url, 'fb_auth', 'width=600,height=700');
+      } else {
+        alert(data.error || 'Configuração Master Pendente: O administrador precisa configurar o Facebook App ID.');
+      }
+    } catch (err) {
+      alert('Erro na comunicação com o servidor. Entre em contato com o suporte ou use o modo Manual abaixo.');
+    }
+  };
+
   const clearUserData = async () => {
     if (!auth.currentUser) return;
     
@@ -104,20 +118,6 @@ export default function Settings() {
     }
   };
 
-  const startAutoAuth = async () => {
-    try {
-      const res = await fetch('/api/auth/facebook/url');
-      const data = await res.json();
-      if (data.url) {
-        window.open(data.url, 'fb_auth', 'width=600,height=700');
-      } else {
-        alert(data.error || 'Configuração Master Pendente: O administrador precisa configurar o Facebook App ID.');
-      }
-    } catch (err) {
-      alert('Erro na comunicação com o servidor. Entre em contato com o suporte ou use o modo Manual abaixo.');
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
@@ -132,7 +132,7 @@ export default function Settings() {
               <h2 className="text-2xl font-bold text-slate-800">{auth.currentUser?.displayName}</h2>
               <p className="text-slate-500">{auth.currentUser?.email}</p>
               <div className="mt-2 flex gap-2">
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded-full uppercase">Pano {profile?.plan || 'Free'}</span>
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-bold rounded-full uppercase">Plano ProAtivo</span>
                 <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase">Acesso Beta</span>
               </div>
             </div>
@@ -151,6 +151,7 @@ export default function Settings() {
                 {fbSession ? "Conectado" : "Não conectado"}
               </span>
             </div>
+            
             <div className="bg-blue-600 p-8 rounded-3xl text-white shadow-xl shadow-blue-100 flex flex-col md:flex-row items-center gap-6 mb-8 border border-blue-400">
               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 backdrop-blur-md">
                 <Zap className="w-10 h-10 text-white fill-white" />
@@ -169,16 +170,27 @@ export default function Settings() {
             </div>
 
             {profile?.role === 'admin' && (
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4 mb-8">
                 <div className="flex items-center gap-2 text-slate-600">
                   <AlertCircle className="w-5 h-5" />
                   <p className="text-xs font-bold uppercase">Nota para o Revendedor (Você):</p>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Para que o botão acima funcione sem erros, você deve inserir sua <b>App Key</b> do Facebook nas configurações do servidor. Uma vez configurado, seu cliente nunca mais verá códigos ou tokens. É ligar e usar!
+                  Para que o botão acima funcione sem erros, você deve inserir sua <b>App ID</b> e <b>App Secret</b> do Facebook no arquivo .env. Uma vez configurado, seu cliente nunca mais verá códigos ou tokens. É ligar e usar!
                 </p>
               </div>
             )}
+
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-slate-600">
+                <AlertCircle className="w-5 h-5" />
+                <p className="text-xs font-bold uppercase">Modo Manual:</p>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Caso o modo automático falhe, você pode inserir abaixo os Cookies ou o Token de acesso manualmente.
+              </p>
+            </div>
+
             <div>
               <textarea 
                 value={fbSession}

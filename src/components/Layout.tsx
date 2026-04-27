@@ -34,7 +34,7 @@ export default function Layout({ profile }: LayoutProps) {
     { path: '/insta-post', icon: Instagram, label: 'Insta Turbo' },
     { path: '/groups', icon: Users, label: 'Gerenciar Grupos' },
     { path: '/history', icon: History, label: 'Relatórios' },
-    { path: '/settings', icon: Settings, label: 'Configurações' },
+    { path: '/settings', icon: Settings, label: 'Conectar Contas' },
   ];
 
   if (profile?.role === 'admin') {
