@@ -25,37 +25,14 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [clearingDb, setClearingDb] = useState(false);
 
+  // COLE SEU LINK DO GOOGLE DRIVE AQUI DENTRO DAS ASPAS:
+  const LINK_DOWNLOAD_EXTENSAO = "https://drive.google.com/file/d/12HWQRSgY-VkP49H0Rs17F7YggDTnVKz4/view?usp=sharing";
+
   useEffect(() => {
     if (profile) {
       setFbSession(profile.fbSession || '');
     }
-
-    // Listener para o sucesso do login via popup
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'FB_AUTH_SUCCESS' && event.data?.token) {
-        setFbSession(event.data.token);
-        updateDocInDB(event.data.token);
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
   }, [profile]);
-
-  const updateDocInDB = async (token: string) => {
-    if (!auth.currentUser) return;
-    setLoading(true);
-    try {
-      await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-        fbSession: token,
-        updatedAt: new Date()
-      });
-      alert('SocialTurbo: Conta conectada via Modo Automático!');
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUpdateSession = async () => {
     if (!auth.currentUser) return;
@@ -70,20 +47,6 @@ export default function Settings() {
       alert('Erro ao conectar conta');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const startAutoAuth = async () => {
-    try {
-      const res = await fetch('/api/auth/facebook/url');
-      const data = await res.json();
-      if (data.url) {
-        window.open(data.url, 'fb_auth', 'width=600,height=700');
-      } else {
-        alert(data.error || 'Configuração Master Pendente: O administrador precisa configurar o Facebook App ID.');
-      }
-    } catch (err) {
-      alert('Erro na comunicação com o servidor. Entre em contato com o suporte ou use o modo Manual abaixo.');
     }
   };
 
@@ -152,42 +115,54 @@ export default function Settings() {
               </span>
             </div>
             
-            <div className="bg-blue-600 p-8 rounded-3xl text-white shadow-xl shadow-blue-100 flex flex-col md:flex-row items-center gap-6 mb-8 border border-blue-400">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 backdrop-blur-md">
-                <Zap className="w-10 h-10 text-white fill-white" />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <h4 className="text-xl font-bold mb-1">Acesso Turbo (1-Clique)</h4>
-                <p className="text-blue-100 text-sm">Seu cliente só precisa clicar aqui. O sistema reconhece o Facebook logado no navegador dele automaticamente.</p>
-              </div>
-              <button 
-                onClick={startAutoAuth}
-                className="px-8 py-4 bg-white text-blue-600 font-bold rounded-2xl shadow-lg hover:bg-blue-50 transition-all flex items-center gap-3 whitespace-nowrap"
-              >
-                <Facebook className="fill-blue-600 w-5 h-5" />
-                Conectar Agora
-              </button>
-            </div>
-
-            {profile?.role === 'admin' && (
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4 mb-8">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <AlertCircle className="w-5 h-5" />
-                  <p className="text-xs font-bold uppercase">Nota para o Revendedor (Você):</p>
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-xl shadow-blue-100 flex flex-col items-center gap-6 mb-8 border border-blue-400">
+              <div className="flex flex-col md:flex-row items-center gap-6 w-full">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 backdrop-blur-md">
+                  <Zap className="w-10 h-10 text-white fill-white" />
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Para que o botão acima funcione sem erros, você deve inserir sua <b>App ID</b> e <b>App Secret</b> do Facebook no arquivo .env. Uma vez configurado, seu cliente nunca mais verá códigos ou tokens. É ligar e usar!
-                </p>
+                <div className="flex-1 text-center md:text-left">
+                  <h4 className="text-xl font-bold mb-1">Extensão Oficial SocialTurbo</h4>
+                  <p className="text-blue-100 text-sm">Use nossa ferramenta auxiliar para copiar seu código de acesso sem complicação.</p>
+                </div>
+                <a 
+                  href={LINK_DOWNLOAD_EXTENSAO}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-8 py-4 bg-white text-blue-600 font-bold rounded-2xl shadow-lg hover:bg-blue-50 transition-all flex items-center gap-3 whitespace-nowrap"
+                  onClick={() => {
+                    if (LINK_DOWNLOAD_EXTENSAO.includes("google-drive-aqui")) {
+                      alert('Atenção Administrador: Você ainda não configurou o link do Google Drive no código (Settings.tsx).');
+                    }
+                  }}
+                >
+                  <Save className="w-5 h-5" />
+                  Baixar Extensão Turbo
+                </a>
               </div>
-            )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
+                <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-center">
+                  <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Passo 1</p>
+                  <p className="text-xs font-medium">Baixe e instale a Extensão no seu Chrome.</p>
+                </div>
+                <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-center">
+                  <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Passo 2</p>
+                  <p className="text-xs font-medium">Abra seu Facebook e clique em "Copiar Acesso".</p>
+                </div>
+                <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-center">
+                  <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Passo 3</p>
+                  <p className="text-xs font-medium">Cole o código no campo abaixo e salve.</p>
+                </div>
+              </div>
+            </div>
 
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col gap-4">
               <div className="flex items-center gap-2 text-slate-600">
                 <AlertCircle className="w-5 h-5" />
-                <p className="text-xs font-bold uppercase">Modo Manual:</p>
+                <p className="text-xs font-bold uppercase">Painel de Conexão:</p>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Caso o modo automático falhe, você pode inserir abaixo os Cookies ou o Token de acesso manualmente.
+                Cole abaixo o código gerado pela Extensão ou seus Cookies/Token manuais.
               </p>
             </div>
 
@@ -195,7 +170,7 @@ export default function Settings() {
               <textarea 
                 value={fbSession}
                 onChange={(e) => setFbSession(e.target.value)}
-                placeholder="Cole aqui seus Cookies (JSON) ou seu Token de Acesso (EAAA...)"
+                placeholder="Cole o código aqui..."
                 className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs shadow-inner"
               />
             </div>
@@ -205,7 +180,7 @@ export default function Settings() {
               className="w-full md:w-auto px-10 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
             >
               <Save className="w-5 h-5" />
-              {loading ? 'Processando...' : 'Salvar e Conectar Facebook'}
+              {loading ? 'Processando...' : 'Salvar e Ativar Automação'}
             </button>
           </section>
 
