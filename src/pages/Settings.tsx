@@ -137,10 +137,13 @@ export default function Settings() {
                 <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
                   <div className="flex gap-4 items-start">
                     <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">2</div>
-                    <div>
-                      <p className="text-sm mb-2">Aperte a tecla <b>F12</b> do seu teclado e clique na aba <b>Console</b>.</p>
-                      <div className="bg-amber-400/20 border border-amber-400/50 p-2 rounded-lg text-[11px] text-amber-200">
-                        <b>DICA:</b> Se o Chrome não deixar você colar, digite <b>allow pasting</b> e aperte Enter antes de colar o código.
+                    <div className="flex-1">
+                      <p className="text-sm mb-2">No Console, você verá um aviso de segurança. Para liberar, faça o seguinte:</p>
+                      <div className="bg-red-500/30 border-2 border-red-500 p-3 rounded-xl mb-3">
+                        <p className="text-xs font-bold text-white mb-1">⚠️ PASSO OBRIGATÓRIO:</p>
+                        <p className="text-[11px] text-red-100">
+                          Digite <b>allow pasting</b> e aperte <b>Enter</b> no seu teclado. Só depois disso o Chrome deixará você colar o código.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -150,8 +153,22 @@ export default function Settings() {
                   <div className="flex gap-4 items-start">
                     <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">3</div>
                     <div className="flex-1">
-                      <p className="text-sm mb-2">Cole o código abaixo no console e aperte Enter:</p>
-                      <code className="bg-black/30 p-2 rounded block text-xs font-mono select-all">alert(document.cookie);</code>
+                      <p className="text-sm mb-2">Copie este código, cole no console e aperte <b>Enter</b>:</p>
+                      <div className="flex gap-2">
+                        <code className="bg-black/30 p-3 rounded-xl flex-1 text-xs font-mono text-blue-200 border border-white/10">
+                          alert(document.cookie);
+                        </code>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText("alert(document.cookie);");
+                            alert("Código copiado! Agora cole no console do Facebook.");
+                          }}
+                          className="bg-white text-blue-600 p-3 rounded-xl hover:bg-blue-50 transition-colors shadow-lg"
+                          title="Copiar Código"
+                        >
+                          <Save className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
