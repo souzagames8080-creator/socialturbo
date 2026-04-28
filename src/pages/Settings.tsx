@@ -121,75 +121,68 @@ export default function Settings() {
                   <Zap className="w-10 h-10 text-white fill-white" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <h4 className="text-xl font-bold mb-1">Conexão em 1-Clique (Botão Mágico)</h4>
-                  <p className="text-blue-100 text-sm">Arraste o botão abaixo para seus favoritos e acione direto no Facebook.</p>
+                  <h4 className="text-xl font-bold mb-1">Conexão Ultra-Rápida (Sem Erros)</h4>
+                  <p className="text-blue-100 text-sm">Escolha o método mais fácil para você abaixo.</p>
                 </div>
               </div>
               
               <div className="space-y-6">
-                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
+                {/* Method A: The Infallible Prompt */}
+                <div className="bg-amber-500 border-2 border-white p-6 rounded-2xl shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-2 bg-white/20 text-[10px] font-black uppercase italic">Dica do Especialista</div>
                   <div className="flex gap-4 items-start">
-                    <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">1</div>
+                    <div className="w-10 h-10 rounded-full bg-white text-amber-600 flex items-center justify-center font-black shrink-0 shadow-lg text-lg">A</div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold mb-3">Arraste este botão para sua barra de favoritos:</p>
+                      <h5 className="font-black text-lg mb-2 leading-tight uppercase italic">Método Infalível (Para quem tem pressa)</h5>
+                      <p className="text-xs mb-4 text-amber-50 leading-relaxed">
+                        1. Vá no seu <b>Facebook</b>.<br/>
+                        2. Aperte <b>F12</b>, clique em <b>Console</b>.<br/>
+                        3. Digite <code>allow pasting</code> e aperte Enter.<br/>
+                        4. Copie o código abaixo, cole lá e aperte <b>Enter</b>:
+                      </p>
                       
-                      {/* Bookmarklet Button Area */}
-                      <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-                        <div className="relative group">
-                          {/* Draggable Button with Pulse Effect */}
-                          <div className="absolute -inset-1 bg-white/50 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                          <a 
-                            href="javascript:(function(){const c=document.cookie;if(!c){alert('❌ Erro: Nenhum cookie encontrado. Você está logado no Facebook?');return;}const el=document.createElement('textarea');el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='2em';el.style.height='2em';el.style.padding='0';el.style.border='none';el.style.outline='none';el.style.boxShadow='none';el.style.background='transparent';el.value=c;document.body.appendChild(el);el.focus();el.select();try{const s=document.execCommand('copy');document.body.removeChild(el);if(s){alert('🚀 SUCESSO!\n\nOs dados do Facebook foram copiados para sua memória.\n\nAgora volte no SocialTurbo e aperte Colar (Ctrl + V).');}else{prompt('Cópia automática bloqueada. Copie manualmente o texto abaixo (Ctrl+C):', c);}}catch(e){document.body.removeChild(el);prompt('Erro ao copiar. Copie manualmente os dados abaixo:', c);}})();"
-                            className="relative inline-flex items-center gap-3 px-8 py-5 bg-white text-blue-600 font-black rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-move border-b-4 border-slate-200 group-hover:text-indigo-600"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              alert('🚀 QUASE LÁ!\n\nVocê não deve apenas clicar.\n\nClique, segure o botão e ARRASTE ele para a sua barra de favoritos (lá no topo do navegador, perto da estrela).');
-                            }}
-                          >
-                            <Zap className="w-6 h-6 fill-current animate-bounce" />
-                            <span className="text-lg">ARRASTE PARA FAVORITOS</span>
-                          </a>
-                        </div>
-
-                        {/* Manual Copy Fallback */}
+                      <div className="flex gap-2 bg-black/40 p-3 rounded-xl border border-white/20">
+                        <code className="text-[11px] font-mono text-amber-200 flex-1 break-all">
+                          prompt("🚀 SUCESSO! COPIE TUDO ABAIXO:", document.cookie)
+                        </code>
                         <button 
                           onClick={() => {
-                            const code = "javascript:(function(){const c=document.cookie;if(!c){alert('❌ Erro: Nenhum cookie encontrado. Você está logado no Facebook?');return;}const el=document.createElement('textarea');el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='2em';el.style.height='2em';el.style.padding='0';el.style.border='none';el.style.outline='none';el.style.boxShadow='none';el.style.background='transparent';el.value=c;document.body.appendChild(el);el.focus();el.select();try{const s=document.execCommand('copy');document.body.removeChild(el);if(s){alert('✅ CÓDIGO COPIADO!\n\nAgora você pode criar um favorito manualmente e colar este código no endereço.');}else{prompt('Copie o código abaixo:', code);}}catch(e){alert('Erro ao copiar código.');}})();";
-                            navigator.clipboard.writeText(code);
-                            alert("✅ Código do Botão Copiado!\n\nSe você não consegue arrastar, crie um Favorito manualmente e cole este código no campo 'URL' ou 'Endereço'.");
+                            navigator.clipboard.writeText('prompt("🚀 SUCESSO! COPIE TUDO ABAIXO:", document.cookie)');
+                            alert("Código de emergência copiado! Vá no Facebook, cole no console e aperte Enter.");
                           }}
-                          className="px-4 py-2 bg-blue-400/20 text-white text-[10px] font-bold rounded-xl border border-white/20 hover:bg-white/10 transition-colors uppercase"
+                          className="bg-white text-amber-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-amber-50 transition-colors shrink-0 shadow-lg"
                         >
-                          Cópia Manual do Código
+                          COPIAR CÓDIGO
                         </button>
                       </div>
+                      <p className="text-[10px] mt-3 text-amber-100 italic">
+                        * Isso abrirá uma janelinha BRANCA no Facebook com os dados. Basta dar Ctrl+C neles e colar aqui.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Method B: Bookmarklet */}
+                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-black shrink-0 text-lg">B</div>
+                    <div className="flex-1">
+                      <h5 className="font-bold mb-1">BOTÃO MÁGICO (Favoritos)</h5>
+                      <p className="text-xs text-blue-100 mb-4">Arraste para os favoritos e clique quando estiver no Facebook.</p>
                       
-                      <div className="mt-4 p-3 bg-blue-500/20 rounded-xl border border-blue-400/30">
-                        <p className="text-[10px] text-blue-50 leading-relaxed italic">
-                          <b>COMO FAZER:</b> Clique no botão branco acima, segure e arraste ele para cima da sua barra de endereços (onde ficam as estrelinhas de favoritos).
-                        </p>
-                        <div className="bg-amber-400/20 border border-amber-400/50 p-3 rounded-xl text-[11px] text-amber-200 mt-2">
-                          <b>DICA:</b> Se não estiver vendo a barra de favoritos, aperte <b>Ctrl + Shift + B</b> no seu teclado para ela aparecer!
-                        </div>
+                      <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <a 
+                          href="javascript:(function(){const c=document.cookie;if(!c){alert('❌ Erro: Logue no Facebook primeiro!');return;}prompt('SUCESSO! Copie tudo abaixo (Ctrl+C):', c);})();"
+                          className="inline-flex items-center gap-3 px-6 py-4 bg-white text-blue-600 font-black rounded-2xl shadow-xl hover:scale-105 transition-transform cursor-move border-b-4 border-slate-200"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            alert('⚠️ ATENÇÃO: Você deve arrastar este botão para a sua barra de favoritos (perto da estrela do Chrome). Se não souber fazer, use o Método A acima que é mais simples!');
+                          }}
+                        >
+                          <Zap className="w-5 h-5 fill-current" />
+                          ARRASTE PARA FAVORITOS
+                        </a>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
-                  <div className="flex gap-4 items-start">
-                    <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">2</div>
-                    <div className="flex-1">
-                      <p className="text-sm">Vá ao seu <b>Facebook</b> e clique no favorito "ARRASTE PARA FAVORITOS" que você acabou de criar.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
-                  <div className="flex gap-4 items-start">
-                    <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">3</div>
-                    <div className="flex-1">
-                      <p className="text-sm">O botão vai copiar os seus dados sozinho. Volte aqui e <b>cole</b> (Ctrl + V) no campo abaixo.</p>
                     </div>
                   </div>
                 </div>
