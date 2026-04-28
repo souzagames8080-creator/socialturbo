@@ -26,7 +26,7 @@ export default function Settings() {
   const [clearingDb, setClearingDb] = useState(false);
 
   // COLE SEU LINK DO GOOGLE DRIVE AQUI DENTRO DAS ASPAS:
-  const LINK_DOWNLOAD_EXTENSAO = "https://drive.google.com/file/d/12HWQRSgY-VkP49H0Rs17F7YggDTnVKz4/view?usp=sharing";
+  const LINK_DOWNLOAD_EXTENSAO = "https://drive.google.com/file/d/1krIA6Hk0qA80IFgye6dm3-uCbNogNGtz/view?usp=sharing";
 
   useEffect(() => {
     if (profile) {
@@ -115,43 +115,45 @@ export default function Settings() {
               </span>
             </div>
             
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-xl shadow-blue-100 flex flex-col items-center gap-6 mb-8 border border-blue-400">
-              <div className="flex flex-col md:flex-row items-center gap-6 w-full">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-xl shadow-blue-100 mb-8 border border-blue-400">
+              <div className="flex flex-col md:flex-row items-center gap-6 w-full mb-8">
                 <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 backdrop-blur-md">
                   <Zap className="w-10 h-10 text-white fill-white" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <h4 className="text-xl font-bold mb-1">Extensão Oficial SocialTurbo</h4>
-                  <p className="text-blue-100 text-sm">Use nossa ferramenta auxiliar para copiar seu código de acesso sem complicação.</p>
+                  <h4 className="text-xl font-bold mb-1">Método de Conexão Rápida</h4>
+                  <p className="text-blue-100 text-sm">Siga os passos abaixo para conectar sem precisar instalar nada.</p>
                 </div>
-                <a 
-                  href={LINK_DOWNLOAD_EXTENSAO}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 py-4 bg-white text-blue-600 font-bold rounded-2xl shadow-lg hover:bg-blue-50 transition-all flex items-center gap-3 whitespace-nowrap"
-                  onClick={() => {
-                    if (LINK_DOWNLOAD_EXTENSAO.includes("google-drive-aqui")) {
-                      alert('Atenção Administrador: Você ainda não configurou o link do Google Drive no código (Settings.tsx).');
-                    }
-                  }}
-                >
-                  <Save className="w-5 h-5" />
-                  Baixar Extensão Turbo
-                </a>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
-                <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-center">
-                  <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Passo 1</p>
-                  <p className="text-xs font-medium">Baixe e instale a Extensão no seu Chrome.</p>
+              <div className="space-y-4">
+                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">1</div>
+                    <p className="text-sm">Acesse o seu <b>Facebook</b> no computador.</p>
+                  </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-center">
-                  <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Passo 2</p>
-                  <p className="text-xs font-medium">Abra seu Facebook e clique em "Copiar Acesso".</p>
+
+                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">2</div>
+                    <div>
+                      <p className="text-sm mb-2">Aperte a tecla <b>F12</b> do seu teclado e clique na aba <b>Console</b>.</p>
+                      <div className="bg-amber-400/20 border border-amber-400/50 p-2 rounded-lg text-[11px] text-amber-200">
+                        <b>DICA:</b> Se o Chrome não deixar você colar, digite <b>allow pasting</b> e aperte Enter antes de colar o código.
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-center">
-                  <p className="text-[10px] font-bold uppercase text-blue-200 mb-1">Passo 3</p>
-                  <p className="text-xs font-medium">Cole o código no campo abaixo e salve.</p>
+
+                <div className="bg-white/10 p-5 rounded-2xl border border-white/10">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 rounded-full bg-white text-blue-600 flex items-center justify-center font-black shrink-0">3</div>
+                    <div className="flex-1">
+                      <p className="text-sm mb-2">Cole o código abaixo no console e aperte Enter:</p>
+                      <code className="bg-black/30 p-2 rounded block text-xs font-mono select-all">alert(document.cookie);</code>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -162,7 +164,7 @@ export default function Settings() {
                 <p className="text-xs font-bold uppercase">Painel de Conexão:</p>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Cole abaixo o código gerado pela Extensão ou seus Cookies/Token manuais.
+                Cole abaixo o resultado (os cookies) que apareceram na janela do Facebook.
               </p>
             </div>
 
