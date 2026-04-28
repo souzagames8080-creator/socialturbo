@@ -133,23 +133,44 @@ export default function Settings() {
                     <div className="flex-1">
                       <p className="text-sm font-bold mb-3">Arraste este botão para sua barra de favoritos:</p>
                       
-                      {/* Bookmarklet Button */}
-                      <a 
-                        href="javascript:(function(){const c=document.cookie;if(!c){alert('Erro: Nenhum cookie encontrado. Você está logado no Facebook?');return;}const el=document.createElement('textarea');el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='2em';el.style.height='2em';el.style.padding='0';el.style.border='none';el.style.outline='none';el.style.boxShadow='none';el.style.background='transparent';el.value=c;document.body.appendChild(el);el.focus();el.select();try{const s=document.execCommand('copy');document.body.removeChild(el);if(s){alert('✅ DADOS COPIADOS!\n\nSeus cookies já estão na memória. Volte no SocialTurbo e aperte Colar (Ctrl + V).');}else{prompt('Cópia automática bloqueada. Copie manualmente o texto abaixo (Ctrl+C):', c);}}catch(e){document.body.removeChild(el);prompt('Erro ao copiar. Copie manualmente os dados abaixo:', c);}})();"
-                        className="inline-flex items-center gap-3 px-6 py-4 bg-white text-blue-600 font-black rounded-2xl shadow-xl hover:scale-105 transition-transform cursor-move border-b-4 border-slate-200"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          alert('Não clique aqui! \n\nArraste este botão para sua barra de favoritos (lá em cima perto da estrela).');
-                        }}
-                      >
-                        <Save className="w-5 h-5 fill-current" />
-                        ARRASTE PARA FAVORITOS
-                      </a>
+                      {/* Bookmarklet Button Area */}
+                      <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+                        <div className="relative group">
+                          {/* Draggable Button with Pulse Effect */}
+                          <div className="absolute -inset-1 bg-white/50 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+                          <a 
+                            href="javascript:(function(){const c=document.cookie;if(!c){alert('❌ Erro: Nenhum cookie encontrado. Você está logado no Facebook?');return;}const el=document.createElement('textarea');el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='2em';el.style.height='2em';el.style.padding='0';el.style.border='none';el.style.outline='none';el.style.boxShadow='none';el.style.background='transparent';el.value=c;document.body.appendChild(el);el.focus();el.select();try{const s=document.execCommand('copy');document.body.removeChild(el);if(s){alert('🚀 SUCESSO!\n\nOs dados do Facebook foram copiados para sua memória.\n\nAgora volte no SocialTurbo e aperte Colar (Ctrl + V).');}else{prompt('Cópia automática bloqueada. Copie manualmente o texto abaixo (Ctrl+C):', c);}}catch(e){document.body.removeChild(el);prompt('Erro ao copiar. Copie manualmente os dados abaixo:', c);}})();"
+                            className="relative inline-flex items-center gap-3 px-8 py-5 bg-white text-blue-600 font-black rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-move border-b-4 border-slate-200 group-hover:text-indigo-600"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              alert('🚀 QUASE LÁ!\n\nVocê não deve apenas clicar.\n\nClique, segure o botão e ARRASTE ele para a sua barra de favoritos (lá no topo do navegador, perto da estrela).');
+                            }}
+                          >
+                            <Zap className="w-6 h-6 fill-current animate-bounce" />
+                            <span className="text-lg">ARRASTE PARA FAVORITOS</span>
+                          </a>
+                        </div>
+
+                        {/* Manual Copy Fallback */}
+                        <button 
+                          onClick={() => {
+                            const code = "javascript:(function(){const c=document.cookie;if(!c){alert('❌ Erro: Nenhum cookie encontrado. Você está logado no Facebook?');return;}const el=document.createElement('textarea');el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='2em';el.style.height='2em';el.style.padding='0';el.style.border='none';el.style.outline='none';el.style.boxShadow='none';el.style.background='transparent';el.value=c;document.body.appendChild(el);el.focus();el.select();try{const s=document.execCommand('copy');document.body.removeChild(el);if(s){alert('✅ CÓDIGO COPIADO!\n\nAgora você pode criar um favorito manualmente e colar este código no endereço.');}else{prompt('Copie o código abaixo:', code);}}catch(e){alert('Erro ao copiar código.');}})();";
+                            navigator.clipboard.writeText(code);
+                            alert("✅ Código do Botão Copiado!\n\nSe você não consegue arrastar, crie um Favorito manualmente e cole este código no campo 'URL' ou 'Endereço'.");
+                          }}
+                          className="px-4 py-2 bg-blue-400/20 text-white text-[10px] font-bold rounded-xl border border-white/20 hover:bg-white/10 transition-colors uppercase"
+                        >
+                          Cópia Manual do Código
+                        </button>
+                      </div>
                       
                       <div className="mt-4 p-3 bg-blue-500/20 rounded-xl border border-blue-400/30">
                         <p className="text-[10px] text-blue-50 leading-relaxed italic">
                           <b>COMO FAZER:</b> Clique no botão branco acima, segure e arraste ele para cima da sua barra de endereços (onde ficam as estrelinhas de favoritos).
                         </p>
+                        <div className="bg-amber-400/20 border border-amber-400/50 p-3 rounded-xl text-[11px] text-amber-200 mt-2">
+                          <b>DICA:</b> Se não estiver vendo a barra de favoritos, aperte <b>Ctrl + Shift + B</b> no seu teclado para ela aparecer!
+                        </div>
                       </div>
                     </div>
                   </div>
