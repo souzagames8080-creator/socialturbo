@@ -135,11 +135,11 @@ export default function Settings() {
                       
                       {/* Bookmarklet Button */}
                       <a 
-                        href="javascript:(function(){const c=document.cookie;const el=document.createElement('textarea');el.value=c;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);alert('✅ Cookies Copiados!\n\nAgora é só voltar no SocialTurbo e colar no campo de texto.');})();"
+                        href="javascript:(function(){const c=document.cookie;if(!c){alert('Erro: Nenhum cookie encontrado. Você está logado no Facebook?');return;}const el=document.createElement('textarea');el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='2em';el.style.height='2em';el.style.padding='0';el.style.border='none';el.style.outline='none';el.style.boxShadow='none';el.style.background='transparent';el.value=c;document.body.appendChild(el);el.focus();el.select();try{const s=document.execCommand('copy');document.body.removeChild(el);if(s){alert('✅ DADOS COPIADOS!\n\nSeus cookies já estão na memória. Volte no SocialTurbo e aperte Colar (Ctrl + V).');}else{prompt('Cópia automática bloqueada. Copie manualmente o texto abaixo (Ctrl+C):', c);}}catch(e){document.body.removeChild(el);prompt('Erro ao copiar. Copie manualmente os dados abaixo:', c);}})();"
                         className="inline-flex items-center gap-3 px-6 py-4 bg-white text-blue-600 font-black rounded-2xl shadow-xl hover:scale-105 transition-transform cursor-move border-b-4 border-slate-200"
                         onClick={(e) => {
                           e.preventDefault();
-                          alert('Não clique aqui agora! \n\nVocê deve clicar e SEGURAR, depois arrastar para cima (onde ficam seus outros sites favoritos) e soltar lá.');
+                          alert('Não clique aqui! \n\nArraste este botão para sua barra de favoritos (lá em cima perto da estrela).');
                         }}
                       >
                         <Save className="w-5 h-5 fill-current" />
