@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import AutoPost from './pages/AutoPost';
+import WhatsappTurbo from './pages/WhatsappTurbo';
 import InstaPost from './pages/InstaPost';
 import GroupManager from './pages/GroupManager';
 import Settings from './pages/Settings';
@@ -99,6 +100,7 @@ export default function App() {
         <Route element={user ? <Layout profile={profile} /> : <Navigate to="/" />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/auto-post" element={<AutoPost />} />
+          <Route path="/whatsapp-turbo" element={<WhatsappTurbo />} />
           <Route path="/insta-post" element={<InstaPost />} />
           <Route path="/groups" element={<GroupManager />} />
           <Route path="/history" element={<Logs />} />

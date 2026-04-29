@@ -2,16 +2,15 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { auth, signOut } from '../lib/firebase';
 import { 
   LayoutDashboard, 
-  Send, 
-  Instagram,
   Users, 
   History, 
   Settings, 
   LogOut, 
   Menu, 
   X,
-  Facebook,
-  Shield
+  Smartphone,
+  Shield,
+  MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -30,11 +29,9 @@ export default function Layout({ profile }: LayoutProps) {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Início' },
-    { path: '/auto-post', icon: Facebook, label: 'Facebook Turbo' },
-    { path: '/insta-post', icon: Instagram, label: 'Insta Turbo' },
-    { path: '/groups', icon: Users, label: 'Gerenciar Grupos' },
+    { path: '/whatsapp-turbo', icon: Smartphone, label: 'WhatsApp Turbo' },
     { path: '/history', icon: History, label: 'Relatórios' },
-    { path: '/settings', icon: Settings, label: 'Conectar Contas' },
+    { path: '/settings', icon: Settings, label: 'Configurações' },
   ];
 
   if (profile?.role === 'admin') {
@@ -46,10 +43,10 @@ export default function Layout({ profile }: LayoutProps) {
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 fixed h-full z-40">
         <div className="p-8 flex items-center gap-3 shrink-0">
-          <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-100">
-            <Facebook className="text-white w-6 h-6" />
+          <div className="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-100">
+            <Smartphone className="text-white w-6 h-6" />
           </div>
-          <span className="font-black text-slate-800 text-xl italic tracking-tighter uppercase">Social<span className="text-blue-600">Turbo</span></span>
+          <span className="font-black text-slate-800 text-xl italic tracking-tighter uppercase">Turbo<span className="text-emerald-500">Zap</span></span>
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
@@ -95,8 +92,8 @@ export default function Layout({ profile }: LayoutProps) {
         {/* Mobile Header */}
         <header className="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-30">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
-              <Facebook className="text-white w-5 h-5" />
+             <div className="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center">
+              <Smartphone className="text-white w-5 h-5" />
             </div>
             <span className="font-black text-slate-800 uppercase italic tracking-tighter">SocialTurbo</span>
           </div>
@@ -142,8 +139,8 @@ export default function Layout({ profile }: LayoutProps) {
               {/* Mobile Sidebar Content */}
               <div className="p-6 flex items-center justify-between border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <Facebook className="text-blue-600 w-6 h-6" />
-                  <span className="font-black text-slate-800 text-lg uppercase tracking-tight italic tracking-tighter underline decoration-blue-600 decoration-4">SocialTurbo</span>
+                  <Smartphone className="text-emerald-500 w-6 h-6" />
+                  <span className="font-black text-slate-800 text-lg uppercase tracking-tight italic tracking-tighter underline decoration-emerald-500 decoration-4">TurboZap</span>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)}>
                   <X className="w-6 h-6 text-slate-400" />

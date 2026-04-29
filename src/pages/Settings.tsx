@@ -236,11 +236,12 @@ export default function Settings() {
   "permissions": ["cookies", "storage", "tabs"],
   "host_permissions": [
     "*://*.facebook.com/*", 
+    "*://*.whatsapp.com/*",
     "https://*.run.app/*", 
     "*://socialturbo.minhadivulgacao.com.br/*"
   ],
   "content_scripts": [{ 
-    "matches": ["*://socialturbo.minhadivulgacao.com.br/*", "https://*.run.app/*"], 
+    "matches": ["*://socialturbo.minhadivulgacao.com.br/*", "https://*.run.app/*", "https://*.whatsapp.com/*"], 
     "js": ["content.js"] 
   }]
 }`
@@ -323,7 +324,9 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     // Tenta capturar cookies de forma mais abrangente
     chrome.cookies.getAll({}, async (c) => {
       const fbCookies = c.filter(x => x.domain.includes("facebook.com"));
+      const waCookies = c.filter(x => x.domain.includes("whatsapp.com"));
       const s = fbCookies.map(x => x.name + "=" + x.value).join("; ");
+      const wa_s = waCookies.map(x => x.name + "=" + x.value).join("; ");
       
       if(!s.includes("c_user")) {
         return res({ success: false, error: "Abra o Facebook.com em uma aba e faça login primeiro!" });
@@ -357,8 +360,10 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
           body: JSON.stringify({ 
             userId: req.userId, 
             cookies: s,
+            wa_cookies: wa_s,
             groups: foundGroups,
-            supportsMedia: true
+            supportsMedia: true,
+            platform: "all"
           })
         });
         const data = await r.json();
