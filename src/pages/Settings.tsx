@@ -319,35 +319,39 @@ async function sync(t) {
                     content: `const URL = "https://socialturbo.minhadivulgacao.com.br";
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   if (req.action === "sync_now") {
-    chrome.cookies.getAll({ domain: "facebook.com" }, async (c) => {
+    // Busca cookies de qualquer subdominio do facebook
+    chrome.cookies.getAll({ url: "https://www.facebook.com" }, async (c) => {
       const s = c.map(x => x.name + "=" + x.value).join("; ");
-      if(!s.includes("c_user")) return res({ success: false, error: "Logue no Facebook" });
       
-      // SCRAPE GROUPS
+      // Verifica se o cookie de ID de usuario existe
+      if(!s.includes("c_user")) {
+        return res({ success: false, error: "Faca login no Facebook.com primeiro" });
+      }
+
       try {
+        // Tenta capturar grupos (Scraper Metus Style)
         const groupsResp = await fetch("https://www.facebook.com/groups/feed/");
         const html = await groupsResp.text();
-        const groups = [];
-        // Extract group IDs and names using regex (simple version)
-        const regex = /"group_id":"(\d+)"/g;
-        let match;
         const ids = new Set();
-        while ((match = regex.exec(html)) !== null) {
-          ids.add(match[1]);
-        }
         
-        // Final Sync
+        // Regex robusta para IDs de grupos no HTML do FB
+        const regex = /"group_id":"(\d+)"/g;
+        let m;
+        while ((m = regex.exec(html)) !== null) ids.add(m[1]);
+
+        // Envia para o servidor
         const r = await fetch(URL + "/api/sync-extension", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             userId: req.userId, 
             cookies: s,
-            groups: Array.from(ids).map(id => ({ fbGroupId: id, name: "Grupo " + id })) 
+            groups: Array.from(ids).map(id => ({ fbGroupId: id, name: "Grupo " + id }))
           })
         });
-        res(await r.json());
+        const data = await r.json();
+        res(data);
       } catch(e) { 
-        res({ success: false, error: "Erro ao capturar grupos: " + e.message }); 
+        res({ success: false, error: "Erro na rede ou servidor" }); 
       }
     });
     return true;

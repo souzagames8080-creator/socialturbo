@@ -241,8 +241,12 @@ export default function AutoPost() {
 
         {/* Execution Preview Panel (Metus Style) */}
         {(postingStatus !== 'idle' || executionLogs.length > 0) && (
-          <div className="bg-[#fff9e6] border-2 border-[#fff0c2] rounded-[1.5rem] p-4 space-y-3 animate-in slide-in-from-bottom-4 duration-500 shadow-sm">
-            <div className="flex justify-end p-1">
+          <div className="bg-[#fff9e6] border-2 border-[#fff0c2] rounded-[1.5rem] p-4 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-sm relative overflow-hidden">
+            <div className="flex justify-between items-center px-1">
+               <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase text-slate-500 italic tracking-tight">Atividade em Tempo Real</span>
+               </div>
               <button 
                  className="text-[10px] font-black bg-[#4f46e5] text-white px-5 py-2 rounded-md active:scale-95 transition-all shadow-md uppercase tracking-tighter"
                  onClick={() => {
@@ -257,42 +261,40 @@ export default function AutoPost() {
               </button>
             </div>
             
-            <div className="space-y-1 bg-white/50 rounded-xl overflow-hidden">
+            <div className="space-y-1 bg-white/50 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar">
               {executionLogs.map((log, i) => (
-                <div key={i} className="flex items-center justify-between p-2.5 bg-white border border-slate-100 first:rounded-t-xl last:rounded-b-xl hover:bg-slate-50 transition-colors">
+                <div key={i} className="flex items-center justify-between p-2.5 bg-white border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center p-1 overflow-hidden border-2 border-slate-50 shadow-sm">
-                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-black text-slate-300 text-sm overflow-hidden">
-                        <img 
-                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(log.groupName)}&background=f1f5f9&color=94a3b8&font-size=0.33`} 
-                          alt="G" 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center p-1 overflow-hidden border-2 border-slate-50">
+                      <img 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(log.groupName)}&background=f1f5f9&color=94a3b8&font-size=0.33`} 
+                        alt="G" 
+                        className="w-full h-full object-cover rounded-full"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[12px] font-black text-slate-600 uppercase italic truncate leading-none mb-1">{log.groupName}</p>
-                      <p className="text-[10px] text-slate-400 font-medium tracking-tight truncate opacity-70 italic">{log.groupId}</p>
+                      <p className="text-[11px] font-black text-slate-600 uppercase italic truncate leading-none mb-1">{log.groupName}</p>
+                      <p className="text-[9px] text-slate-400 font-medium tracking-tight truncate opacity-70 italic">{log.groupId}</p>
                     </div>
                   </div>
                   
                   <div className="flex-shrink-0 ml-4">
                     {log.status === 'loading' && (
-                       <div className="w-7 h-7 border-4 border-slate-100 border-t-slate-300 rounded-full animate-spin" />
+                       <div className="w-6 h-6 border-3 border-slate-100 border-t-indigo-500 rounded-full animate-spin" />
                     )}
-                    {log.status === 'pending' && <div className="w-7 h-7 bg-slate-100 flex items-center justify-center rounded-full opacity-30"><Loader2 className="w-4 h-4 text-slate-400" /></div>}
+                    {log.status === 'pending' && <div className="w-6 h-6 bg-slate-100 flex items-center justify-center rounded-full opacity-30"><Loader2 className="w-3 h-3 text-slate-400" /></div>}
                     {log.status === 'success' && (
                       <a 
                         href={log.postUrl} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="block px-6 py-2 bg-[#53d08f] hover:bg-[#46b37a] text-white text-[11px] font-black rounded uppercase tracking-tighter transition-colors text-center no-underline min-w-[80px]"
+                        className="block px-5 py-1.5 bg-[#53d08f] hover:bg-[#46b37a] text-white text-[10px] font-black rounded uppercase tracking-tighter transition-colors text-center no-underline min-w-[70px]"
                       >
                         VIEW
                       </a>
                     )}
                     {log.status === 'failed' && (
-                      <span className="block px-6 py-2 bg-[#ff5a5f] text-white text-[11px] font-black rounded uppercase tracking-tighter text-center min-w-[80px]">
+                      <span className="block px-5 py-1.5 bg-[#ff5a5f] text-white text-[10px] font-black rounded uppercase tracking-tighter text-center min-w-[70px]">
                         FAILED
                       </span>
                     )}
@@ -300,6 +302,42 @@ export default function AutoPost() {
                 </div>
               ))}
             </div>
+
+            {/* Final Preview (Metus Style) */}
+            {postingStatus === 'done' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white border-2 border-emerald-100 rounded-2xl p-6 shadow-xl shadow-emerald-500/5 mt-4"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-slate-800 uppercase italic leading-tight">Campanha Concluída!</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sucesso na divulgação automática</p>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 relative">
+                  <div className="absolute top-2 right-2 text-[8px] font-black text-slate-300 uppercase tracking-widest">PRÉVIA DO POST</div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-slate-200" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-32 bg-slate-200 rounded" />
+                      <div className="h-2 w-24 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-[11px] text-slate-600 line-clamp-3 leading-relaxed font-medium italic">
+                    {postText}
+                  </div>
+                  <div className="mt-4 aspect-video bg-slate-200 rounded-lg flex items-center justify-center text-slate-400">
+                    <ImageIcon className="w-8 h-8 opacity-20" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         )}
       </div>
