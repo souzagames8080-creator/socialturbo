@@ -12,6 +12,7 @@ import Layout from './components/Layout';
 import WhatsappTurbo from './pages/WhatsappTurbo';
 import FacebookGroups from './pages/FacebookGroups';
 import FacebookJoin from './pages/FacebookJoin';
+import ExtensionInfo from './pages/ExtensionInfo';
 import ProPlan from './pages/ProPlan';
 import Logs from './pages/Logs';
 import Settings from './pages/Settings';
@@ -102,6 +103,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/facebook-groups" element={<FacebookGroups />} />
           <Route path="/facebook-join" element={<FacebookJoin />} />
+          <Route path="/extension" element={<ExtensionInfo />} />
           <Route path="/pro" element={<ProPlan />} />
           <Route path="/history" element={<Logs />} />
           <Route path="/settings" element={<Settings />} />

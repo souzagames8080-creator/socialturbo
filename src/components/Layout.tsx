@@ -12,7 +12,8 @@ import {
   Shield,
   MessageSquare,
   Plus,
-  Zap
+  Zap,
+  Download
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -33,6 +34,7 @@ export default function Layout({ profile }: LayoutProps) {
     { path: '/dashboard', icon: LayoutDashboard, label: 'Início' },
     { path: '/facebook-groups', icon: Users, label: 'Postar nos Grupos' },
     { path: '/facebook-join', icon: Plus, label: 'Entrar nos Grupos' },
+    { path: '/extension', icon: Download, label: 'Instalar Extensão' },
     { path: '/pro', icon: Zap, label: 'Plano Pro' },
     { path: '/history', icon: History, label: 'Relatórios' },
     { path: '/settings', icon: Settings, label: 'Configurações' },
