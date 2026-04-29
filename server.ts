@@ -65,14 +65,32 @@ async function startServer() {
       }
 
       // Salva os cookies no banco de dados do usuário
-      await dbAdmin.collection("users").doc(userId).update({
+      const userRef = dbAdmin.collection("users").doc(userId);
+      await userRef.update({
         fbSession: cookies,
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
+      // Se houver grupos, salvar na subcoleção
+      if (req.body.groups && Array.from(req.body.groups).length > 0) {
+        const groupsBatch = dbAdmin.batch();
+        const groupsCollection = userRef.collection("groups");
+
+        for (const group of req.body.groups) {
+          const groupRef = groupsCollection.doc(group.fbGroupId);
+          groupsBatch.set(groupRef, {
+            fbGroupId: group.fbGroupId,
+            name: group.name,
+            userId: userId,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        }
+        await groupsBatch.commit();
+      }
+
       res.json({ 
         success: true, 
-        message: "Conectado com sucesso ao SocialTurbo Pro!" 
+        message: "Conectado com sucesso e " + (req.body.groups?.length || 0) + " grupos sincronizados!" 
       });
     } catch (error) {
       console.error("Erro na sincronização:", error);
