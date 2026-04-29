@@ -9,10 +9,7 @@ import { auth, onAuthStateChanged, db, doc, onSnapshot, updateDoc } from './lib/
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
-import AutoPost from './pages/AutoPost';
 import WhatsappTurbo from './pages/WhatsappTurbo';
-import InstaPost from './pages/InstaPost';
-import GroupManager from './pages/GroupManager';
 import Settings from './pages/Settings';
 import Logs from './pages/Logs';
 import AdminPanel from './pages/AdminPanel';
@@ -65,8 +62,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white font-black italic text-3xl animate-pulse">
-        SOCIALTURBO...
+      <div className="flex items-center justify-center min-h-screen bg-[#064e3b] text-white font-black italic text-3xl animate-pulse">
+        TURBOZAP...
       </div>
     );
   }
@@ -74,7 +71,7 @@ export default function App() {
   // Se estiver logado mas bloqueado
   if (user && profile?.status === 'blocked') {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#064e3b] flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 text-center shadow-2xl">
           <div className="w-20 h-20 bg-red-100 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <AlertOctagon className="w-12 h-12" />
@@ -99,10 +96,7 @@ export default function App() {
         
         <Route element={user ? <Layout profile={profile} /> : <Navigate to="/" />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/auto-post" element={<AutoPost />} />
           <Route path="/whatsapp-turbo" element={<WhatsappTurbo />} />
-          <Route path="/insta-post" element={<InstaPost />} />
-          <Route path="/groups" element={<GroupManager />} />
           <Route path="/history" element={<Logs />} />
           <Route path="/settings" element={<Settings />} />
           

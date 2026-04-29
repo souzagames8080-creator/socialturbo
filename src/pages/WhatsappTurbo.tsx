@@ -20,12 +20,13 @@ import {
   Info
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { io, Socket } from 'socket.io-client';
 import { cn } from '../lib/utils';
 
 export default function WhatsappTurbo() {
   const [isConnected, setIsConnected] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const [qrValue, setQrValue] = useState('https://socialturbo.app/connect/' + Math.random().toString(36).substring(7));
+  const [qrValue, setQrValue] = useState('');
   const [numbersText, setNumbersText] = useState('');
   const [postText, setPostText] = useState('');
   const [mediaFiles, setMediaFiles] = useState<{ url: string; type: 'image' | 'video' }[]>([]);
@@ -35,26 +36,36 @@ export default function WhatsappTurbo() {
   const [postingStatus, setPostingStatus] = useState<'idle' | 'running' | 'done'>('idle');
   const [executionLogs, setExecutionLogs] = useState<{ number: string; name: string; status: 'pending' | 'loading' | 'success' | 'failed'; time?: string }[]>([]);
 
+  const socketRef = useRef<Socket | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileTypeToUpload, setFileTypeToUpload] = useState<'image' | 'video' | null>(null);
 
-  // Simula atualização do QR Code
   useEffect(() => {
-    if (showQR && !isConnected) {
-      const interval = setInterval(() => {
-        setQrValue('https://socialturbo.app/connect/' + Math.random().toString(36).substring(7));
-      }, 20000);
-      return () => clearInterval(interval);
-    }
-  }, [showQR, isConnected]);
+    // Conectar ao backend do painel
+    const socket = io();
+    socketRef.current = socket;
 
-  const handleConnect = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setIsConnected(true);
-      setShowQR(false);
+    socket.on('whatsapp_qr', (qr: string) => {
+      setQrValue(qr);
       setLoading(false);
-    }, 3000);
+    });
+
+    socket.on('whatsapp_status', (status: string) => {
+      if (status === 'connected') {
+        setIsConnected(true);
+        setShowQR(false);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleRequestQR = () => {
+    setLoading(true);
+    setShowQR(true);
+    socketRef.current?.emit('request_qr');
   };
 
   const handleFileSelect = (e: any) => {
@@ -159,7 +170,7 @@ export default function WhatsappTurbo() {
             <div className="p-12 flex flex-col items-center justify-center bg-white">
               {!showQR ? (
                 <button 
-                  onClick={() => setShowQR(true)}
+                  onClick={handleRequestQR}
                   className="w-full py-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black italic uppercase tracking-tighter text-xl shadow-xl shadow-emerald-200 transition-all active:scale-95 flex flex-col items-center gap-4"
                 >
                   <QrCode className="w-16 h-16" />
@@ -168,8 +179,8 @@ export default function WhatsappTurbo() {
               ) : (
                 <div className="space-y-8 text-center w-full">
                   <div className="relative inline-block p-6 bg-white border-4 border-slate-100 rounded-[2.5rem] shadow-2xl">
-                    <QRCodeSVG value={qrValue} size={220} level="H" />
-                    {loading && (
+                    {qrValue ? <QRCodeSVG value={qrValue} size={220} level="H" /> : <Loader2 className="w-16 h-16 animate-spin text-slate-200" />}
+                    {loading && !qrValue && (
                       <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center rounded-[2.5rem]">
                         <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
                       </div>
@@ -178,20 +189,12 @@ export default function WhatsappTurbo() {
                   
                   <div className="space-y-4">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Aguardando leitura do código...</p>
-                    <div className="flex gap-2">
-                       <button 
-                        onClick={() => setQrValue('https://socialturbo.app/connect/' + Math.random().toString(36).substring(7))}
-                        className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-xs uppercase italic hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
-                      >
-                        <RefreshCw className="w-4 h-4" /> Atualizar
-                      </button>
-                      <button 
-                        onClick={handleConnect}
-                        className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase italic hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
-                      >
-                        Simular Scan
-                      </button>
-                    </div>
+                    <button 
+                      onClick={handleRequestQR}
+                      className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-xs uppercase italic hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                    >
+                      <RefreshCw className="w-4 h-4" /> Atualizar QR Code
+                    </button>
                   </div>
                 </div>
               )}
