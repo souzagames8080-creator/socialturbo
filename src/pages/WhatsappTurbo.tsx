@@ -57,12 +57,14 @@ export default function WhatsappTurbo() {
         setIsConnected(true);
         setConnectedUser(data.user || null);
         setShowQR(false);
-      } else if (status === 'starting') {
+        setLoading(false);
+      } else if (status === 'connecting') {
         setLoading(true);
         setIsConnected(false);
       } else {
         setIsConnected(false);
         setConnectedUser(null);
+        setLoading(false);
       }
     });
 
@@ -149,6 +151,12 @@ export default function WhatsappTurbo() {
     });
   };
 
+  const handleLogout = () => {
+    if (window.confirm('Tem certeza que deseja desconectar o WhatsApp? Isso apagará a sessão atual.')) {
+      socketRef.current?.emit('logout');
+    }
+  };
+
   if (!isConnected) {
     return (
       <div className="max-w-4xl mx-auto py-10">
@@ -207,7 +215,7 @@ export default function WhatsappTurbo() {
                   
                   <div className="space-y-4">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
-                      {qrValue ? 'Capture o código original acima' : 'Iniciando navegador no servidor...'}
+                      {qrValue ? 'Capture o código original acima' : 'Gerando conexão segura...'}
                     </p>
                     <button 
                       onClick={handleRequestQR}
@@ -247,7 +255,7 @@ export default function WhatsappTurbo() {
             </div>
             
             <button 
-              onClick={() => setIsConnected(false)}
+              onClick={handleLogout}
               className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all group"
               title="Desconectar"
             >
