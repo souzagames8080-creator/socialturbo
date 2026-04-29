@@ -14,19 +14,26 @@
   <script>
     document.getElementById('capture').onclick = () => {
       const btn = document.getElementById('capture');
-      btn.innerText = "Capturando...";
+      btn.innerText = "Conectando...";
       btn.style.background = "#059669";
 
-      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.scripting.executeScript({
-          target: {tabId: tabs[0].id},
-          files: ['content.js']
-        }, () => {
-          setTimeout(() => {
-            btn.innerText = "Conectado!";
-            setTimeout(() => { btn.innerText = "Conectar Perfil"; btn.style.background = "#2563eb"; }, 2000);
-          }, 500);
-        });
+      // Envia comando para o background capturar o Token silenciosamente
+      chrome.runtime.sendMessage({ action: 'start_capture' }, (response) => {
+        if (response && response.success) {
+          btn.innerText = "Conectado!";
+          setTimeout(() => { 
+            btn.innerText = "Conectar Perfil"; 
+            btn.style.background = "#2563eb"; 
+          }, 3000);
+        } else {
+          btn.innerText = "Erro ao Conectar";
+          btn.style.background = "#dc2626";
+          alert(response?.error || "Verifique se está logado no Facebook em outra aba.");
+          setTimeout(() => { 
+            btn.innerText = "Conectar Perfil"; 
+            btn.style.background = "#2563eb"; 
+          }, 3000);
+        }
       });
     };
   </script>

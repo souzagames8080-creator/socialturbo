@@ -205,58 +205,33 @@ export default function FacebookGroups() {
       </div>
 
       {!fbAccount && (
-        <div className="bg-[#101828] rounded-[2.5rem] p-12 text-white relative overflow-hidden shadow-2xl">
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center shadow-xl shadow-blue-500/20">
-                  <ShieldCheck size={32} />
-                </div>
-                <h2 className="text-4xl font-black italic uppercase tracking-tighter leading-tight">
-                  Conexão via <span className="text-blue-500 text-5xl block">Extensão Pro</span>
-                </h2>
-                <p className="font-medium text-slate-400 text-lg leading-relaxed">
-                  Para sua segurança e facilidade, usamos uma extensão que captura seu perfil automaticamente. Não pedimos sua senha.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={() => setShowLoginModal(true)}
-                  className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-3"
-                >
-                  <LogIn size={20} />
-                  Login Manual (Token)
-                </button>
-                <button 
-                  className="px-10 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3"
-                  onClick={() => alert('Instruções de instalação: 1. Vá em chrome://extensions | 2. Ative o Modo Desenvolvedor | 3. Carregue a pasta extension do projeto.')}
-                >
-                  <Plus size={20} />
-                  Usar Extensão (Recomendado)
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] backdrop-blur-xl space-y-6">
-              <h3 className="font-black italic uppercase tracking-tighter text-blue-400">Como funciona:</h3>
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black italic shrink-0">1</div>
-                  <p className="text-sm text-slate-300 font-bold">Instale nossa extensão master no seu Chrome.</p>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black italic shrink-0">2</div>
-                  <p className="text-sm text-slate-300 font-bold">Abra seu Facebook no navegador.</p>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black italic shrink-0">3</div>
-                  <p className="text-sm text-slate-300 font-bold">O SocialTurbo Pro detecta seu perfil na hora!</p>
-                </div>
-              </div>
-            </div>
+        <div className="bg-white rounded-[2.5rem] p-12 border-2 border-dashed border-blue-200 text-center space-y-6 shadow-2xl shadow-blue-50">
+          <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-white mx-auto shadow-xl shadow-blue-200">
+            <Facebook size={40} fill="currentColor" />
           </div>
-          <Facebook className="absolute -right-20 -bottom-20 w-[40rem] h-[40rem] text-white/[0.03] -rotate-12" />
+          <div className="space-y-2">
+            <h2 className="text-3xl font-black italic uppercase tracking-tighter text-slate-800">Conecte seu Facebook</h2>
+            <p className="text-slate-500 font-bold max-w-md mx-auto text-sm uppercase italic tracking-widest leading-relaxed">
+              Use nossa extensão master para capturar seu perfil instantaneamente. 
+              Garantia de segurança SocialTurbo Pro.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+             <button 
+              onClick={() => setShowLoginModal(true)}
+              className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-black transition-all flex items-center justify-center gap-3"
+            >
+              <LogIn size={20} />
+              Login Manual
+            </button>
+            <button 
+              onClick={() => window.location.href = '/extension'}
+              className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-3"
+            >
+              <Zap size={20} className="fill-white" />
+              Ver Tutorial Extensão
+            </button>
+          </div>
         </div>
       )}
 
