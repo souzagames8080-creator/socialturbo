@@ -1,6 +1,6 @@
 {
-  "name": "SocialTurbo WhatsApp",
-  "description": "Automação profissional exclusiva para WhatsApp. Envio de mensagens em massa, gestão de contatos e conexão via QR Code.",
+  "name": "SocialTurbo Pro",
+  "description": "Sistema avançado de automação para Facebook e WhatsApp. Gestão de grupos, adesão em massa e disparos automatizados.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

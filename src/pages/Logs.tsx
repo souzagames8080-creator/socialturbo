@@ -51,51 +51,51 @@ export default function Logs() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Relatórios de Atividade</h2>
-          <p className="text-slate-500">Acompanhe o status de todas as suas postagens automáticas</p>
+          <h2 className="text-3xl font-black text-slate-800 italic uppercase tracking-tighter decoration-blue-500 decoration-8 underline-offset-8 underline">Relatórios de <span className="text-blue-600">Atividade</span></h2>
+          <p className="text-slate-500 font-bold mt-2 uppercase text-xs tracking-widest italic font-black">Acompanhe suas automações em tempo real</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-600 font-medium hover:bg-slate-50">
+          <button className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 rounded-2xl text-slate-500 font-black text-[10px] uppercase tracking-widest italic hover:border-blue-200 hover:text-blue-600 transition-all">
             <Filter className="w-4 h-4" /> Filtrar
           </button>
-          <button onClick={fetchLogs} className="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
-            <RefreshCw className={cn("w-5 h-5 text-slate-600", loading && "animate-spin")} />
+          <button onClick={fetchLogs} className="p-3 bg-white border-2 border-slate-100 rounded-2xl hover:border-blue-200 transition-all group">
+            <RefreshCw className={cn("w-5 h-5 text-slate-400 group-hover:text-blue-600", loading && "animate-spin")} />
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="space-y-px">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-100 overflow-hidden">
+        <div className="divide-y divide-slate-50">
           {logs.map((log) => (
-            <div key={log.id} className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-all border-b border-slate-50 last:border-0">
+            <div key={log.id} className="flex items-center gap-6 p-6 hover:bg-slate-50 transition-all group">
               <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                log.status === 'success' ? "bg-emerald-100" : "bg-red-100"
+                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110",
+                log.status === 'success' ? "bg-emerald-50 text-emerald-500" : "bg-red-50 text-red-500"
               )}>
                 {log.status === 'success' ? (
-                  <CheckCircle className="w-6 h-6 text-emerald-500" />
+                  <CheckCircle className="w-7 h-7" />
                 ) : (
-                  <XCircle className="w-6 h-6 text-red-500" />
+                  <XCircle className="w-7 h-7" />
                 )}
               </div>
               
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                   <h4 className="font-semibold text-slate-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">{log.groupName || 'Grupo Desconhecido'}</h4>
+                <div className="flex items-center gap-3 mb-1">
+                   <h4 className="font-black text-slate-800 text-sm uppercase tracking-tighter">{log.groupName || 'Sistema'}</h4>
                    <span className={cn(
-                     "text-[10px] font-bold px-1.5 rounded uppercase border",
-                     log.status === 'success' ? "text-emerald-500 border-emerald-200" : "text-red-500 border-red-200"
+                     "text-[9px] font-black px-2 py-0.5 rounded-lg uppercase italic tracking-widest",
+                     log.status === 'success' ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"
                    )}>
                      {log.status === 'success' ? 'Sucesso' : 'Erro'}
                    </span>
                 </div>
-                <p className="text-xs text-slate-500 truncate">{log.message}</p>
+                <p className="text-xs text-slate-500 font-bold italic uppercase tracking-tight truncate">{log.message}</p>
               </div>
 
               <div className="text-right flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1 text-slate-400">
+                <div className="flex items-center gap-2 text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                   <Clock className="w-3 h-3" />
-                  <span className="text-[10px] font-medium">{formatDate(log.timestamp)}</span>
+                  <span className="text-[10px] font-black uppercase italic tracking-tighter">{formatDate(log.timestamp)}</span>
                 </div>
               </div>
             </div>

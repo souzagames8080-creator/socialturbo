@@ -10,6 +10,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import WhatsappTurbo from './pages/WhatsappTurbo';
+import FacebookGroups from './pages/FacebookGroups';
+import FacebookJoin from './pages/FacebookJoin';
 import Settings from './pages/Settings';
 import Logs from './pages/Logs';
 import AdminPanel from './pages/AdminPanel';
@@ -97,6 +99,8 @@ export default function App() {
         
         <Route element={user ? <Layout profile={profile} /> : <Navigate to="/" />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/facebook-groups" element={<FacebookGroups />} />
+          <Route path="/facebook-join" element={<FacebookJoin />} />
           <Route path="/whatsapp-turbo" element={<WhatsappTurbo />} />
           <Route path="/history" element={<Logs />} />
           <Route path="/settings" element={<Settings />} />

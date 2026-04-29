@@ -10,7 +10,9 @@ import {
   X,
   Smartphone,
   Shield,
-  MessageSquare
+  MessageSquare,
+  Plus,
+  Zap
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -29,6 +31,8 @@ export default function Layout({ profile }: LayoutProps) {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Início' },
+    { path: '/facebook-groups', icon: Users, label: 'Facebook Grupos' },
+    { path: '/facebook-join', icon: Plus, label: 'Facebook Entrar' },
     { path: '/whatsapp-turbo', icon: Smartphone, label: 'WhatsApp Turbo' },
     { path: '/history', icon: History, label: 'Relatórios' },
     { path: '/settings', icon: Settings, label: 'Configurações' },
@@ -39,14 +43,14 @@ export default function Layout({ profile }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex font-sans">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 fixed h-full z-40">
         <div className="p-8 flex items-center gap-3 shrink-0">
-          <div className="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-100">
-            <Smartphone className="text-white w-6 h-6" />
+          <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-100">
+            <Zap className="text-white w-6 h-6 fill-white" />
           </div>
-          <span className="font-black text-slate-800 text-xl italic tracking-tighter uppercase">Turbo<span className="text-emerald-500">Zap</span></span>
+          <span className="font-black text-slate-800 text-xl italic tracking-tighter uppercase">Social<span className="text-blue-600">Turbo</span></span>
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
@@ -57,7 +61,7 @@ export default function Layout({ profile }: LayoutProps) {
               className={cn(
                 "flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm",
                 location.pathname === item.path
-                   ? "bg-emerald-50 text-emerald-600 shadow-sm border border-emerald-100" 
+                   ? "bg-blue-50 text-blue-600 shadow-sm border border-blue-100" 
                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
@@ -92,10 +96,10 @@ export default function Layout({ profile }: LayoutProps) {
         {/* Mobile Header */}
         <header className="md:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-30">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center">
-              <Smartphone className="text-white w-5 h-5" />
+             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
+              <Zap className="text-white w-5 h-5 fill-white" />
             </div>
-            <span className="font-black text-slate-800 uppercase italic tracking-tighter">TurboZap</span>
+            <span className="font-black text-slate-800 uppercase italic tracking-tighter">Social<span className="text-blue-600">Turbo</span></span>
           </div>
           <button onClick={() => setIsMobileMenuOpen(true)}>
             <Menu className="w-6 h-6 text-slate-600" />
@@ -107,9 +111,9 @@ export default function Layout({ profile }: LayoutProps) {
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.2 }}
             >
               <Outlet context={{ profile }} />
@@ -134,13 +138,15 @@ export default function Layout({ profile }: LayoutProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 bg-white z-50 md:hidden flex flex-col"
+              className="fixed inset-y-0 left-0 w-80 bg-white z-50 md:hidden flex flex-col font-sans"
             >
               {/* Mobile Sidebar Content */}
               <div className="p-6 flex items-center justify-between border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <Smartphone className="text-emerald-500 w-6 h-6" />
-                  <span className="font-black text-slate-800 text-lg uppercase tracking-tight italic tracking-tighter underline decoration-emerald-500 decoration-4">TurboZap</span>
+                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <Zap className="text-white w-6 h-6 fill-white" />
+                  </div>
+                  <span className="font-black text-slate-800 text-lg uppercase tracking-tight italic tracking-tighter">Social<span className="text-blue-600">Turbo</span></span>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)}>
                   <X className="w-6 h-6 text-slate-400" />
@@ -155,7 +161,7 @@ export default function Layout({ profile }: LayoutProps) {
                     className={cn(
                       "flex items-center gap-3 px-4 py-4 rounded-2xl transition-all font-bold",
                       location.pathname === item.path
-                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                        ? "bg-blue-50 text-blue-600 border border-blue-100" 
                         : "text-slate-500 hover:bg-slate-50"
                     )}
                   >

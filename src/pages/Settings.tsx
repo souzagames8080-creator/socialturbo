@@ -56,57 +56,57 @@ export default function Settings() {
               <h2 className="text-2xl font-black text-slate-800 italic uppercase tracking-tighter">{auth.currentUser?.displayName}</h2>
               <p className="text-slate-500 font-medium">{auth.currentUser?.email}</p>
               <div className="mt-2 flex gap-2">
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black rounded-full uppercase tracking-widest">{profile?.plan || 'PRO'} PLAN</span>
+                <span className="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest">{profile?.plan || 'PRO'} PLAN</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="p-8 space-y-10">
-          {/* WhatsApp Connection */}
+          {/* Dashboard Quick Access */}
           <section className="space-y-6">
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600">
-                    <Smartphone className="w-6 h-6" />
+                  <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
+                    <Database className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-black italic uppercase italic tracking-tighter text-slate-800">Conexão WhatsApp</h3>
+                  <h3 className="text-xl font-black italic uppercase italic tracking-tighter text-slate-800">Status do Sistema</h3>
                 </div>
-                <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-xl">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Servidor Online</span>
+                <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Servidor Online</span>
                 </div>
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-slate-50 border-2 border-slate-100 p-8 rounded-[2rem] space-y-4">
-                  <h4 className="font-black italic uppercase tracking-tighter text-slate-800">Status da Sessão</h4>
+                  <h4 className="font-black italic uppercase tracking-tighter text-slate-800">Sessão Ativa</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <span>Instância Ativa</span>
-                      <span className="text-emerald-600 italic">Sim</span>
+                      <span>Database Ping</span>
+                      <span className="text-blue-600 italic">8ms</span>
                     </div>
                     <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <span>Versão</span>
-                      <span className="text-slate-800 italic">2.4.0 (Turbo)</span>
+                      <span>Versão API</span>
+                      <span className="text-slate-800 italic">3.1.0 (PRO)</span>
                     </div>
                   </div>
                   <button 
-                    onClick={() => navigate('/whatsapp-turbo')}
-                    className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase italic tracking-tighter shadow-xl shadow-emerald-200 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
+                    onClick={() => navigate('/dashboard')}
+                    className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase italic tracking-tighter shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4" /> Configurar WhatsApp
+                    <RefreshCw className="w-4 h-4" /> Atualizar Painel
                   </button>
                 </div>
 
                 <div className="bg-slate-900 rounded-[2rem] p-8 text-white space-y-4">
-                  <h4 className="font-black italic uppercase tracking-tighter text-emerald-400">Plano Ativo</h4>
+                  <h4 className="font-black italic uppercase tracking-tighter text-blue-400">Plano Premium</h4>
                   <div className="space-y-4">
                      <p className="text-xs text-slate-400 italic font-medium leading-relaxed">
-                       Sua conta possui envios ilimitados e suporte para mídia (fotos e vídeos) via socket dedicado.
+                       Sua conta possui acesso ilimitado a todas as ferramentas de automação (FB Grupos, FB Join e WhatsApp Turbo).
                      </p>
-                     <div className="flex items-center gap-2 text-emerald-500 font-black italic text-sm">
-                       <CheckCircle2 className="w-4 h-4" /> RECURSOS LIBERADOS
+                     <div className="flex items-center gap-2 text-blue-500 font-black italic text-sm">
+                       <CheckCircle2 className="w-4 h-4" /> ACESSO TOTAL LIBERADO
                      </div>
                   </div>
                 </div>

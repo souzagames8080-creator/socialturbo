@@ -55,7 +55,7 @@ async function startServer() {
         if (qr) {
           qrCode = qr;
           io.emit("whatsapp_qr", qr);
-          console.log("✅ QR Code TurboZap gerado!");
+          console.log("✅ QR Code SocialTurbo gerado!");
         }
 
         if (connection === "close") {
@@ -171,7 +171,7 @@ async function startServer() {
   }
 
   httpServer.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 TurboZap Online na porta ${PORT}`);
+    console.log(`🚀 SocialTurbo Online na porta ${PORT}`);
   });
 }
 
