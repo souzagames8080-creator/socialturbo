@@ -275,13 +275,13 @@ export default function Settings() {
                 <Terminal className="w-6 h-6 text-indigo-600" />
                 <h4 className="text-lg font-black uppercase italic tracking-tighter">Conteúdo da Extensão (Copie estes arquivos)</h4>
               </div>
-              <p className="text-xs text-slate-500 font-medium italic">Se você não conseguir baixar a pasta, crie uma pasta no seu PC e salve esses 3 arquivos dentro dela:</p>
+              <p className="text-xs text-slate-500 font-medium italic">Se você não conseguir baixar a pasta pelo link acima, crie uma pasta no seu computador e salve estes 5 arquivos dentro dela. Depois, carregue essa pasta no Chrome em "Modo do Desenvolvedor".</p>
                 <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
                     1. manifest.json
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
-                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-200 overflow-x-auto font-mono">
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
 {`{
   "manifest_version": 3,
   "name": "SocialTurbo Pro",
@@ -306,7 +306,52 @@ export default function Settings() {
 
                 <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
-                    2. content.js
+                    2. popup.html
+                    <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
+                  </summary>
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
+{`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 300px; padding: 15px; font-family: sans-serif; background: #0f172a; color: white; }
+    .card { background: #1e293b; border-radius: 12px; padding: 15px; border: 1px solid #334155; }
+    h2 { font-size: 14px; color: #6366f1; margin: 0 0 10px 0; }
+    button { width: 100%; background: #4f46e5; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>SocialTurbo Pro</h2>
+    <input type="text" id="token" style="width:100%; margin-bottom:10px; padding:8px; border-radius:5px; border:none;" placeholder="Token...">
+    <button id="btn">CONECTAR AGORA</button>
+    <div id="status" style="margin-top:10px; font-size:11px; text-align:center;"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>`}
+                  </pre>
+                </details>
+
+                <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
+                    3. popup.js
+                    <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
+                  </summary>
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
+{`document.getElementById('btn').addEventListener('click', () => {
+  const token = document.getElementById('token').value;
+  chrome.runtime.sendMessage({ action: "sync_now", userId: token }, (res) => {
+    document.getElementById('status').innerText = res.success ? "✅ OK!" : "❌ ERRO";
+  });
+});`}
+                  </pre>
+                </details>
+
+                <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
+                    4. content.js
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
                   <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
@@ -326,7 +371,7 @@ export default function Settings() {
 
                 <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
-                    3. bg.js
+                    5. bg.js
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
                   <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
@@ -337,12 +382,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const url = (request.origin || DEFAULT_URL) + "/api/sync-extension";
     chrome.cookies.getAll({ domain: "facebook.com" }, async (cookies) => {
       const cookieStr = cookies.map(c => \`\${c.name}=\${c.value}\`).join('; ');
-      await fetch(url, {
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: request.userId, cookies: cookieStr })
       });
-      sendResponse({ success: true });
+      const data = await res.json();
+      sendResponse(data);
     });
     return true;
   }
