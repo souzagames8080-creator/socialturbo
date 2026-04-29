@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 200px; padding: 15px; font-family: sans-serif; text-align: center; }
+    button { background: #2563eb; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+    h3 { margin-bottom: 10px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h3>SocialTurbo Pro</h3>
+  <p style="font-size: 11px; color: #666;">Abra seu Facebook e clique abaixo para capturar.</p>
+  <button id="capture">Conectar Perfil</button>
+  <script>
+    document.getElementById('capture').onclick = () => {
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.scripting.executeScript({
+          target: {tabId: tabs[0].id},
+          files: ['content.js']
+        });
+      });
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "SocialTurbo Pro Extension",
+  "version": "1.0.0",
+  "description": "Captura automática de sessões para o SocialTurbo Pro",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "permissions": [
+    "cookies",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.facebook.com/*",
+    "http://localhost:3000/*",
+    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.facebook.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icon.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

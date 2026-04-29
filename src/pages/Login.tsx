@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { auth, googleProvider, signInWithPopup, db, doc, getDoc, setDoc, serverTimestamp, updateDoc } from '../lib/firebase';
 import { motion } from 'motion/react';
-import { Smartphone, LogIn, MessageSquare } from 'lucide-react';
+import { Zap, LogIn, Facebook, ShieldCheck } from 'lucide-react';
 import { UserProfile } from '../types';
 
 export default function Login() {
@@ -13,7 +13,6 @@ export default function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       
-      // Check if profile exists
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       
       if (!userDoc.exists()) {
@@ -31,7 +30,6 @@ export default function Login() {
         };
         await setDoc(doc(db, 'users', user.uid), newUser);
       } else if (user.email === 'souzagames8080@gmail.com') {
-        // Ensure the owner is always admin even if doc existed
         await updateDoc(doc(db, 'users', user.uid), {
           role: 'admin',
           plan: 'pro'
@@ -45,51 +43,59 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#064e3b] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full translate-x-1/2" />
+      <div className="absolute inset-0 bg-emerald-600/5 blur-[120px] rounded-full -translate-x-1/2" />
+      
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-200"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-[#111] rounded-[3rem] shadow-2xl p-1 pb-1 flex flex-col border border-white/5"
       >
-        <div className="p-10 text-center bg-gradient-to-b from-emerald-50 to-white">
+        <div className="bg-[#1a1a1a] p-12 rounded-[2.8rem] text-center space-y-8">
           <motion.div 
-            initial={{ y: -20 }}
-            animate={{ y: 0 }}
-            className="flex justify-center mb-8"
+            initial={{ scale: 0.5 }}
+            animate={{ scale: 1 }}
+            className="flex justify-center"
           >
-            <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-emerald-200">
-              <Smartphone className="text-white w-10 h-10" />
+            <div className="w-24 h-24 bg-blue-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-blue-500/20 group relative overflow-hidden">
+               <Zap className="text-white w-12 h-12 fill-white relative z-10" />
+               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform" />
             </div>
           </motion.div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight italic uppercase">Turbo<span className="text-emerald-500">Zap</span></h1>
-          <p className="text-slate-500 mt-3 font-medium uppercase text-[10px] tracking-widest font-black">Disparos em Massa Profissionais</p>
-        </div>
 
-        <div className="p-10 space-y-6">
-          <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 text-center mb-4">
-            <p className="text-emerald-800 text-sm font-bold">ACESSO EXCLUSIVO WHATSAPP</p>
-            <p className="text-emerald-600 text-xs">Conecte via QR Code e comece a vender.</p>
+          <div className="space-y-4">
+            <h1 className="text-4xl font-black text-white tracking-tighter italic uppercase leading-none">Social<br/><span className="text-blue-500">Turbo Pro</span></h1>
+            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.4em] italic leading-tight">Painel de Automação Facebook</p>
           </div>
 
-          <button 
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full py-5 bg-white border-2 border-slate-200 hover:border-emerald-600 hover:bg-emerald-50 text-slate-800 font-bold rounded-2xl transition-all flex items-center justify-center gap-4 shadow-sm hover:shadow-xl group"
-          >
-            {loading ? (
-              <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <>
-                <img src="https://www.google.com/favicon.ico" className="w-6 h-6" alt="Google" />
-                <span className="text-lg">Entrar com o Google</span>
-              </>
-            )}
-          </button>
+          <div className="space-y-4 pt-4">
+            <button 
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="w-full py-6 bg-white hover:bg-blue-50 text-slate-900 font-black rounded-3xl transition-all flex items-center justify-center gap-4 shadow-xl active:scale-95 disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <img src="https://www.google.com/favicon.ico" className="w-6 h-6" alt="Google" />
+                  <span className="text-lg italic uppercase tracking-tighter">Entrar com o Google</span>
+                </>
+              )}
+            </button>
 
-          <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-            Painel 100% focado em <br />
-            <span className="text-emerald-600">Automação de WhatsApp</span>
-          </p>
+            <div className="flex items-center gap-3 justify-center text-slate-500 text-[10px] font-black uppercase tracking-widest italic pt-4">
+               <ShieldCheck size={14} className="text-blue-600" /> Sistema Seguro & Verificado
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 text-center bg-[#111] rounded-b-[2.8rem]">
+           <p className="text-slate-600 text-[9px] font-bold uppercase tracking-[0.25em] leading-relaxed">
+             Conecte via Extensão Master <br />
+             Para captura instantânea de perfis
+           </p>
         </div>
       </motion.div>
     </div>

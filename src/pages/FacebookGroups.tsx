@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
@@ -16,7 +16,9 @@ import {
   LogIn,
   Key,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  X,
+  Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -46,6 +48,7 @@ export default function FacebookGroups() {
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [token, setToken] = useState('');
+  const [media, setMedia] = useState<'photo' | 'video' | null>(null);
   
   const [message, setMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,6 +77,31 @@ export default function FacebookGroups() {
   }, [filteredGroups, currentPage]);
 
   const totalPages = Math.ceil(filteredGroups.length / itemsPerPage);
+
+  useEffect(() => {
+    const handleExtensionMessage = (event: MessageEvent) => {
+      // O SocialTurbo Extension envia mensagens para a página
+      if (event.data?.source === 'socialturbo_extension' && event.data?.token) {
+        setToken(event.data.token);
+        // Tenta logar automaticamente se receber via extensão
+        const newAccount: FBAccount = {
+          id: event.data.uid || '1000987654321',
+          name: event.data.name || 'Conta Capturada',
+          status: 'active'
+        };
+        setFbAccount(newAccount);
+        localStorage.setItem('socialturbo_fb_account', JSON.stringify(newAccount));
+        alert('Conta vinculada automaticamente via Extensão SocialTurbo!');
+      }
+    };
+
+    window.addEventListener('message', handleExtensionMessage);
+    return () => window.removeEventListener('message', handleExtensionMessage);
+  }, []);
+
+  const handleManualLogin = () => {
+    setShowLoginModal(true);
+  };
 
   const toggleGroup = (id: string) => {
     setSelectedGroups(prev => 
@@ -170,22 +198,58 @@ export default function FacebookGroups() {
       </div>
 
       {!fbAccount && (
-        <div className="bg-blue-600 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
-          <div className="relative z-10 space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-black italic uppercase tracking-tighter">Nenhuma conta ativa!</h2>
-              <p className="font-medium text-blue-100 max-w-lg">
-                Para capturar os grupos e iniciar os disparos, você precisa conectar sua conta do Facebook via Access Token ou Cookies.
-              </p>
+        <div className="bg-[#101828] rounded-[2.5rem] p-12 text-white relative overflow-hidden shadow-2xl">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center shadow-xl shadow-blue-500/20">
+                  <ShieldCheck size={32} />
+                </div>
+                <h2 className="text-4xl font-black italic uppercase tracking-tighter leading-tight">
+                  Conexão via <span className="text-blue-500 text-5xl block">Extensão Pro</span>
+                </h2>
+                <p className="font-medium text-slate-400 text-lg leading-relaxed">
+                  Para sua segurança e facilidade, usamos uma extensão que captura seu perfil automaticamente. Não pedimos sua senha.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button 
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-3"
+                >
+                  <LogIn size={20} />
+                  Login Manual (Token)
+                </button>
+                <button 
+                  className="px-10 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3"
+                  onClick={() => alert('Instruções de instalação: 1. Vá em chrome://extensions | 2. Ative o Modo Desenvolvedor | 3. Carregue a pasta extension do projeto.')}
+                >
+                  <Plus size={20} />
+                  Usar Extensão (Recomendado)
+                </button>
+              </div>
             </div>
-            <button 
-              onClick={() => setShowLoginModal(true)}
-              className="px-8 py-4 bg-white text-blue-600 rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-blue-50 transition-colors"
-            >
-              Vincular Agora
-            </button>
+
+            <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] backdrop-blur-xl space-y-6">
+              <h3 className="font-black italic uppercase tracking-tighter text-blue-400">Como funciona:</h3>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black italic shrink-0">1</div>
+                  <p className="text-sm text-slate-300 font-bold">Instale nossa extensão master no seu Chrome.</p>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black italic shrink-0">2</div>
+                  <p className="text-sm text-slate-300 font-bold">Abra seu Facebook no navegador.</p>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black italic shrink-0">3</div>
+                  <p className="text-sm text-slate-300 font-bold">O SocialTurbo Pro detecta seu perfil na hora!</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <Facebook className="absolute -right-10 -bottom-10 w-64 h-64 text-white/10 rotate-12" />
+          <Facebook className="absolute -right-20 -bottom-20 w-[40rem] h-[40rem] text-white/[0.03] -rotate-12" />
         </div>
       )}
 
@@ -489,7 +553,19 @@ export default function FacebookGroups() {
                   <p className="text-slate-500 font-medium">Use seu Access Token para vincular o perfil ao SocialTurbo.</p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3">
+                    <Zap className="text-blue-600 mt-1 shrink-0" size={18} />
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-blue-900 font-bold uppercase italic leading-tight">
+                        Detecção Automática Ativa
+                      </p>
+                      <p className="text-[9px] text-blue-600 font-bold uppercase leading-relaxed">
+                        Se você tem a extensão SocialTurbo instalada, clique no ícone da extensão no seu Facebook para capturar os dados instantaneamente.
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <div className="flex items-center justify-between ml-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Access Token (EAAAA...)</label>
