@@ -89,6 +89,7 @@ export default function WhatsappTurbo() {
   const handleRequestQR = () => {
     setLoading(true);
     setShowQR(true);
+    setQrValue(''); // Limpa o QR anterior para mostrar o loader
     socketRef.current?.emit('request_qr');
   };
 

@@ -51,12 +51,23 @@ async function startServer() {
       }
 
       if (connection === "close") {
-        const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
-        console.log("Conexão fechada devido a", lastDisconnect?.error, ", reconectando:", shouldReconnect);
+        const error = (lastDisconnect?.error as Boom);
+        const shouldReconnect = error?.output?.statusCode !== DisconnectReason.loggedOut;
+        const isQRTimeout = error?.message === 'QR refs attempts ended';
+
+        console.log("Conexão fechada devido a", error?.message, ", reconectando:", shouldReconnect);
+        
         connectionStatus = "disconnected";
+        qrCode = null;
         io.emit("whatsapp_status", "disconnected");
-        if (shouldReconnect) {
-          connectToWhatsApp();
+
+        if (shouldReconnect || isQRTimeout) {
+          if (isQRTimeout) {
+            console.log("Timeout de QR atingido. Aguardando nova solicitação do usuário.");
+            sock = null; // Limpa para forçar novo socket no request_qr
+          } else {
+            connectToWhatsApp();
+          }
         }
       } else if (connection === "open") {
         console.log("Conexão aberta!");
@@ -85,10 +96,14 @@ async function startServer() {
     socket.on("request_qr", () => {
       if (connectionStatus === "connected") {
         socket.emit("whatsapp_status", { status: "connected", user: sock?.user });
-      } else if (qrCode) {
-        socket.emit("whatsapp_qr", qrCode);
       } else {
-        if (!sock) connectToWhatsApp();
+        // Se estiver desconectado ou sem QR, tenta (re)conectar
+        if (!sock || !qrCode) {
+          console.log("Forçando nova conexão para gerar QR...");
+          connectToWhatsApp();
+        } else if (qrCode) {
+          socket.emit("whatsapp_qr", qrCode);
+        }
       }
     });
 
