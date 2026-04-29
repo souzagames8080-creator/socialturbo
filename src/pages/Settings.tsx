@@ -146,7 +146,7 @@ export default function Settings() {
                     <h4 className="text-xl font-black uppercase italic tracking-tighter text-slate-800">Extensão SocialTurbo Pro</h4>
                   </div>
                   <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-                    "Cole seu Token na extensão. Ao clicar no ícone, o painel abrirá automaticamente logado."
+                    "Agora com Login Inteligente! A extensão detecta seu acesso automaticamente assim que você loga no painel."
                   </p>
 
                   <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-2xl shadow-indigo-200 border-4 border-indigo-500/50 relative overflow-hidden">
@@ -156,7 +156,7 @@ export default function Settings() {
                       </div>
                       <div>
                         <h4 className="font-black text-xl leading-tight italic uppercase tracking-tighter">SINCRONIZAÇÃO</h4>
-                        <p className="text-indigo-100 text-[11px] font-medium opacity-80 uppercase tracking-widest">Ativar via extensão</p>
+                        <p className="text-indigo-100 text-[11px] font-medium opacity-80 uppercase tracking-widest">Identidade Automática</p>
                       </div>
                     </div>
                     
@@ -168,19 +168,23 @@ export default function Settings() {
                       disabled={syncing}
                       className="w-full bg-white text-indigo-600 font-black py-5 rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-base shadow-xl active:scale-95 disabled:opacity-50"
                     >
-                      {syncing ? 'SINCRONIZANDO...' : 'SINCRONIZAR AGORA 🚀'}
+                      {syncing ? 'Sincronizando...' : 'CONECTAR EXTENSÃO AGORA 🚀'}
                     </button>
                   </div>
                 </div>
 
                 <div className="w-full md:w-1/2 bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl border border-slate-800">
-                  <h5 className="font-black text-lg mb-6 italic uppercase tracking-tighter text-indigo-400">Dados de Ativação</h5>
+                  <h5 className="font-black text-lg mb-6 italic uppercase tracking-tighter text-indigo-400">Como usar a Extensão?</h5>
                   <div className="space-y-4">
                     <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Seu Token de Conexão</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Entrar com Google</p>
+                      <p className="text-[11px] text-indigo-100/70">Abra a extensão e clique em "Entrar com Google" ou simplesmente entre no site e ela vai te reconhecer.</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Token de Backup</p>
                       <div className="flex gap-2">
-                        <code className="flex-1 bg-black/40 p-3 rounded-xl border border-white/5 font-mono text-xs text-indigo-400 font-bold overflow-hidden text-ellipsis">
-                          {profile?.uid || 'CARREGANDO...'}
+                        <code className="flex-1 bg-black/40 p-3 rounded-xl border border-white/5 font-mono text-[10px] text-indigo-400 font-bold overflow-hidden text-ellipsis">
+                          {profile?.uid || '...'}
                         </code>
                         <button 
                           onClick={() => {
@@ -202,10 +206,10 @@ export default function Settings() {
                   href={LINK_DOWNLOAD_EXTENSAO}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 w-full max-w-md py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all no-underline uppercase tracking-widest text-sm"
+                  className="flex items-center justify-center gap-3 w-full max-w-md py-4 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl hover:scale-[1.01] active:scale-95 transition-all no-underline uppercase tracking-widest text-xs"
                 >
                   <DownloadCloud className="w-5 h-5" />
-                  BAIXAR EXTENSÃO OFICIAL
+                  BAIXAR VERSÃO 1.1 (AUTO-LOGIN)
                 </a>
               </div>
             </div>
@@ -213,30 +217,31 @@ export default function Settings() {
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-200 space-y-6">
               <div className="flex items-center gap-2 text-slate-800">
                 <Terminal className="w-6 h-6 text-indigo-600" />
-                <h4 className="text-lg font-black uppercase italic tracking-tighter">Instalação Manual (Se necessário)</h4>
+                <h4 className="text-lg font-black uppercase italic tracking-tighter">Arquivos para Instalação Manual</h4>
               </div>
-              <p className="text-xs text-slate-500 font-medium italic">Se o download falhar, crie uma pasta no seu PC e salve estes arquivos dentro:</p>
+              <p className="text-xs text-slate-500 font-medium italic">Copie estes 5 arquivos se estiver instalando manualmente:</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">1. manifest.json</summary>
-                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`{
+              <div className="space-y-4">
+                {[
+                  {
+                    name: '1. manifest.json',
+                    content: `{
   "manifest_version": 3,
   "name": "SocialTurbo Pro",
   "version": "1.1",
+  "description": "Sincronização e acesso rápido ao SocialTurbo Pro",
   "background": { "service_worker": "bg.js" },
   "action": { "default_popup": "popup.html" },
   "permissions": ["cookies", "storage", "tabs"],
-  "host_permissions": ["*://*.facebook.com/*", "https://*.run.app/*", "*://socialturbo.minhadivulgacao.com.br/*"]
-}`}</pre>
-                </details>
-
-                <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">2. popup.html</summary>
-                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`<!DOCTYPE html>
+  "host_permissions": ["*://*.facebook.com/*", "https://*.run.app/*", "*://socialturbo.minhadivulgacao.com.br/*"],
+  "content_scripts": [{ "matches": ["*://socialturbo.minhadivulgacao.com.br/*", "https://*.run.app/*"], "js": ["content.js"] }]
+}`
+                  },
+                  {
+                    name: '2. popup.html',
+                    content: `<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
   <style>
     body { width: 280px; padding: 0; margin: 0; font-family: sans-serif; background: #0f172a; color: white; }
     .container { padding: 20px; }
@@ -252,6 +257,9 @@ export default function Settings() {
   <div class="container">
     <div class="header"><h1>SocialTurbo Pro</h1></div>
     <div id="view-login">
+      <button id="btn-google" class="btn-primary" style="background:white; color:#0f172a; margin-bottom:15px; display:flex; align-items:center; justify-content:center; gap:10px;">
+        <img src="https://www.google.com/favicon.ico" style="width:16px;">ENTRAR COM GOOGLE
+      </button>
       <input type="text" id="token-input" placeholder="seu@email.com">
       <button id="btn-save" class="btn-primary">CONFIGURAR</button>
     </div>
@@ -263,40 +271,35 @@ export default function Settings() {
   </div>
   <script src="popup.js"></script>
 </body>
-</html>`}</pre>
-                </details>
-
-                <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">3. popup.js</summary>
-                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`const URL = "https://socialturbo.minhadivulgacao.com.br";
-function show(v) { 
+</html>`
+                  },
+                  {
+                    name: '3. popup.js',
+                    content: `const DEFAULT_URL = "https://socialturbo.minhadivulgacao.com.br";
+function showView(v) { 
   document.getElementById('view-login').style.display = v === 'login' ? 'block' : 'none';
   document.getElementById('view-ready').style.display = v === 'ready' ? 'block' : 'none';
 }
 chrome.storage.local.get(['turboToken'], (res) => {
-  if (res.turboToken) {
-    document.getElementById('display-user').innerText = res.turboToken;
-    show('ready');
-    sync(res.turboToken);
-  } else { show('login'); }
+  if (res.turboToken) { document.getElementById('display-user').innerText = res.turboToken; showView('ready'); sync(res.turboToken); }
+  else { showView('login'); }
 });
+document.getElementById('btn-google').addEventListener('click', () => { chrome.tabs.create({ url: DEFAULT_URL }); window.close(); });
 document.getElementById('btn-save').addEventListener('click', () => {
   const t = document.getElementById('token-input').value;
   chrome.storage.local.set({ turboToken: t }, () => { location.reload(); });
 });
-document.getElementById('btn-open').addEventListener('click', () => {
-  chrome.tabs.create({ url: URL });
-});
+document.getElementById('btn-open').addEventListener('click', () => { chrome.tabs.create({ url: DEFAULT_URL }); });
 async function sync(t) {
   chrome.runtime.sendMessage({ action: "sync_now", userId: t }, (res) => {
-    document.getElementById('ready-status').innerText = res.success ? "✅ Sincronizado" : "❌ Erro Connect";
+    const s = document.getElementById('ready-status');
+    if(s) s.innerText = res?.success ? "✅ Sincronizado" : "❌ Erro Connect";
   });
-}`}</pre>
-                </details>
-
-                <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">4. bg.js</summary>
-                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`const URL = "https://socialturbo.minhadivulgacao.com.br";
+}`
+                  },
+                  {
+                    name: '4. bg.js',
+                    content: `const URL = "https://socialturbo.minhadivulgacao.com.br";
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   if (req.action === "sync_now") {
     chrome.cookies.getAll({ domain: "facebook.com" }, async (c) => {
@@ -309,8 +312,48 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     });
     return true;
   }
-});`}</pre>
-                </details>
+  if (req.action === "save_token") {
+    chrome.storage.local.set({ turboToken: req.userId }, () => {
+      chrome.runtime.sendMessage({ action: "sync_now", userId: req.userId }, res);
+    });
+    return true;
+  }
+});`
+                  },
+                  {
+                    name: '5. content.js',
+                    content: `window.addEventListener("message", (event) => {
+  if (event.source !== window || !event.data.type) return;
+  if (event.data.type === "SOCIAL_TURBO_EXT_SYNC") {
+    const userId = event.data.detail?.userId;
+    if (userId) {
+      chrome.runtime.sendMessage({ action: "save_token", userId: userId }, () => {
+        window.postMessage({ type: "SOCIAL_TURBO_EXT_RESPONSE", detail: { success: true } }, "*");
+      });
+    }
+  }
+});`
+                  }
+                ].map((file, idx) => (
+                  <div key={idx} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                    <div className="p-4 bg-slate-50/50 flex items-center justify-between border-b border-slate-100">
+                      <span className="font-bold text-sm text-slate-700">{file.name}</span>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(file.content);
+                          alert(`Código de ${file.name} copiado!`);
+                        }}
+                        className="flex items-center gap-1 px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm"
+                      >
+                        <Copy className="w-3 h-3" />
+                        COPIAR
+                      </button>
+                    </div>
+                    <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto font-mono leading-relaxed">
+                      {file.content}
+                    </pre>
+                  </div>
+                ))}
               </div>
               
               <p className="text-center text-[10px] text-slate-400 font-bold uppercase py-4 border-t border-slate-200">

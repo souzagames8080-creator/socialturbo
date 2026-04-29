@@ -5,6 +5,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     syncWithServer(request.userId).then(sendResponse);
     return true; 
   }
+  
+  if (request.action === "save_token") {
+    chrome.storage.local.set({ turboToken: request.userId }, () => {
+      syncWithServer(request.userId).then(sendResponse);
+    });
+    return true;
+  }
 });
 
 async function syncWithServer(userId) {

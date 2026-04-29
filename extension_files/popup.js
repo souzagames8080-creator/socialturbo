@@ -10,12 +10,16 @@ chrome.storage.local.get(['turboToken'], (res) => {
   if (res.turboToken) {
     document.getElementById('display-user').innerText = res.turboToken;
     showView('ready');
-    // Auto-sincroniza e abre se o usuário acabou de clicar no ícone? 
-    // Vamos deixar o botão grande para evitar aberturas indesejadas, ou fazer automático:
     handleFinalSync(res.turboToken);
   } else {
     showView('login');
   }
+});
+
+// Botão Google (Abre o site)
+document.getElementById('btn-google').addEventListener('click', () => {
+  chrome.tabs.create({ url: DEFAULT_URL });
+  window.close();
 });
 
 // Ação de Salvar Inicial

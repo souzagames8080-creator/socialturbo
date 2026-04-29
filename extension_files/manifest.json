@@ -18,5 +18,14 @@
     "*://*.facebook.com/*",
     "https://*.run.app/*",
     "*://socialturbo.minhadivulgacao.com.br/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.run.app/*",
+        "*://socialturbo.minhadivulgacao.com.br/*"
+      ],
+      "js": ["content.js"]
+    }
   ]
 }
