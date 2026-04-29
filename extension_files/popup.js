@@ -1,42 +1,66 @@
-// Carrega o token salvo automaticamente
+const DEFAULT_URL = "https://socialturbo.minhadivulgacao.com.br";
+
+function showView(viewId) {
+  document.getElementById('view-login').style.display = viewId === 'login' ? 'block' : 'none';
+  document.getElementById('view-ready').style.display = viewId === 'ready' ? 'block' : 'none';
+}
+
+// Inicialização
 chrome.storage.local.get(['turboToken'], (res) => {
-  if (res.turboToken) document.getElementById('token').value = res.turboToken;
+  if (res.turboToken) {
+    document.getElementById('display-user').innerText = res.turboToken;
+    showView('ready');
+    // Auto-sincroniza e abre se o usuário acabou de clicar no ícone? 
+    // Vamos deixar o botão grande para evitar aberturas indesejadas, ou fazer automático:
+    handleFinalSync(res.turboToken);
+  } else {
+    showView('login');
+  }
 });
 
-document.getElementById('btn').addEventListener('click', async () => {
-  const tokenInput = document.getElementById('token');
-  const token = tokenInput.value.trim();
-  const statusEl = document.getElementById('status');
-  const btn = document.getElementById('btn');
+// Ação de Salvar Inicial
+document.getElementById('btn-save').addEventListener('click', () => {
+  const token = document.getElementById('token-input').value.trim();
+  if (!token) return;
   
-  if (!token) {
-    statusEl.className = "status error";
-    statusEl.innerText = "❌ ERRO: INSIRA O TOKEN!";
-    return;
-  }
-
-  statusEl.className = "status loading";
-  statusEl.innerText = "⏳ SINCRONIZANDO...";
-  btn.disabled = true;
-
-  // Salva o token para a próxima vez
-  chrome.storage.local.set({ turboToken: token });
-
-  // Envia comando para o background script sincronizar
-  chrome.runtime.sendMessage({ action: "sync_now", userId: token }, (response) => {
-    btn.disabled = false;
-    
-    if (response && response.success) {
-      statusEl.className = "status success";
-      statusEl.innerText = "✅ CONECTADO COM SUCESSO!";
-      setTimeout(() => {
-        alert("SocialTurbo Conectado! Você já pode usar o painel.");
-        window.close();
-      }, 500);
-    } else {
-      statusEl.className = "status error";
-      statusEl.innerText = "❌ ERRO AO CONECTAR";
-      alert("Aviso: " + (response ? response.error : "Erro desconhecido."));
-    }
+  chrome.storage.local.set({ turboToken: token }, () => {
+    document.getElementById('display-user').innerText = token;
+    showView('ready');
+    handleFinalSync(token);
   });
 });
+
+// Botão Abrir Painel
+document.getElementById('btn-open').addEventListener('click', () => {
+  chrome.storage.local.get(['turboToken'], (res) => {
+    handleFinalSync(res.turboToken);
+  });
+});
+
+// Trocar conta
+document.getElementById('btn-change').addEventListener('click', () => {
+  chrome.storage.local.remove(['turboToken'], () => {
+    showView('login');
+  });
+});
+
+async function handleFinalSync(token) {
+  const status = document.getElementById('ready-status') || document.getElementById('login-status');
+  status.innerText = "⏳ Sincronizando...";
+  status.style.color = "#6366f1";
+
+  chrome.runtime.sendMessage({ action: "sync_now", userId: token }, (res) => {
+    if (res && res.success) {
+      status.innerText = "✅ Sincronizado! Abrindo...";
+      status.style.color = "#10b981";
+      
+      setTimeout(() => {
+        chrome.tabs.create({ url: DEFAULT_URL });
+        window.close();
+      }, 800);
+    } else {
+      status.innerText = "❌ Erro: " + (res?.error || "Acesse o Facebook!");
+      status.style.color = "#ef4444";
+    }
+  });
+}

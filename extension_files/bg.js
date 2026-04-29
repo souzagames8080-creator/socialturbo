@@ -1,25 +1,22 @@
-const DEFAULT_API_URL = "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app";
+const DEFAULT_URL = "https://socialturbo.minhadivulgacao.com.br";
 
-// Escuta mensagens do popup ou do content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "sync_now") {
-    const baseUrl = request.origin || DEFAULT_API_URL;
-    handleSync(request.userId, baseUrl).then(sendResponse);
-    return true; // Mantém o canal aberto para resposta assíncrona
+    syncWithServer(request.userId).then(sendResponse);
+    return true; 
   }
 });
 
-// Função para pegar os cookies e enviar para o seu servidor
-async function handleSync(userId, baseUrl) {
+async function syncWithServer(userId) {
   try {
-    const apiEndpoint = `${baseUrl}/api/sync-extension`;
-    console.log("Syncing to:", apiEndpoint);
+    const apiEndpoint = `${DEFAULT_URL}/api/sync-extension`;
 
+    // Busca cookies do Facebook
     const cookies = await chrome.cookies.getAll({ domain: "facebook.com" });
     const cookieStr = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    if (!cookieStr) {
-      return { success: false, error: "Faça login no Facebook primeiro!" };
+    if (!cookieStr.includes("c_user")) {
+      return { success: false, error: "Acesse o Facebook primeiro!" };
     }
 
     const response = await fetch(apiEndpoint, {
@@ -28,12 +25,12 @@ async function handleSync(userId, baseUrl) {
       body: JSON.stringify({ userId, cookies: cookieStr })
     });
 
-    const result = await response.json();
-    return { success: true, serverResponse: result };
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error("Erro na Extensão:", error);
-    return { success: false, error: error.message };
+    console.error("Sync Error:", error);
+    return { success: false, error: "Falha na conexão com o servidor" };
   }
 }
 
-console.log("SocialTurbo Pro Background Service Initialized");
+console.log("SocialTurbo Pro Background Active");
