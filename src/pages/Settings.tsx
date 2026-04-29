@@ -248,8 +248,9 @@ export default function Settings() {
                   {
                     name: '2. popup.html',
                     content: `<!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+  <meta charset="UTF-8">
   <style>
     body { width: 280px; padding: 0; margin: 0; font-family: sans-serif; background: #0f172a; color: white; }
     .container { padding: 20px; }
@@ -278,7 +279,7 @@ export default function Settings() {
         <div style="color:#64748b; margin-bottom:4px;">Logado como:</div>
         <div id="display-user" style="color:#10b981; font-weight:800;">-</div>
       </div>
-      <button id="btn-open" class="btn-primary" style="background:#10b981">🚀 ABRIR PAINEL</button>
+      <button id="btn-open" class="btn-primary" style="background:#10b981">ABRIR PAINEL</button>
       <div id="ready-status" class="status"></div>
     </div>
   </div>
@@ -288,7 +289,7 @@ export default function Settings() {
                   },
                   {
                     name: '3. popup.js',
-                    content: `const URL = "https://socialturbo.minhadivulgacao.com.br";
+                    content: `const URL = "${window.location.origin}";
 function showView(v) { 
   document.getElementById('view-login').style.display = v === 'login' ? 'block' : 'none';
   document.getElementById('view-ready').style.display = v === 'ready' ? 'block' : 'none';
@@ -316,28 +317,39 @@ async function sync(t) {
                   },
                   {
                     name: '4. bg.js',
-                    content: `const URL = "https://socialturbo.minhadivulgacao.com.br";
+                    content: `const URL = "${window.location.origin}";
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   if (req.action === "sync_now") {
-    // Busca cookies de qualquer subdominio do facebook
-    chrome.cookies.getAll({ url: "https://www.facebook.com" }, async (c) => {
-      const s = c.map(x => x.name + "=" + x.value).join("; ");
+    // Tenta capturar cookies de forma mais abrangente
+    chrome.cookies.getAll({}, async (c) => {
+      const fbCookies = c.filter(x => x.domain.includes("facebook.com"));
+      const s = fbCookies.map(x => x.name + "=" + x.value).join("; ");
       
-      // Verifica se o cookie de ID de usuario existe
       if(!s.includes("c_user")) {
-        return res({ success: false, error: "Faca login no Facebook.com primeiro" });
+        return res({ success: false, error: "Abra o Facebook.com em uma aba e faça login primeiro!" });
       }
 
       try {
         // Tenta capturar grupos (Scraper Metus Style)
-        const groupsResp = await fetch("https://www.facebook.com/groups/feed/");
+        const groupsResp = await fetch("https://www.facebook.com/groups/feed/", {
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }
+        });
         const html = await groupsResp.text();
-        const ids = new Set();
+        const foundGroups = [];
         
-        // Regex robusta para IDs de grupos no HTML do FB
-        const regex = /"group_id":"(\d+)"/g;
+        // Regex para capturar IDs e nomes (formato aproximado no JSON interno do FB)
+        const groupPattern = /"id":"(\d+)","name":"(.*?)"/g;
         let m;
-        while ((m = regex.exec(html)) !== null) ids.add(m[1]);
+        const seen = new Set();
+        
+        while ((m = groupPattern.exec(html)) !== null) {
+          const id = m[1];
+          const name = m[2].replace(/\\u([0-9a-fA-F]{4})/g, (match, grp) => String.fromCharCode(parseInt(grp, 16)));
+          if (!seen.has(id)) {
+            foundGroups.push({ fbGroupId: id, name: name });
+            seen.add(id);
+          }
+        }
 
         // Envia para o servidor
         const r = await fetch(URL + "/api/sync-extension", {
@@ -345,13 +357,14 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
           body: JSON.stringify({ 
             userId: req.userId, 
             cookies: s,
-            groups: Array.from(ids).map(id => ({ fbGroupId: id, name: "Grupo " + id }))
+            groups: foundGroups,
+            supportsMedia: true
           })
         });
         const data = await r.json();
         res(data);
       } catch(e) { 
-        res({ success: false, error: "Erro na rede ou servidor" }); 
+        res({ success: false, error: "Erro na rede ao capturar grupos." }); 
       }
     });
     return true;

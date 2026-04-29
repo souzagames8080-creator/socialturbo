@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Send, 
+  Trash2,
   Search, 
   Image as ImageIcon, 
   Video, 
@@ -15,7 +16,8 @@ import {
   HelpCircle,
   Hash,
   Loader2,
-  Save
+  Save,
+  Facebook
 } from 'lucide-react';
 import { auth, db, collection, query, getDocs, addDoc, serverTimestamp } from '../lib/firebase';
 import { FBGroup } from '../types';
@@ -29,10 +31,32 @@ export default function AutoPost() {
   const [delayMin, setDelayMin] = useState(900);
   const [delayMax, setDelayMax] = useState(900);
   const [threads, setThreads] = useState(3);
+  const [mediaFiles, setMediaFiles] = useState<{ url: string; type: 'image' | 'video' }[]>([]);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [postingStatus, setPostingStatus] = useState<'idle' | 'running' | 'done'>('idle');
   const [executionLogs, setExecutionLogs] = useState<{ groupId: string; groupName: string; status: 'pending' | 'loading' | 'success' | 'failed'; postUrl?: string }[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileTypeToUpload, setFileTypeToUpload] = useState<'image' | 'video' | null>(null);
+
+  const handleFileSelect = (e: any) => {
+    const files = e.target.files;
+    if (!files || !fileTypeToUpload) return;
+
+    const newFiles = Array.from(files).map((file: any) => ({
+      url: URL.createObjectURL(file), // Local preview for demo
+      type: fileTypeToUpload
+    }));
+
+    setMediaFiles(prev => [...prev, ...newFiles]);
+    setFileTypeToUpload(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     fetchGroups();
@@ -45,7 +69,7 @@ export default function AutoPost() {
     setSelectedGroupIds(next);
   };
 
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectAll = (e: any) => {
     if (e.target.checked) {
       setSelectedGroupIds(new Set(filteredGroups.map(g => g.id)));
     } else {
@@ -59,21 +83,7 @@ export default function AutoPost() {
       const q = query(collection(db, `users/${auth.currentUser.uid}/groups`));
       const snapshot = await getDocs(q);
       const fetchedGroups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FBGroup));
-      
-      // Mock data if empty for demo
-      if (fetchedGroups.length === 0) {
-        const mockGroups: FBGroup[] = [
-          { id: '1', userId: auth.currentUser.uid, fbGroupId: '1899817323583414', name: 'GRUPO CENTRO FASHION FORTALEZA', memberCount: 250000 },
-          { id: '2', userId: auth.currentUser.uid, fbGroupId: '4842206572558084', name: 'BAIRRO ALDEOTA - FORTALEZA', memberCount: 15000 },
-          { id: '3', userId: auth.currentUser.uid, fbGroupId: '5814778131888499', name: 'Compra e vendas Antônio Bezerra - Fortaleza - Ce', memberCount: 8500 },
-          { id: '4', userId: auth.currentUser.uid, fbGroupId: '3143167142652225', name: 'OLX HENRIQUE JORGE', memberCount: 22000 },
-          { id: '5', userId: auth.currentUser.uid, fbGroupId: '2068952703329427', name: 'BAIRRO BELA VISTA FORTALEZA', memberCount: 190000 },
-          { id: '6', userId: auth.currentUser.uid, fbGroupId: '2006763952771261', name: 'JOQUEI CLUBE BAIRRO', memberCount: 45000 },
-        ];
-        setGroups(mockGroups);
-      } else {
-        setGroups(fetchedGroups);
-      }
+      setGroups(fetchedGroups);
     } catch (err) {
       console.error('Error fetching groups:', err);
     }
@@ -144,6 +154,28 @@ export default function AutoPost() {
                 placeholder="🚀 CUIDE DA SUA SAÚDE SEM COMPLICAR!&#10;&#10;Com o Cartão de Todos você tem acesso rápido a consultas e ainda economiza todo mês.&#10;&#10;👩‍💼 Eu sou **Rose Dias**, consultora pronta pra te ajudar"
                 className="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all resize-none font-medium text-sm"
               />
+              
+              {/* Media Previews */}
+              {mediaFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 p-4 bg-slate-100/50 rounded-xl mt-2">
+                  {mediaFiles.map((file, idx) => (
+                    <div key={idx} className="relative group w-20 h-20 bg-black rounded-lg overflow-hidden border border-slate-200">
+                      {file.type === 'image' ? (
+                        <img src={file.url} className="w-full h-full object-cover" />
+                      ) : (
+                        <video src={file.url} className="w-full h-full object-cover" />
+                      )}
+                      <button 
+                        onClick={() => removeMedia(idx)}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="absolute bottom-3 right-3 flex gap-2">
                 <button className="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors">
                   <Hash className="w-5 h-5" />
@@ -164,13 +196,31 @@ export default function AutoPost() {
                  </label>
               </div>
               <div className="flex gap-2">
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  className="hidden" 
+                  onChange={handleFileSelect}
+                  accept={fileTypeToUpload === 'image' ? 'image/*' : 'video/*'}
+                  multiple
+                />
                 <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Compartilhar Link">
                   <LinkIcon className="w-4 h-4" />
                 </button>
-                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Adicionar Imagem">
+                <button 
+                  onClick={() => {
+                    setFileTypeToUpload('image');
+                    setTimeout(() => fileInputRef.current?.click(), 0);
+                  }}
+                  className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Adicionar Imagem">
                   <ImageIcon className="w-4 h-4" />
                 </button>
-                <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Adicionar Vídeo">
+                <button 
+                   onClick={() => {
+                    setFileTypeToUpload('video');
+                    setTimeout(() => fileInputRef.current?.click(), 0);
+                  }}
+                  className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors" title="Adicionar Vídeo">
                   <Video className="w-4 h-4" />
                 </button>
               </div>
@@ -332,8 +382,16 @@ export default function AutoPost() {
                   <div className="mt-4 text-[11px] text-slate-600 line-clamp-3 leading-relaxed font-medium italic">
                     {postText}
                   </div>
-                  <div className="mt-4 aspect-video bg-slate-200 rounded-lg flex items-center justify-center text-slate-400">
-                    <ImageIcon className="w-8 h-8 opacity-20" />
+                  <div className="mt-4 aspect-video bg-slate-200 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden relative">
+                    {mediaFiles.length > 0 ? (
+                       mediaFiles[0].type === 'image' ? (
+                        <img src={mediaFiles[0].url} className="w-full h-full object-cover" />
+                       ) : (
+                        <video src={mediaFiles[0].url} className="w-full h-full object-cover" />
+                       )
+                    ) : (
+                      <ImageIcon className="w-8 h-8 opacity-20" />
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -385,7 +443,23 @@ export default function AutoPost() {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-            {filteredGroups.map((group) => (
+            {filteredGroups.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center space-y-4 p-8">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
+                  <Facebook className="w-8 h-8 text-slate-200" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-black text-slate-400 uppercase italic">Nenhum grupo sincronizado</p>
+                  <p className="text-[9px] text-slate-300 font-bold uppercase tracking-tight max-w-[180px] mx-auto mt-2">Use a extensão para conectar sua conta e puxar seus grupos automaticamente.</p>
+                </div>
+                <button 
+                  onClick={() => window.location.href = '/settings'}
+                  className="px-6 py-2 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase italic hover:bg-slate-200 transition-all"
+                >
+                  CONFIGURAR AGORA
+                </button>
+              </div>
+            ) : filteredGroups.map((group) => (
               <div 
                 key={group.id}
                 onClick={() => toggleGroup(group.id)}
