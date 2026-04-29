@@ -31,8 +31,9 @@ export default function Layout({ profile }: LayoutProps) {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Início' },
-    { path: '/facebook-groups', icon: Users, label: 'Facebook Grupos' },
-    { path: '/facebook-join', icon: Plus, label: 'Facebook Entrar' },
+    { path: '/facebook-groups', icon: Users, label: 'Postar nos Grupos' },
+    { path: '/facebook-join', icon: Plus, label: 'Entrar nos Grupos' },
+    { path: '/pro', icon: Zap, label: 'Plano Pro' },
     { path: '/history', icon: History, label: 'Relatórios' },
     { path: '/settings', icon: Settings, label: 'Configurações' },
   ];
@@ -76,7 +77,7 @@ export default function Layout({ profile }: LayoutProps) {
               <img src={profile.photoURL} alt="" className="w-10 h-10 rounded-xl shadow-sm" />
               <div className="overflow-hidden">
                 <p className="font-bold text-xs text-slate-800 truncate">{profile.displayName}</p>
-                <p className="text-[10px] text-slate-400 font-bold uppercase truncate">{profile.plan} Plan</p>
+                <p className="text-[10px] text-blue-600 font-black uppercase tracking-widest truncate">{profile.plan === 'pro' ? 'PRO VIP' : 'FREE'}</p>
               </div>
             </div>
           )}

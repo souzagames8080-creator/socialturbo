@@ -7,12 +7,21 @@ import {
   HelpCircle,
   X,
   MessageSquare,
-  Hash
+  Hash,
+  Facebook,
+  CheckCircle2,
+  LogIn
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 export default function FacebookJoin() {
+  const navigate = useNavigate();
+  const [fbAccount, setFbAccount] = useState(() => {
+    const saved = localStorage.getItem('socialturbo_fb_account');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [uids, setUids] = useState('');
   const [settings, setSettings] = useState({
     thread: 1,
@@ -37,6 +46,11 @@ export default function FacebookJoin() {
   };
 
   const handleStart = () => {
+    if (!fbAccount) {
+      alert('Conecte uma conta do Facebook na página de Grupos primeiro!');
+      navigate('/facebook-groups');
+      return;
+    }
     if (!uids.trim()) {
       alert('Insira pelo menos um UID de grupo');
       return;
@@ -44,19 +58,75 @@ export default function FacebookJoin() {
     alert('Simulação de entrada em grupos iniciada!');
   };
 
+  const handleLogout = () => {
+    setFbAccount(null);
+    localStorage.removeItem('socialturbo_fb_account');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
-      {/* Header */}
-      <div>
-        <h1 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter decoration-blue-500 decoration-8 underline-offset-8 underline">
-          Entrar em <span className="text-blue-600">Grupos</span>
-        </h1>
-        <p className="text-slate-500 font-bold mt-2 uppercase text-xs tracking-widest italic font-black">
-          Automação de adesão em massa via UID
-        </p>
+      {/* Header com Status da Conta */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter decoration-blue-600 decoration-8 underline-offset-8 underline">
+            Entrar em <span className="text-blue-600">Grupos</span>
+          </h1>
+          <p className="text-slate-500 font-bold mt-2 uppercase text-xs tracking-widest italic font-black">
+            Automação de adesão em massa via UID
+          </p>
+        </div>
+
+        {fbAccount ? (
+          <div className="flex items-center gap-4 bg-white p-3 pr-6 rounded-[2rem] border-2 border-blue-100 shadow-xl shadow-blue-50 scale-90 origin-right">
+            <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+              <Facebook size={28} fill="currentColor" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Conta Ativa</p>
+              <h3 className="font-black text-slate-800 uppercase italic tracking-tighter leading-tight">{fbAccount.name}</h3>
+              <div className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 italic mt-0.5">
+                <CheckCircle2 size={10} /> PRONTO PARA ENTRAR
+              </div>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="ml-4 p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl transition-colors font-black text-[10px] uppercase tracking-widest"
+            >
+              Trocar
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={() => navigate('/facebook-groups')}
+            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase italic tracking-widest shadow-xl shadow-blue-200 transition-all active:scale-95"
+          >
+            <LogIn size={18} />
+            Conectar Facebook
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      {!fbAccount && (
+        <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-slate-200">
+          <div className="relative z-10 space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter text-blue-400">Sistema Bloqueado!</h2>
+              <p className="font-medium text-slate-300 max-w-lg">
+                Você precisa conectar seu Facebook na aba de **Postar nos Grupos** para liberar a adesão automática via UID.
+              </p>
+            </div>
+            <button 
+              onClick={() => navigate('/facebook-groups')}
+              className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-blue-700 transition-colors shadow-lg shadow-blue-400"
+            >
+              Ir para Conectar
+            </button>
+          </div>
+          <Facebook className="absolute -right-10 -bottom-10 w-64 h-64 text-white/5 rotate-12" />
+        </div>
+      )}
+
+      <div className={cn("grid grid-cols-1 md:grid-cols-12 gap-8 transition-all duration-500", !fbAccount && "opacity-20 blur-sm pointer-events-none")}>
         {/* Left: Input UIDs */}
         <div className="md:col-span-7 space-y-6">
           <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-xl shadow-slate-200/50">

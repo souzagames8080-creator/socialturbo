@@ -1,28 +1,30 @@
 import { 
   Users, 
-  Send, 
-  Smartphone,
-  CheckCircle, 
-  Clock, 
+  MessageSquare, 
+  History, 
+  Zap, 
   TrendingUp, 
-  Calendar,
-  Zap,
-  MessageSquare,
-  Facebook
+  ArrowUpRight,
+  ShieldCheck,
+  PlayCircle,
+  LayoutDashboard,
+  Facebook,
+  Plus,
+  BarChart3,
+  Calendar
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link, useOutletContext } from 'react-router-dom';
 import { UserProfile } from '../types';
-import { useOutletContext, Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
 export default function Dashboard() {
   const { profile } = useOutletContext<{ profile: UserProfile }>();
 
   const stats = [
-    { label: 'Envios Hoje', value: '382', icon: Send, iconColor: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Grupos Ativos', value: '1.240', icon: Users, iconColor: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Conversão', value: '18.5%', icon: TrendingUp, iconColor: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Sucesso', value: '98.2%', icon: CheckCircle, iconColor: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: 'Grupos no Perfil', value: '1.240', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Envios Totais', value: '15.420', icon: ArrowUpRight, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Sucesso App', value: '98.5%', icon: BarChart3, color: 'text-amber-600', bg: 'bg-amber-50' },
   ];
 
   const formatDate = (date: any) => {
@@ -32,111 +34,113 @@ export default function Dashboard() {
   };
 
   return (
-    <div id="dashboard-root" className="space-y-8 max-w-6xl mx-auto">
-      {/* Welcome & Plan Banner */}
-      <div id="dashboard-header-banner" className="flex flex-col lg:flex-row gap-6">
-        <div id="welcome-message-card" className="flex-1 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-100 flex items-center justify-between overflow-hidden relative group">
-          <div className="relative z-10">
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight italic uppercase">Fala, <span className="text-blue-600 underline decoration-blue-100">{profile?.displayName?.split(' ')[0]}</span>!</h1>
-            <p className="text-slate-500 mt-2 font-medium uppercase text-xs tracking-widest italic font-black">Sua Central de Automação está ligada.</p>
-          </div>
-          <motion.div 
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-200 relative z-10"
-          >
-            <Zap className="text-white w-10 h-10 fill-white" />
-          </motion.div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32 blur-3xl opacity-50 group-hover:bg-blue-100 transition-colors"></div>
+    <div className="max-w-6xl mx-auto space-y-10 pb-20">
+      {/* Welcome Section */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8 py-6">
+        <div className="space-y-4 text-center md:text-left">
+          <h1 className="text-5xl font-black text-slate-800 italic uppercase tracking-tighter leading-none">
+            FALA, <span className="text-blue-600 underline decoration-8 decoration-blue-100 underline-offset-4">{profile?.displayName?.split(' ')[0]}!</span>
+          </h1>
+          <p className="text-slate-500 font-black uppercase text-[10px] tracking-[0.3em] italic">Sua central de automação Facebook Pro está ativa.</p>
         </div>
+        
+        <div className="relative group">
+          <div className="w-32 h-32 bg-blue-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-blue-200 group-hover:rotate-6 transition-transform">
+             <Zap className="text-white fill-white" size={48} />
+          </div>
+          <div className="absolute -right-2 -top-2 px-3 py-1 bg-slate-900 text-white text-[9px] font-black rounded-lg shadow-lg uppercase tracking-widest italic animate-bounce">
+            PRO VIP
+          </div>
+        </div>
+      </div>
 
-        <div id="subscription-status-card" className="w-full lg:w-80 bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-slate-200">
-           <div className="flex items-center justify-between mb-4">
-             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">STATUS DA CONTA</p>
-             <span className="px-2 py-1 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-tighter">{profile?.plan || 'Free'} Plan</span>
-           </div>
-           <div className="flex items-center gap-3 mb-6">
-             <Calendar className="w-6 h-6 text-blue-400" />
-             <div>
-               <p className="text-lg font-black italic uppercase leading-none">RENOVAÇÃO:</p>
-               <p className="text-blue-400 font-bold text-sm uppercase tracking-tighter">{formatDate(profile?.expiresAt)}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Status Section */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden h-full flex flex-col justify-between">
+             <div className="relative z-10 space-y-6">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sua Assinatura</p>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                    <Calendar className="text-blue-400" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black italic uppercase tracking-tighter">Renovação:</h3>
+                    <p className="text-blue-400 font-black text-lg">{formatDate(profile?.expiresAt)}</p>
+                  </div>
+                </div>
+                <button className="w-full py-4 bg-white/10 hover:bg-white text-white hover:text-slate-900 rounded-2xl font-black text-xs uppercase italic tracking-widest transition-all">
+                  Gerenciar Plano
+                </button>
              </div>
-           </div>
-           <button className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold transition-all border border-white/10 italic tracking-tight uppercase tracking-widest">
-             UPGRADE SISTEMA
-           </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative"
-          >
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 relative z-10", stat.bg)}>
-              <stat.icon className={cn("w-6 h-6", stat.iconColor)} />
-            </div>
-            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest relative z-10">{stat.label}</p>
-            <h3 className="text-2xl font-black text-slate-800 mt-1 italic tracking-tighter uppercase relative z-10">{stat.value}</h3>
-            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <stat.icon size={80} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-black text-slate-800 italic uppercase">TRÁFEGO EM GRUPOS</h3>
-            <div className="flex gap-2">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 uppercase italic tracking-tighter">
-                <TrendingUp className="w-3 h-3 text-blue-500" /> +24% performance
-              </span>
-            </div>
+             <ShieldCheck className="absolute -right-6 -bottom-6 w-40 h-40 text-white/5 rotate-12" />
           </div>
-          <div className="h-64 flex items-end gap-3 px-2">
-            {[65, 82, 75, 90, 80, 95, 88].map((val, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2 group text-center">
-                <motion.div 
-                   initial={{ height: 0 }}
-                   animate={{ height: `${val}%` }}
-                   className="w-full bg-slate-100 rounded-xl group-hover:bg-blue-600 transition-all shadow-sm relative overflow-hidden"
-                >
-                   <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/5 to-transparent"></div>
-                </motion.div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter italic">
-                   {['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'][i]}
-                </span>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-100 flex flex-col items-center justify-center text-center group hover:border-blue-300 transition-all border-2 border-transparent"
+            >
+              <div className={`${stat.bg} ${stat.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                <stat.icon size={28} />
               </div>
-            ))}
-          </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+              <h3 className="text-3xl font-black text-slate-800 italic tracking-tighter leading-none">{stat.value}</h3>
+            </motion.div>
+          ))}
         </div>
+      </div>
 
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
-          <h3 className="text-xl font-black text-slate-800 mb-6 italic uppercase underline decoration-blue-500 decoration-4">ACESSOS VIPS</h3>
-          <div className="space-y-4">
-             <Link to="/facebook-groups" className="block w-full p-6 bg-slate-50 hover:bg-blue-600 rounded-3xl group transition-all text-left border border-slate-100 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-100 relative overflow-hidden">
-                <Facebook className="text-slate-400 w-8 h-8 mb-4 group-hover:text-white transition-colors" />
-                <p className="text-slate-800 font-black italic group-hover:text-white uppercase tracking-tight text-lg">Facebook Grupos</p>
-                <p className="text-slate-500 text-[10px] mt-1 group-hover:text-blue-100 uppercase font-black tracking-widest italic">Disparo Automático</p>
-                <div className="absolute -right-4 -bottom-4 text-slate-200/20 group-hover:text-white/10 transition-colors">
-                  <Facebook size={100} />
-                </div>
-             </Link>
-             <Link to="/facebook-join" className="block w-full p-6 bg-slate-50 hover:bg-emerald-600 rounded-3xl group transition-all text-left border border-slate-100 hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-100 relative overflow-hidden">
-                <Users className="text-slate-400 w-8 h-8 mb-4 group-hover:text-white transition-colors" />
-                <p className="text-slate-800 font-black italic group-hover:text-white uppercase tracking-tight text-lg">Facebook Entrar</p>
-                <p className="text-slate-500 text-[10px] mt-1 group-hover:text-emerald-100 uppercase font-black tracking-widest italic">Adesão por UID</p>
-                <div className="absolute -right-4 -bottom-4 text-slate-200/20 group-hover:text-white/10 transition-colors">
-                  <Users size={100} />
-                </div>
-             </Link>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+         <Link to="/facebook-groups" className="p-8 bg-slate-900 border-2 border-slate-800 text-white rounded-[2.5rem] group transition-all relative overflow-hidden flex flex-col justify-between h-56 shadow-2xl shadow-slate-200">
+            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-lg">
+              <MessageSquare size={24} />
+            </div>
+            <div>
+              <p className="text-xl font-black italic uppercase tracking-tighter">Postar em Grupos</p>
+              <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest mt-1 group-hover:text-blue-300">Suporte a Fotos e Vídeos</p>
+            </div>
+            <Facebook className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 -rotate-12" />
+         </Link>
+
+         <Link to="/facebook-join" className="p-8 bg-blue-600 border-2 border-blue-500 text-white rounded-[2.5rem] group transition-all relative overflow-hidden flex flex-col justify-between h-56 shadow-2xl shadow-blue-100">
+            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-lg">
+              <Plus size={24} />
+            </div>
+            <div>
+              <p className="text-xl font-black italic uppercase tracking-tighter">Entrar em Grupos</p>
+              <p className="text-blue-100 text-[9px] font-bold uppercase tracking-widest mt-1">Adesão via UID em Massa</p>
+            </div>
+            <Users className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12" />
+         </Link>
+
+         <Link to="/history" className="p-8 bg-white border-2 border-slate-100 rounded-[2.5rem] group transition-all relative overflow-hidden flex flex-col justify-between h-56 hover:border-blue-600 transition-colors shadow-xl shadow-slate-100">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+              <History size={24} />
+            </div>
+            <div>
+              <p className="text-xl font-black italic uppercase tracking-tighter text-slate-800">Relatórios</p>
+              <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest mt-1 group-hover:text-blue-600">Histórico de Campanhas</p>
+            </div>
+            <ArrowUpRight className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 text-blue-600" />
+         </Link>
+
+         <Link to="/pro" className="p-8 bg-emerald-600 border-2 border-emerald-500 text-white rounded-[2.5rem] group transition-all relative overflow-hidden flex flex-col justify-between h-56 shadow-2xl shadow-emerald-100">
+            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-lg">
+              <PlayCircle size={24} />
+            </div>
+            <div>
+              <p className="text-xl font-black italic uppercase tracking-tighter">Vender Licenças</p>
+              <p className="text-emerald-100 text-[9px] font-bold uppercase tracking-widest mt-1">Gere Tokens de Acesso</p>
+            </div>
+            <Zap className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10" />
+         </Link>
       </div>
     </div>
   );

@@ -40,7 +40,10 @@ const MOCK_GROUPS: Group[] = Array.from({ length: 50 }, (_, i) => ({
 }));
 
 export default function FacebookGroups() {
-  const [fbAccount, setFbAccount] = useState<FBAccount | null>(null);
+  const [fbAccount, setFbAccount] = useState<FBAccount | null>(() => {
+    const saved = localStorage.getItem('socialturbo_fb_account');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [token, setToken] = useState('');
   
@@ -88,14 +91,22 @@ export default function FacebookGroups() {
 
   const handleLogin = () => {
     if (!token.trim()) return;
-    // Simulação de captura de conta via Token/Cookie
-    setFbAccount({
+    
+    const newAccount: FBAccount = {
       id: '1000987654321',
       name: 'Anderson Luiz Souza',
       status: 'active'
-    });
+    };
+    
+    setFbAccount(newAccount);
+    localStorage.setItem('socialturbo_fb_account', JSON.stringify(newAccount));
     setShowLoginModal(false);
     setToken('');
+  };
+
+  const handleLogout = () => {
+    setFbAccount(null);
+    localStorage.removeItem('socialturbo_fb_account');
   };
 
   const handlePost = () => {
@@ -141,10 +152,10 @@ export default function FacebookGroups() {
               </div>
             </div>
             <button 
-              onClick={() => setFbAccount(null)}
-              className="ml-4 p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl transition-colors"
+              onClick={handleLogout}
+              className="ml-4 p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl transition-colors font-black text-[10px] uppercase tracking-widest"
             >
-              Sair
+              Trocar Conta
             </button>
           </div>
         ) : (
@@ -201,12 +212,24 @@ export default function FacebookGroups() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <button className="flex items-center justify-center gap-3 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-[10px] text-slate-500 uppercase italic tracking-widest hover:border-blue-200 hover:text-blue-600 transition-all group/btn">
-                  <ImageIcon size={18} className="group-hover/btn:scale-110 transition-transform" />
+                <button 
+                  onClick={() => setMedia(media === 'photo' ? null : 'photo')}
+                  className={cn(
+                    "flex items-center justify-center gap-3 py-4 border-2 rounded-2xl font-black text-[10px] uppercase italic tracking-widest transition-all group/btn",
+                    media === 'photo' ? "bg-blue-600 border-blue-600 text-white" : "bg-slate-50 border-slate-100 text-slate-500 hover:border-blue-200 hover:text-blue-600"
+                  )}
+                >
+                  <ImageIcon size={18} className={cn(media === 'photo' ? "text-white" : "group-hover/btn:scale-110 transition-transform")} />
                   Fotos
                 </button>
-                <button className="flex items-center justify-center gap-3 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-[10px] text-slate-500 uppercase italic tracking-widest hover:border-red-200 hover:text-red-500 transition-all group/btn">
-                  <Video size={18} className="group-hover/btn:scale-110 transition-transform" />
+                <button 
+                  onClick={() => setMedia(media === 'video' ? null : 'video')}
+                  className={cn(
+                    "flex items-center justify-center gap-3 py-4 border-2 rounded-2xl font-black text-[10px] uppercase italic tracking-widest transition-all group/btn",
+                    media === 'video' ? "bg-red-600 border-red-600 text-white" : "bg-slate-50 border-slate-100 text-slate-500 hover:border-red-200 hover:text-red-500"
+                  )}
+                >
+                  <Video size={18} className={cn(media === 'video' ? "text-white" : "group-hover/btn:scale-110 transition-transform")} />
                   Vídeos
                 </button>
               </div>
@@ -468,13 +491,16 @@ export default function FacebookGroups() {
 
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Access Token / Cookie</label>
+                    <div className="flex items-center justify-between ml-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Access Token (EAAAA...)</label>
+                      <a href="https://business.facebook.com/adsmanager" target="_blank" className="text-[9px] font-black text-blue-500 uppercase underline">Como pegar?</a>
+                    </div>
                     <div className="relative">
                       <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                       <textarea 
                         value={token}
                         onChange={(e) => setToken(e.target.value)}
-                        placeholder="EAAAA..."
+                        placeholder="Cole aqui o token que começa com EAAAA..."
                         className="w-full h-32 bg-slate-50 border-2 border-slate-100 rounded-3xl py-4 pl-14 pr-6 text-slate-700 font-mono font-bold focus:border-blue-200 focus:bg-white transition-all outline-none resize-none"
                       />
                     </div>
