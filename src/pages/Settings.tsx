@@ -41,6 +41,7 @@ export default function Settings() {
       setSyncing(false);
       
       if (response && response.success) {
+        setFbSession('connected_from_ext');
         alert("✅ CONECTADO!\nA extensão sincronizou seus dados com o servidor com sucesso.");
       } else {
         const errorMsg = response?.error || "Verifique se está logado no Facebook no seu navegador.";
@@ -131,8 +132,8 @@ export default function Settings() {
                 <Facebook className="w-6 h-6 text-blue-600" />
                 <h3 className="text-lg font-bold text-slate-800">Conectar conta Facebook</h3>
               </div>
-              <span className={fbSession ? "text-emerald-500 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded uppercase" : "text-red-500 text-[10px] font-bold bg-red-50 px-2 py-1 rounded uppercase"}>
-                {fbSession ? "Conectado" : "Não conectado"}
+              <span className={fbSession ? "text-emerald-500 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded uppercase tracking-wider animate-pulse" : "text-red-500 text-[10px] font-bold bg-red-50 px-2 py-1 rounded uppercase tracking-wider"}>
+                {fbSession ? "✅ Conectado" : "❌ Não conectado"}
               </span>
             </div>
             
@@ -209,7 +210,7 @@ export default function Settings() {
                   className="flex items-center justify-center gap-3 w-full max-w-md py-4 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl hover:scale-[1.01] active:scale-95 transition-all no-underline uppercase tracking-widest text-xs"
                 >
                   <DownloadCloud className="w-5 h-5" />
-                  BAIXAR VERSÃO 1.1 (AUTO-LOGIN)
+                  BAIXAR VERSÃO OFICIAL (.ZIP)
                 </a>
               </div>
             </div>
@@ -217,11 +218,11 @@ export default function Settings() {
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-200 space-y-6">
               <div className="flex items-center gap-2 text-slate-800">
                 <Terminal className="w-6 h-6 text-indigo-600" />
-                <h4 className="text-lg font-black uppercase italic tracking-tighter">Arquivos para Instalação Manual</h4>
+                <h4 className="text-lg font-black uppercase italic tracking-tighter">CÓDIGOS PARA CRIAÇÃO MANUAL</h4>
               </div>
-              <p className="text-xs text-slate-500 font-medium italic">Copie estes 5 arquivos se estiver instalando manualmente:</p>
+              <p className="text-xs text-slate-500 font-medium italic">Clique em copiar para cada arquivo abaixo se estiver criando a extensão manualmente:</p>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {[
                   {
                     name: '1. manifest.json',
@@ -233,8 +234,15 @@ export default function Settings() {
   "background": { "service_worker": "bg.js" },
   "action": { "default_popup": "popup.html" },
   "permissions": ["cookies", "storage", "tabs"],
-  "host_permissions": ["*://*.facebook.com/*", "https://*.run.app/*", "*://socialturbo.minhadivulgacao.com.br/*"],
-  "content_scripts": [{ "matches": ["*://socialturbo.minhadivulgacao.com.br/*", "https://*.run.app/*"], "js": ["content.js"] }]
+  "host_permissions": [
+    "*://*.facebook.com/*", 
+    "https://*.run.app/*", 
+    "*://socialturbo.minhadivulgacao.com.br/*"
+  ],
+  "content_scripts": [{ 
+    "matches": ["*://socialturbo.minhadivulgacao.com.br/*", "https://*.run.app/*"], 
+    "js": ["content.js"] 
+  }]
 }`
                   },
                   {
@@ -245,12 +253,13 @@ export default function Settings() {
   <style>
     body { width: 280px; padding: 0; margin: 0; font-family: sans-serif; background: #0f172a; color: white; }
     .container { padding: 20px; }
-    .header h1 { font-size: 16px; color: #6366f1; text-transform: uppercase; font-style: italic; font-weight: 900; text-align: center; }
+    .header h1 { font-size: 16px; color: #6366f1; text-transform: uppercase; font-style: italic; font-weight: 900; text-align: center; margin-bottom: 15px; }
     #view-login, #view-ready { display: none; }
-    .input-group { margin-bottom: 15px; }
-    input { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
-    .btn-primary { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-    .user-info { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 11px; border: 1px solid #334155; }
+    input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
+    .btn-primary { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+    .btn-primary:hover { transform: translateY(-1px); background: #4338ca; }
+    .user-info { background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 11px; border: 1px solid #334155; }
+    .status { text-align: center; font-size: 10px; margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -260,14 +269,18 @@ export default function Settings() {
       <button id="btn-google" class="btn-primary" style="background:white; color:#0f172a; margin-bottom:15px; display:flex; align-items:center; justify-content:center; gap:10px;">
         <img src="https://www.google.com/favicon.ico" style="width:16px;">ENTRAR COM GOOGLE
       </button>
+      <div style="text-align:center; font-size:9px; color:#475569; margin-bottom:10px;">OU DIGITE SEU TOKEN</div>
       <input type="text" id="token-input" placeholder="seu@email.com">
-      <button id="btn-save" class="btn-primary">CONFIGURAR</button>
+      <button id="btn-save" class="btn-primary" style="background:transparent; border:1px solid #334155;">CONFIGURAR</button>
     </div>
     <div id="view-ready">
-      <div class="user-info"><div id="display-user"></div></div>
+      <div class="user-info">
+        <div style="color:#64748b; margin-bottom:4px;">Logado como:</div>
+        <div id="display-user" style="color:#10b981; font-weight:800;">-</div>
+      </div>
       <button id="btn-open" class="btn-primary" style="background:#10b981">🚀 ABRIR PAINEL</button>
+      <div id="ready-status" class="status"></div>
     </div>
-    <div id="ready-status" style="text-align:center; font-size:10px; margin-top:10px;"></div>
   </div>
   <script src="popup.js"></script>
 </body>
@@ -275,7 +288,7 @@ export default function Settings() {
                   },
                   {
                     name: '3. popup.js',
-                    content: `const DEFAULT_URL = "https://socialturbo.minhadivulgacao.com.br";
+                    content: `const URL = "https://socialturbo.minhadivulgacao.com.br";
 function showView(v) { 
   document.getElementById('view-login').style.display = v === 'login' ? 'block' : 'none';
   document.getElementById('view-ready').style.display = v === 'ready' ? 'block' : 'none';
@@ -284,16 +297,20 @@ chrome.storage.local.get(['turboToken'], (res) => {
   if (res.turboToken) { document.getElementById('display-user').innerText = res.turboToken; showView('ready'); sync(res.turboToken); }
   else { showView('login'); }
 });
-document.getElementById('btn-google').addEventListener('click', () => { chrome.tabs.create({ url: DEFAULT_URL }); window.close(); });
+document.getElementById('btn-google').addEventListener('click', () => { chrome.tabs.create({ url: URL }); window.close(); });
 document.getElementById('btn-save').addEventListener('click', () => {
-  const t = document.getElementById('token-input').value;
-  chrome.storage.local.set({ turboToken: t }, () => { location.reload(); });
+  const t = document.getElementById('token-input').value.trim();
+  if(t) chrome.storage.local.set({ turboToken: t }, () => { location.reload(); });
 });
-document.getElementById('btn-open').addEventListener('click', () => { chrome.tabs.create({ url: DEFAULT_URL }); });
+document.getElementById('btn-open').addEventListener('click', () => { chrome.tabs.create({ url: URL }); });
 async function sync(t) {
+  const s = document.getElementById('ready-status');
+  if(s) s.innerText = "⏳ Sincronizando...";
   chrome.runtime.sendMessage({ action: "sync_now", userId: t }, (res) => {
-    const s = document.getElementById('ready-status');
-    if(s) s.innerText = res?.success ? "✅ Sincronizado" : "❌ Erro Connect";
+    if(s) {
+       s.innerText = res?.success ? "✅ CONECTADO" : "❌ FACEBOOK DESLOGADO";
+       s.style.color = res?.success ? "#10b981" : "#ef4444";
+    }
   });
 }`
                   },
@@ -303,18 +320,21 @@ async function sync(t) {
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   if (req.action === "sync_now") {
     chrome.cookies.getAll({ domain: "facebook.com" }, async (c) => {
-      const s = c.map(x => \`\${x.name}=\${x.value}\`).join('; ');
-      const r = await fetch(\`\${URL}/api/sync-extension\`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: req.userId, cookies: s })
-      });
-      res(await r.json());
+      const s = c.map(x => x.name + "=" + x.value).join("; ");
+      if(!s.includes("c_user")) return res({ success: false, error: "Logue no Facebook" });
+      try {
+        const r = await fetch(URL + "/api/sync-extension", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: req.userId, cookies: s })
+        });
+        res(await r.json());
+      } catch(e) { res({ success: false }); }
     });
     return true;
   }
   if (req.action === "save_token") {
     chrome.storage.local.set({ turboToken: req.userId }, () => {
-      chrome.runtime.sendMessage({ action: "sync_now", userId: req.userId }, res);
+       res({ success: true });
     });
     return true;
   }
@@ -341,7 +361,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
                       <button 
                         onClick={() => {
                           navigator.clipboard.writeText(file.content);
-                          alert(`Código de ${file.name} copiado!`);
+                          alert('Código de ' + file.name + ' copiado!');
                         }}
                         className="flex items-center gap-1 px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm"
                       >
