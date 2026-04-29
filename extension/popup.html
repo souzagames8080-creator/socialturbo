@@ -13,10 +13,19 @@
   <button id="capture">Conectar Perfil</button>
   <script>
     document.getElementById('capture').onclick = () => {
+      const btn = document.getElementById('capture');
+      btn.innerText = "Capturando...";
+      btn.style.background = "#059669";
+
       chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         chrome.scripting.executeScript({
           target: {tabId: tabs[0].id},
           files: ['content.js']
+        }, () => {
+          setTimeout(() => {
+            btn.innerText = "Conectado!";
+            setTimeout(() => { btn.innerText = "Conectar Perfil"; btn.style.background = "#2563eb"; }, 2000);
+          }, 500);
         });
       });
     };

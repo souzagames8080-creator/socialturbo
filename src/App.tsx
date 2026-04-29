@@ -9,7 +9,6 @@ import { auth, onAuthStateChanged, db, doc, onSnapshot, updateDoc } from './lib/
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
-import WhatsappTurbo from './pages/WhatsappTurbo';
 import FacebookGroups from './pages/FacebookGroups';
 import FacebookJoin from './pages/FacebookJoin';
 import ExtensionInfo from './pages/ExtensionInfo';

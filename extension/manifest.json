@@ -9,30 +9,36 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  },
   "permissions": [
     "cookies",
     "tabs",
-    "storage"
+    "storage",
+    "scripting",
+    "activeTab"
   ],
   "host_permissions": [
     "https://*.facebook.com/*",
     "http://localhost:3000/*",
-    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*"
+    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*",
+    "https://socialturbo.minhadivulgacao.com.br/*"
   ],
   "content_scripts": [
     {
       "matches": ["https://*.facebook.com/*"],
       "js": ["content.js"]
+    },
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*",
+        "https://socialturbo.minhadivulgacao.com.br/*"
+      ],
+      "js": ["bridge.js"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icon.png"],
+      "resources": ["manifest.json"],
       "matches": ["<all_urls>"]
     }
   ]

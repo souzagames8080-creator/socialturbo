@@ -4,8 +4,8 @@ import { motion } from 'motion/react';
 export default function ExtensionInfo() {
   const steps = [
     {
-      title: "Baixe os Arquivos",
-      desc: "Os arquivos da extensão estão na pasta '/extension' do seu projeto no AI Studio.",
+      title: "Exportar Projeto",
+      desc: "Clique no menu do sistema e selecione 'Export to ZIP'. Extraia o arquivo no seu computador e localize a pasta 'extension'.",
       icon: Download
     },
     {
