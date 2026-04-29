@@ -25,6 +25,7 @@ import { cn } from '../lib/utils';
 
 export default function WhatsappTurbo() {
   const [isConnected, setIsConnected] = useState(false);
+  const [connectedUser, setConnectedUser] = useState<{ id: string, name?: string } | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [qrValue, setQrValue] = useState('');
   const [numbersText, setNumbersText] = useState('');
@@ -50,11 +51,34 @@ export default function WhatsappTurbo() {
       setLoading(false);
     });
 
-    socket.on('whatsapp_status', (status: string) => {
+    socket.on('whatsapp_status', (data: any) => {
+      const status = typeof data === 'string' ? data : data.status;
       if (status === 'connected') {
         setIsConnected(true);
+        setConnectedUser(data.user || null);
         setShowQR(false);
+      } else {
+        setIsConnected(false);
+        setConnectedUser(null);
       }
+    });
+
+    socket.on('bulk_progress', ({ number, status }: { number: string, status: 'success' | 'error' }) => {
+      setExecutionLogs(prev => prev.map(l => 
+        l.number === number ? { ...l, status: status === 'success' ? 'success' : 'failed', time: new Date().toLocaleTimeString() } : l
+      ));
+    });
+
+    socket.on('bulk_done', () => {
+      setPostingStatus('done');
+      setLoading(false);
+      alert('Envios concluídos!');
+    });
+
+    socket.on('bulk_error', (err: string) => {
+      alert('Erro: ' + err);
+      setPostingStatus('idle');
+      setLoading(false);
     });
 
     return () => {
@@ -98,7 +122,7 @@ export default function WhatsappTurbo() {
       .filter(x => x.number.length >= 8);
   };
 
-  const handleStartSending = async () => {
+  const handleStartSending = () => {
     if (!isConnected) return;
     const contacts = parseNumbers();
     if (contacts.length === 0) return alert('Insira pelo menos um número válido (55...)');
@@ -114,21 +138,11 @@ export default function WhatsappTurbo() {
     }));
     setExecutionLogs(initialLogs);
 
-    for (let i = 0; i < initialLogs.length; i++) {
-      setExecutionLogs(prev => prev.map((l, idx) => idx === i ? { ...l, status: 'loading' } : l));
-      const wait = Math.floor(Math.random() * (delayMax - delayMin + 1) + delayMin) * 100; // Simulado menor pra demo
-      await new Promise(r => setTimeout(r, wait));
-      
-      const success = Math.random() > 0.05;
-      setExecutionLogs(prev => prev.map((l, idx) => idx === i ? { 
-        ...l, 
-        status: success ? 'success' : 'failed',
-        time: new Date().toLocaleTimeString()
-      } : l));
-    }
-
-    setPostingStatus('done');
-    setLoading(false);
+    // Envia para o backend processar os disparos
+    socketRef.current?.emit('send_message', {
+      numbers: contacts.map(c => c.number),
+      message: postText
+    });
   };
 
   if (!isConnected) {
@@ -220,7 +234,9 @@ export default function WhatsappTurbo() {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-                <p className="text-emerald-50 text-[10px] font-black uppercase tracking-widest opacity-80">WhatsApp Conectado: +55 (85) 99...3518</p>
+                <p className="text-emerald-50 text-[10px] font-black uppercase tracking-widest opacity-80">
+                  {connectedUser ? `WhatsApp Conectado: ${connectedUser.id.split(':')[0]}` : 'WhatsApp Conectado'}
+                </p>
               </div>
             </div>
             

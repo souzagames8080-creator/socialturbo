@@ -41,10 +41,11 @@ export default function App() {
         const data = docSnapshot.data() as UserProfile;
         
         // Auto promote owner if needed without requiring logout
-        if (user.email === 'souzagames8080@gmail.com' && (data.role !== 'admin' || data.plan !== 'pro')) {
+        if (user.email === 'souzagames8080@gmail.com' && (data.role !== 'admin' || data.plan !== 'pro' || data.status === 'blocked')) {
            updateDoc(docSnapshot.ref, { 
              role: 'admin', 
              plan: 'pro',
+             status: 'active',
              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year for owner
            });
         }

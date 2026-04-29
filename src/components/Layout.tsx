@@ -57,7 +57,7 @@ export default function Layout({ profile }: LayoutProps) {
               className={cn(
                 "flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm",
                 location.pathname === item.path
-                   ? "bg-blue-50 text-blue-600 shadow-sm border border-blue-100" 
+                   ? "bg-emerald-50 text-emerald-600 shadow-sm border border-emerald-100" 
                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
@@ -95,7 +95,7 @@ export default function Layout({ profile }: LayoutProps) {
              <div className="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center">
               <Smartphone className="text-white w-5 h-5" />
             </div>
-            <span className="font-black text-slate-800 uppercase italic tracking-tighter">SocialTurbo</span>
+            <span className="font-black text-slate-800 uppercase italic tracking-tighter">TurboZap</span>
           </div>
           <button onClick={() => setIsMobileMenuOpen(true)}>
             <Menu className="w-6 h-6 text-slate-600" />
@@ -155,7 +155,7 @@ export default function Layout({ profile }: LayoutProps) {
                     className={cn(
                       "flex items-center gap-3 px-4 py-4 rounded-2xl transition-all font-bold",
                       location.pathname === item.path
-                        ? "bg-blue-50 text-blue-600 border border-blue-100" 
+                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
                         : "text-slate-500 hover:bg-slate-50"
                     )}
                   >
