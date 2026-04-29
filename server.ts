@@ -115,6 +115,7 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    console.log("Starting in DEVELOPMENT mode with Vite middleware...");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -123,9 +124,19 @@ async function startServer() {
   } else {
     // Production serving
     const distPath = path.join(process.cwd(), "dist");
+    console.log(`Starting in PRODUCTION mode. Serving static files from: ${distPath}`);
+    
+    // Serve static files
     app.use(express.static(distPath));
+    
+    // SPA Fallback: All other routes serve index.html
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(path.join(distPath, "index.html"), (err) => {
+        if (err) {
+          console.error("Error sending index.html:", err);
+          res.status(500).send("O servidor não conseguiu encontrar os arquivos do sistema. Por favor, contate o suporte.");
+        }
+      });
     });
   }
 
