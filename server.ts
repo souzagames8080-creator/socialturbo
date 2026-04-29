@@ -3,6 +3,8 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import admin from "firebase-admin";
+import { readFileSync } from "fs";
 
 dotenv.config();
 
@@ -12,6 +14,28 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Initialize Firebase Admin safely
+  let dbAdmin: any = null;
+  try {
+    const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+    const firebaseConfig = JSON.parse(readFileSync(configPath, "utf8"));
+    
+    // Check if already initialized to avoid errors on restart
+    if (admin.apps.length === 0) {
+      admin.initializeApp({
+        projectId: firebaseConfig.projectId,
+      });
+    }
+    
+    // Get the specific database instance
+    // In newer firebase-admin versions, we use getFirestore from 'firebase-admin/firestore'
+    // but with the 'admin' object it's often admin.firestore()
+    dbAdmin = admin.firestore(firebaseConfig.firestoreDatabaseId);
+    console.log("Firebase Admin initialized successfully");
+  } catch (err) {
+    console.error("Critical: Failed to initialize Firebase Admin:", err);
+  }
 
   app.use(express.json());
 
@@ -31,15 +55,23 @@ async function startServer() {
 
       console.log(`[Extensão] Sincronizando cookies para: ${userId}`);
       
-      // Aqui o servidor recebe e você pode processar. 
-      // Por enquanto vamos retornar sucesso para a extensão não dar erro.
+      if (!dbAdmin) {
+        throw new Error("Servidor de banco de dados não inicializado.");
+      }
+
+      // Salva os cookies no banco de dados do usuário
+      await dbAdmin.collection("users").doc(userId).update({
+        fbSession: cookies,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
       res.json({ 
         success: true, 
         message: "Conectado com sucesso ao SocialTurbo Pro!" 
       });
     } catch (error) {
       console.error("Erro na sincronização:", error);
-      res.status(500).json({ error: "Erro interno" });
+      res.status(500).json({ error: "Erro interno: " + (error instanceof Error ? error.message : "Desconhecido") });
     }
   });
 

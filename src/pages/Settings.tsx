@@ -32,10 +32,25 @@ export default function Settings() {
   // COLE SEU LINK DO GOOGLE DRIVE AQUI DENTRO DAS ASPAS:
   const LINK_DOWNLOAD_EXTENSAO = "https://drive.google.com/file/d/1krIA6Hk0qA80IFgye6dm3-uCbNogNGtz/view?usp=sharing";
 
+  const [syncing, setSyncing] = useState(false);
+
   useEffect(() => {
     if (profile) {
       setFbSession(profile.fbSession || '');
     }
+
+    const handleExtResponse = (event: any) => {
+      const response = event.detail;
+      setSyncing(false);
+      if (response && response.success) {
+        alert("✅ CONECTADO!\nA extensão sincronizou seus dados com o servidor com sucesso.");
+      } else {
+        alert("❌ ERRO NA EXTENSÃO:\n" + (response?.error || "Verifique se está logado no Facebook."));
+      }
+    };
+
+    window.addEventListener("SOCIAL_TURBO_EXT_RESPONSE", handleExtResponse);
+    return () => window.removeEventListener("SOCIAL_TURBO_EXT_RESPONSE", handleExtResponse);
   }, [profile]);
 
   const handleUpdateSession = async () => {
@@ -164,15 +179,16 @@ export default function Settings() {
                       
                       <button 
                         onClick={() => {
+                          setSyncing(true);
                           const event = new CustomEvent("SOCIAL_TURBO_EXT_SYNC", { 
                             detail: { userId: profile?.uid } 
                           });
                           window.dispatchEvent(event);
-                          alert("⏳ SINCRONIZANDO...\nEnviando sinal para sua extensão SocialTurbo Pro.");
                         }}
-                        className="w-full bg-white text-indigo-600 font-black py-5 rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-base shadow-xl active:scale-95 relative z-10"
+                        disabled={syncing}
+                        className="w-full bg-white text-indigo-600 font-black py-5 rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-base shadow-xl active:scale-95 relative z-10 disabled:opacity-50"
                       >
-                        SINCRONIZAR AGORA 🚀
+                        {syncing ? 'SINCRONIZANDO...' : 'SINCRONIZAR AGORA 🚀'}
                       </button>
                     </div>
 
@@ -227,11 +243,9 @@ export default function Settings() {
 
               <div className="mt-8 flex justify-center">
                 <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("⚠️ Os arquivos da extensão oficial já estão criados no seu servidor. Entre na pasta '/extension_files/' do projeto para baixá-los.");
-                  }}
+                  href={LINK_DOWNLOAD_EXTENSAO}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center justify-center gap-3 w-full max-w-md py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all no-underline uppercase tracking-widest text-sm"
                 >
                   <DownloadCloud className="w-5 h-5" />
@@ -257,102 +271,62 @@ export default function Settings() {
   "name": "SocialTurbo Pro",
   "version": "1.0",
   "permissions": ["cookies", "activeTab", "storage"],
-  "host_permissions": ["*://*.facebook.com/*"],
-  "action": { "default_popup": "popup.html" }
+  "host_permissions": [
+    "*://*.facebook.com/*",
+    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*",
+    "*://\${window.location.host}/*"
+  ],
+  "action": { "default_popup": "popup.html" },
+  "background": { "service_worker": "bg.js" },
+  "content_scripts": [
+    {
+      "matches": ["*://\${window.location.host}/*"],
+      "js": ["content.js"]
+    }
+  ]
 }`}
                   </pre>
                 </details>
 
                 <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
-                    2. popup.html
+                    2. content.js
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
                   <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
-{`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { width: 300px; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; }
-    .card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-    h2 { font-size: 18px; color: #1e293b; margin: 0 0 10px 0; font-weight: 800; font-style: italic; text-transform: uppercase; }
-    p { font-size: 11px; color: #64748b; margin-bottom: 15px; font-weight: 500; }
-    input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; margin-bottom: 10px; box-sizing: border-box; }
-    button { background: #4f46e5; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 800; font-size: 12px; text-transform: uppercase; transition: all 0.2s; }
-    button:hover { background: #4338ca; transform: translateY(-1px); }
-    button:active { transform: translateY(0); }
-    .status { margin-top: 10px; font-size: 10px; font-weight: bold; text-align: center; color: #10b981; min-height: 15px; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h2>SocialTurbo Pro</h2>
-    <p>Conecte seu Facebook automaticamente.</p>
-    <input type="text" id="token" placeholder="Cole seu Token de Conexão aqui">
-    <button id="btn">SYNC AGORA 🚀</button>
-    <div id="status" class="status"></div>
-  </div>
-  <script src="popup.js"></script>
-</body>
-</html>`}
+{`window.addEventListener("SOCIAL_TURBO_EXT_SYNC", (event) => {
+  const { userId } = event.detail;
+  if (!userId) return;
+  chrome.runtime.sendMessage({ 
+    action: "sync_now", 
+    userId, 
+    origin: window.location.origin 
+  });
+});`}
                   </pre>
                 </details>
 
                 <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
-                    3. popup.js
+                    3. bg.js
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
                   <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
-{`const API_URL = "https://\${window.location.host}/api/sync-extension";
+{`const DEFAULT_URL = "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app";
 
-// Salva e carrega o token automaticamente
-chrome.storage.local.get(['turboToken'], (res) => {
-  if (res.turboToken) document.getElementById('token').value = res.turboToken;
-});
-
-document.getElementById('btn').addEventListener('click', async () => {
-  const token = document.getElementById('token').value;
-  const statusEl = document.getElementById('status');
-  
-  if (!token) {
-    statusEl.style.color = '#ef4444';
-    statusEl.innerText = "❌ ERRO: INSIRA O TOKEN!";
-    return;
-  }
-
-  statusEl.style.color = '#4f46e5';
-  statusEl.innerText = "⏳ SINCRONIZANDO...";
-
-  chrome.storage.local.set({ turboToken: token });
-
-  try {
-    const cookies = await chrome.cookies.getAll({ domain: "facebook.com" });
-    const cookieStr = cookies.map(c => \`\${c.name}=\${c.value}\`).join('; ');
-
-    // Detecta o domínio atual do SocialTurbo se estiver aberto
-    let targetUrl = "https://\${window.location.host}/api/sync-extension";
-    const tabs = await chrome.tabs.query({ active: true });
-    
-    const response = await fetch(targetUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: token, cookies: cookieStr })
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "sync_now") {
+    const url = (request.origin || DEFAULT_URL) + "/api/sync-extension";
+    chrome.cookies.getAll({ domain: "facebook.com" }, async (cookies) => {
+      const cookieStr = cookies.map(c => \`\${c.name}=\${c.value}\`).join('; ');
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: request.userId, cookies: cookieStr })
+      });
+      sendResponse({ success: true });
     });
-
-    const result = await response.json();
-    if (result.success) {
-      statusEl.style.color = '#10b981';
-      statusEl.innerText = "✅ SUCESSO! DADOS ENVIADOS.";
-      alert("SocialTurbo Conectado! Já pode fechar esta aba.");
-    } else {
-      throw new Error("Erro no servidor");
-    }
-  } catch (err) {
-    statusEl.style.color = '#ef4444';
-    statusEl.innerText = "❌ ERRO AO SINCRONIZAR";
-    alert("Certifique-se de estar logado no Facebook em alguma aba do navegador.");
+    return true;
   }
 });`}
                   </pre>

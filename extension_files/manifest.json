@@ -20,12 +20,14 @@
   ],
   "host_permissions": [
     "*://*.facebook.com/*",
-    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*"
+    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*",
+    "*://socialturbo.minhadivulgacao.com.br/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*"
+        "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*",
+        "*://socialturbo.minhadivulgacao.com.br/*"
       ],
       "js": ["content.js"],
       "all_frames": true
