@@ -33,7 +33,6 @@ export default function Layout({ profile }: LayoutProps) {
     { path: '/dashboard', icon: LayoutDashboard, label: 'Início' },
     { path: '/facebook-groups', icon: Users, label: 'Facebook Grupos' },
     { path: '/facebook-join', icon: Plus, label: 'Facebook Entrar' },
-    { path: '/whatsapp-turbo', icon: Smartphone, label: 'WhatsApp Turbo' },
     { path: '/history', icon: History, label: 'Relatórios' },
     { path: '/settings', icon: Settings, label: 'Configurações' },
   ];

@@ -101,7 +101,6 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/facebook-groups" element={<FacebookGroups />} />
           <Route path="/facebook-join" element={<FacebookJoin />} />
-          <Route path="/whatsapp-turbo" element={<WhatsappTurbo />} />
           <Route path="/history" element={<Logs />} />
           <Route path="/settings" element={<Settings />} />
           

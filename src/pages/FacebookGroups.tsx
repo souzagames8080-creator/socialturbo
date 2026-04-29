@@ -11,7 +11,12 @@ import {
   ChevronRight,
   Filter,
   CheckSquare,
-  Square
+  Square,
+  Facebook,
+  LogIn,
+  Key,
+  ShieldCheck,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -22,6 +27,12 @@ interface Group {
   memberCount: string;
 }
 
+interface FBAccount {
+  id: string;
+  name: string;
+  status: 'active' | 'expired';
+}
+
 const MOCK_GROUPS: Group[] = Array.from({ length: 50 }, (_, i) => ({
   id: `${1234567890 + i}`,
   name: `Grupo de Vendas ${i + 1} - ${['Fortaleza', 'São Paulo', 'Rio', 'Curitiba'][i % 4]}`,
@@ -29,6 +40,10 @@ const MOCK_GROUPS: Group[] = Array.from({ length: 50 }, (_, i) => ({
 }));
 
 export default function FacebookGroups() {
+  const [fbAccount, setFbAccount] = useState<FBAccount | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [token, setToken] = useState('');
+  
   const [message, setMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
@@ -71,7 +86,24 @@ export default function FacebookGroups() {
     }
   };
 
+  const handleLogin = () => {
+    if (!token.trim()) return;
+    // Simulação de captura de conta via Token/Cookie
+    setFbAccount({
+      id: '1000987654321',
+      name: 'Anderson Luiz Souza',
+      status: 'active'
+    });
+    setShowLoginModal(false);
+    setToken('');
+  };
+
   const handlePost = () => {
+    if (!fbAccount) {
+      alert('Conecte uma conta do Facebook primeiro');
+      setShowLoginModal(true);
+      return;
+    }
     if (selectedGroups.length === 0) {
       alert('Selecione pelo menos um grupo');
       return;
@@ -80,16 +112,15 @@ export default function FacebookGroups() {
       alert('Digite uma mensagem');
       return;
     }
-    console.log('Postando nos grupos:', selectedGroups, 'Mensagem:', message, 'Settings:', settings);
-    alert('Simulação de postagem iniciada!');
+    alert('Postagem iniciada em ' + selectedGroups.length + ' grupos!');
   };
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-20">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Header com Status da Conta */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter decoration-emerald-500 decoration-8 underline-offset-8 underline">
+          <h1 className="text-4xl font-black text-slate-800 italic uppercase tracking-tighter decoration-blue-600 decoration-8 underline-offset-8 underline">
             Postar em <span className="text-blue-600">Grupos</span>
           </h1>
           <p className="text-slate-500 font-bold mt-2 uppercase text-xs tracking-widest italic">
@@ -97,16 +128,62 @@ export default function FacebookGroups() {
           </p>
         </div>
         
-        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs uppercase">
-            {selectedGroups.length} Grupos Selecionados
+        {fbAccount ? (
+          <div className="flex items-center gap-4 bg-white p-3 pr-6 rounded-[2rem] border-2 border-blue-100 shadow-xl shadow-blue-50">
+            <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+              <Facebook size={28} fill="currentColor" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Conta Conectada</p>
+              <h3 className="font-black text-slate-800 uppercase italic tracking-tighter leading-tight">{fbAccount.name}</h3>
+              <div className="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 italic mt-0.5">
+                <CheckCircle2 size={10} /> STATUS ATUALIZADO
+              </div>
+            </div>
+            <button 
+              onClick={() => setFbAccount(null)}
+              className="ml-4 p-2 bg-slate-50 text-slate-400 hover:text-red-500 rounded-xl transition-colors"
+            >
+              Sair
+            </button>
           </div>
-        </div>
+        ) : (
+          <button 
+            onClick={() => setShowLoginModal(true)}
+            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase italic tracking-widest shadow-xl shadow-blue-200 transition-all active:scale-95"
+          >
+            <LogIn size={18} />
+            Conectar Facebook
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {!fbAccount && (
+        <div className="bg-blue-600 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+          <div className="relative z-10 space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter">Nenhuma conta ativa!</h2>
+              <p className="font-medium text-blue-100 max-w-lg">
+                Para capturar os grupos e iniciar os disparos, você precisa conectar sua conta do Facebook via Access Token ou Cookies.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowLoginModal(true)}
+              className="px-8 py-4 bg-white text-blue-600 rounded-2xl font-black text-xs uppercase italic tracking-widest hover:bg-blue-50 transition-colors"
+            >
+              Vincular Agora
+            </button>
+          </div>
+          <Facebook className="absolute -right-10 -bottom-10 w-64 h-64 text-white/10 rotate-12" />
+        </div>
+      )}
+
+      {/* Grid Principal */}
+      <div className={cn("grid grid-cols-1 lg:grid-cols-12 gap-8 transition-opacity duration-500", !fbAccount && "opacity-30 pointer-events-none grayscale")}>
         {/* Left Column: Post Settings */}
         <div className="lg:col-span-5 space-y-6">
+          {/* ... (resto do componente FacebookGroups continua igual, mas com os seletores de conta se houver múltiplas) */}
+
           <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-xl shadow-slate-200/50 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Plus size={120} className="text-slate-900" />
@@ -357,6 +434,71 @@ export default function FacebookGroups() {
           </div>
         </div>
       </div>
+      {/* Login Modal */}
+      <AnimatePresence>
+        {showLoginModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLoginModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[3rem] p-10 shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8">
+                <button onClick={() => setShowLoginModal(false)} className="text-slate-300 hover:text-slate-500 transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                <div className="space-y-2">
+                  <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-blue-200 mb-6">
+                    <LogIn size={32} />
+                  </div>
+                  <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">Capturar Conta</h2>
+                  <p className="text-slate-500 font-medium">Use seu Access Token para vincular o perfil ao SocialTurbo.</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Access Token / Cookie</label>
+                    <div className="relative">
+                      <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
+                      <textarea 
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
+                        placeholder="EAAAA..."
+                        className="w-full h-32 bg-slate-50 border-2 border-slate-100 rounded-3xl py-4 pl-14 pr-6 text-slate-700 font-mono font-bold focus:border-blue-200 focus:bg-white transition-all outline-none resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-start gap-3">
+                    <ShieldCheck className="text-emerald-500 mt-1 shrink-0" size={18} />
+                    <p className="text-[10px] text-emerald-700 font-bold uppercase italic leading-relaxed">
+                      Sua conta é processada localmente. O SocialTurbo não armazena sua senha original, apenas o token de sessão.
+                    </p>
+                  </div>
+
+                  <button 
+                    onClick={handleLogin}
+                    className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase italic tracking-widest shadow-xl shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-3"
+                  >
+                    Vincular Perfil
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

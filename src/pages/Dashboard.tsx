@@ -127,12 +127,12 @@ export default function Dashboard() {
                   <Facebook size={100} />
                 </div>
              </Link>
-             <Link to="/whatsapp-turbo" className="block w-full p-6 bg-slate-50 hover:bg-emerald-600 rounded-3xl group transition-all text-left border border-slate-100 hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-100 relative overflow-hidden">
-                <Smartphone className="text-slate-400 w-8 h-8 mb-4 group-hover:text-white transition-colors" />
-                <p className="text-slate-800 font-black italic group-hover:text-white uppercase tracking-tight text-lg">WhatsApp Turbo</p>
-                <p className="text-slate-500 text-[10px] mt-1 group-hover:text-emerald-100 uppercase font-black tracking-widest italic">Conexão via QR</p>
+             <Link to="/facebook-join" className="block w-full p-6 bg-slate-50 hover:bg-emerald-600 rounded-3xl group transition-all text-left border border-slate-100 hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-100 relative overflow-hidden">
+                <Users className="text-slate-400 w-8 h-8 mb-4 group-hover:text-white transition-colors" />
+                <p className="text-slate-800 font-black italic group-hover:text-white uppercase tracking-tight text-lg">Facebook Entrar</p>
+                <p className="text-slate-500 text-[10px] mt-1 group-hover:text-emerald-100 uppercase font-black tracking-widest italic">Adesão por UID</p>
                 <div className="absolute -right-4 -bottom-4 text-slate-200/20 group-hover:text-white/10 transition-colors">
-                  <Smartphone size={100} />
+                  <Users size={100} />
                 </div>
              </Link>
           </div>
