@@ -18,6 +18,7 @@
   ],
   "host_permissions": [
     "https://*.facebook.com/*",
+    "https://*.messenger.com/*",
     "http://localhost:3000/*",
     "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*",
     "https://socialturbo.minhadivulgacao.com.br/*"

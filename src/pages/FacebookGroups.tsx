@@ -80,29 +80,21 @@ export default function FacebookGroups() {
 
   useEffect(() => {
     const handleExtensionMessage = (event: MessageEvent) => {
-      // Log para debug (aparecerá no console do navegador)
-      console.log("Mensagem recebida no Painel:", event.data);
-
       if (event.data?.source === 'socialturbo_extension' && event.data?.token) {
         const { token, name, uid } = event.data;
-        
         setToken(token);
         const newAccount: FBAccount = {
           id: uid || 'captured_id',
           name: name || 'Conta Capturada',
           status: 'active'
         };
-        
         setFbAccount(newAccount);
         localStorage.setItem('socialturbo_fb_account', JSON.stringify(newAccount));
-        
-        // Alerta visual imediato
-        alert(`SUCESSO! Perfil "${name}" conectado via Extensão.`);
+        alert(`SUCESSO! Perfil "${name}" conectado.`);
       }
     };
 
     window.addEventListener('message', handleExtensionMessage);
-    // Também ouve do chrome runtime se injetado diretamente (bridge)
     return () => window.removeEventListener('message', handleExtensionMessage);
   }, []);
 
