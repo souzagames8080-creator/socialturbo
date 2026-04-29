@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "SocialTurbo Pro Extension",
+  "version": "1.0.0",
+  "description": "Ferramenta oficial de conexão SocialTurbo Pro",
+  "background": {
+    "service_worker": "bg.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "permissions": [
+    "cookies",
+    "storage",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*.facebook.com/*",
+    "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ais-dev-zixasjyas3up27harioref-10471001554.us-west2.run.app/*"
+      ],
+      "js": ["content.js"],
+      "all_frames": true
+    }
+  ]
+}

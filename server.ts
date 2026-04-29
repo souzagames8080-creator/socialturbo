@@ -20,6 +20,29 @@ async function startServer() {
     res.json({ status: "ok", time: new Date().toISOString() });
   });
 
+  // API para a Extensão sincronizar dados automaticamente
+  app.post("/api/sync-extension", async (req, res) => {
+    try {
+      const { userId, cookies } = req.body;
+
+      if (!userId || !cookies) {
+        return res.status(400).json({ error: "Dados inválidos" });
+      }
+
+      console.log(`[Extensão] Sincronizando cookies para: ${userId}`);
+      
+      // Aqui o servidor recebe e você pode processar. 
+      // Por enquanto vamos retornar sucesso para a extensão não dar erro.
+      res.json({ 
+        success: true, 
+        message: "Conectado com sucesso ao SocialTurbo Pro!" 
+      });
+    } catch (error) {
+      console.error("Erro na sincronização:", error);
+      res.status(500).json({ error: "Erro interno" });
+    }
+  });
+
   // Facebook OAuth Implementation
   app.get("/api/auth/facebook/url", (req, res) => {
     const appId = process.env.VITE_FB_APP_ID;
