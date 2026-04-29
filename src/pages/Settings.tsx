@@ -39,19 +39,35 @@ export default function Settings() {
       setFbSession(profile.fbSession || '');
     }
 
-    const handleExtResponse = (event: any) => {
-      const response = event.detail;
+    const handleExtResponse = (event: MessageEvent) => {
+      if (event.source !== window || event.data.type !== "SOCIAL_TURBO_EXT_RESPONSE") return;
+      
+      const response = event.data.detail;
       setSyncing(false);
+      
       if (response && response.success) {
         alert("✅ CONECTADO!\nA extensão sincronizou seus dados com o servidor com sucesso.");
       } else {
-        alert("❌ ERRO NA EXTENSÃO:\n" + (response?.error || "Verifique se está logado no Facebook."));
+        const errorMsg = response?.error || "Verifique se está logado no Facebook no seu navegador.";
+        alert("❌ ERRO NA SINCRONIZAÇÃO:\n" + errorMsg);
       }
     };
 
-    window.addEventListener("SOCIAL_TURBO_EXT_RESPONSE", handleExtResponse);
-    return () => window.removeEventListener("SOCIAL_TURBO_EXT_RESPONSE", handleExtResponse);
+    window.addEventListener("message", handleExtResponse);
+    return () => window.removeEventListener("message", handleExtResponse);
   }, [profile]);
+
+  // Timeout para o botão de sincronizar não ficar travado
+  useEffect(() => {
+    let timer: any;
+    if (syncing) {
+      timer = setTimeout(() => {
+        setSyncing(false);
+        alert("⚠️ TEMPO ESGOTADO:\nA extensão não respondeu. Certifique-se de que a extensão oficial SocialTurbo Pro está instalada e ativa.");
+      }, 15000); // 15 segundos de timeout
+    }
+    return () => clearTimeout(timer);
+  }, [syncing]);
 
   const handleUpdateSession = async () => {
     if (!auth.currentUser) return;
@@ -180,10 +196,10 @@ export default function Settings() {
                       <button 
                         onClick={() => {
                           setSyncing(true);
-                          const event = new CustomEvent("SOCIAL_TURBO_EXT_SYNC", { 
+                          window.postMessage({ 
+                            type: "SOCIAL_TURBO_EXT_SYNC", 
                             detail: { userId: profile?.uid } 
-                          });
-                          window.dispatchEvent(event);
+                          }, "*");
                         }}
                         disabled={syncing}
                         className="w-full bg-white text-indigo-600 font-black py-5 rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-base shadow-xl active:scale-95 relative z-10 disabled:opacity-50"
@@ -294,13 +310,15 @@ export default function Settings() {
                     <span className="text-[10px] bg-slate-200 px-2 py-1 rounded">Clique para ver</span>
                   </summary>
                   <pre className="p-4 text-[10px] bg-slate-900 text-indigo-400 overflow-x-auto font-mono">
-{`window.addEventListener("SOCIAL_TURBO_EXT_SYNC", (event) => {
-  const { userId } = event.detail;
-  if (!userId) return;
+{`window.addEventListener("message", (event) => {
+  if (event.source !== window || event.data.type !== "SOCIAL_TURBO_EXT_SYNC") return;
+  const { userId } = event.data.detail;
   chrome.runtime.sendMessage({ 
     action: "sync_now", 
     userId, 
     origin: window.location.origin 
+  }, (response) => {
+    window.postMessage({ type: "SOCIAL_TURBO_EXT_RESPONSE", detail: response }, "*");
   });
 });`}
                   </pre>

@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import { readFileSync } from "fs";
+import cors from "cors";
 
 dotenv.config();
 
@@ -29,14 +30,18 @@ async function startServer() {
     }
     
     // Get the specific database instance
-    // In newer firebase-admin versions, we use getFirestore from 'firebase-admin/firestore'
-    // but with the 'admin' object it's often admin.firestore()
-    dbAdmin = admin.firestore(firebaseConfig.firestoreDatabaseId);
-    console.log("Firebase Admin initialized successfully");
+    // For named databases in firebase-admin 11+, use the databaseId if provided
+    if (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== "(default)") {
+      dbAdmin = admin.firestore(firebaseConfig.firestoreDatabaseId);
+    } else {
+      dbAdmin = admin.firestore();
+    }
+    console.log(`Firebase Admin initialized successfully (Database: ${firebaseConfig.firestoreDatabaseId || 'default'})`);
   } catch (err) {
     console.error("Critical: Failed to initialize Firebase Admin:", err);
   }
 
+  app.use(cors());
   app.use(express.json());
 
   // API Routes
