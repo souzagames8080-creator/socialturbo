@@ -57,6 +57,9 @@ export default function WhatsappTurbo() {
         setIsConnected(true);
         setConnectedUser(data.user || null);
         setShowQR(false);
+      } else if (status === 'starting') {
+        setLoading(true);
+        setIsConnected(false);
       } else {
         setIsConnected(false);
         setConnectedUser(null);
@@ -203,7 +206,9 @@ export default function WhatsappTurbo() {
                   </div>
                   
                   <div className="space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Aguardando leitura do código...</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
+                      {qrValue ? 'Capture o código original acima' : 'Iniciando navegador no servidor...'}
+                    </p>
                     <button 
                       onClick={handleRequestQR}
                       className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-xs uppercase italic hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
