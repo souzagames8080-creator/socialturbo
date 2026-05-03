@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --accent-color: #2563eb;
+}
+
+body {
+  background: radial-gradient(circle at top right, #0f172a, #020617);
+  color: #f8fafc;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+.num-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+  gap: 10px;
+}
+
+.num-card {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.num-card:hover {
+  transform: scale(1.1);
+  z-index: 10;
+  box-shadow: 0 0 20px var(--accent-color);
+  opacity: 0.8;
+}
+
+.status-disponivel {
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  backdrop-filter: blur(4px);
+}
+
+.status-reservado {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #fff;
+  border-color: #f59e0b;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.status-pago {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border-color: #15803d;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.num-card.selected {
+  border-color: var(--accent-color);
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2.5rem;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(12deg); }
+  50% { transform: translateY(-10px) rotate(15deg); }
+  100% { transform: translateY(0px) rotate(12deg); }
+}
+
+header img[alt="money"] {
+  animation: float 4s ease-in-out infinite;
+}
+
+header img[alt="money"]:nth-child(2) {
+  animation: float 5s ease-in-out infinite reverse;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal.active {
+  display: flex;
+}

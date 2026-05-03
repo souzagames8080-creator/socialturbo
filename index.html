@@ -1,13 +1,74 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SocialTurbo Pro | Automação Profissional</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa Online | Participe Agora</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto relative">
+        <header class="text-center mb-16 pt-12 relative">
+            <!-- Decoração de Dinheiro -->
+            <img src="https://static.vecteezy.com/system/resources/previews/021/186/515/original/200-reais-brazilian-money-3d-png.png" class="absolute -top-10 -left-10 w-40 opacity-40 rotate-12 pointer-events-none hidden md:block" alt="money">
+            <img src="https://static.vecteezy.com/system/resources/previews/021/186/515/original/200-reais-brazilian-money-3d-png.png" class="absolute -top-10 -right-10 w-40 opacity-40 -rotate-12 pointer-events-none hidden md:block" alt="money">
+            
+            <img src="https://i.postimg.cc/654Vc93H/logo-rifa.png" class="h-40 mx-auto mb-6 drop-shadow-2xl" id="rifa-logo" alt="Logo Rifa">
+            <h1 id="rifa-nome" class="text-5xl font-black text-white mb-2 uppercase italic tracking-tighter">Rifa Online Pro</h1>
+            <p id="rifa-descricao" class="text-slate-400 font-bold max-w-lg mx-auto uppercase text-[10px] tracking-widest italic">Participe e concorra agora mesmo!</p>
+            <div class="inline-block mt-8 bg-blue-600 text-white px-10 py-3 rounded-2xl font-black text-3xl shadow-2xl shadow-blue-500/20 italic tracking-tighter">
+                R$ <span id="rifa-valor">0,00</span>
+            </div>
+        </header>
 
+        <section class="glass-panel p-10 mb-12 shadow-2xl">
+            <div class="flex flex-wrap justify-center gap-8 mb-12 text-[10px] font-black uppercase tracking-[0.2em] italic">
+                <div class="flex items-center gap-3">
+                    <div class="w-5 h-5 bg-white/5 border border-white/10 rounded-lg"></div> Disponível
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-5 h-5 bg-yellow-500 rounded-lg shadow-lg shadow-yellow-500/20"></div> Reservado
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-5 h-5 bg-green-500 rounded-lg shadow-lg shadow-green-500/20"></div> Pago
+                </div>
+            </div>
+
+            <div id="numeros-grid" class="num-grid">
+                <!-- Números serão gerados aqui -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal de Reserva -->
+    <div id="reserva-modal" class="modal">
+        <div class="bg-slate-900 border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h2 class="text-3xl font-black text-white mb-8 uppercase italic tracking-tighter">Reservar Nº <span id="num-selecionado-display" class="text-blue-500"></span></h2>
+            <form id="reserva-form" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 italic">Seu Nome Completo</label>
+                    <input type="text" id="nome" required class="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 font-bold focus:border-blue-500 transition-all outline-none" placeholder="Digite seu nome">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 italic">WhatsApp (Com DDD)</label>
+                    <input type="tel" id="whatsapp" required class="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 font-bold focus:border-blue-500 transition-all outline-none" placeholder="(00) 00000-0000">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white rounded-2xl py-5 font-black text-sm uppercase italic tracking-widest hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/20">
+                    Confirmar Agora
+                </button>
+                <button type="button" onclick="closeModal()" class="w-full text-slate-500 font-bold text-[10px] uppercase tracking-widest py-2 hover:text-white transition-colors">
+                    Voltar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+    <footer class="text-center pb-20 pt-10">
+        <a href="https://wa.me/5585992908713" target="_blank" class="text-slate-500 hover:text-blue-400 font-black text-[10px] uppercase tracking-[0.3em] transition-all italic underline decoration-blue-500/30 underline-offset-8">Desenvolvido por MinhaDivulgação</a>
+        <div class="mt-8">
+            <a href="/admin.html" class="text-slate-700 hover:text-slate-500 font-bold text-[8px] uppercase tracking-widest transition-colors opacity-30 italic">Acesso Restrito</a>
+        </div>
+    </footer>
+</body>
+</html>
