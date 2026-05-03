@@ -3,6 +3,8 @@ import {
     signInWithEmailAndPassword, onAuthStateChanged, signOut,
     collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc 
 } from "./firebase.js";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const loginScreen = document.getElementById('login-screen');
 const adminPanel = document.getElementById('admin-panel');
@@ -17,7 +19,9 @@ const statDisponiveis = document.getElementById('stat-disponiveis');
 
 const RIFA_TOTAL = 100;
 let RIFA_VALOR = 20.00;
+let paidParticipants = [];
 
+const generatePdfBtn = document.getElementById('generate-pdf-btn');
 const configForm = document.getElementById('config-form');
 const cfgNome = document.getElementById('cfg-nome');
 const cfgValor = document.getElementById('cfg-valor');
@@ -107,6 +111,7 @@ function loadData() {
         let reservados = 0;
         let html = '';
         const now = Date.now();
+        paidParticipants = [];
 
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
@@ -123,6 +128,11 @@ function loadData() {
                  reservados++;
             } else if (data.status === 'pago') {
                 pagos++;
+                paidParticipants.push({
+                    numero: String(data.numero).padStart(2, '0'),
+                    nome: data.nome,
+                    whatsapp: data.whatsapp
+                });
             }
 
             html += `
@@ -186,6 +196,39 @@ setInterval(async () => {
         }
     });
 }, 60000); // Check every minute
+
+// PDF Generation Logic
+generatePdfBtn.onclick = () => {
+    if (paidParticipants.length === 0) {
+        alert("Nenhum pagamento confirmado para gerar o relatório.");
+        return;
+    }
+
+    const doc = new jsPDF();
+    const title = cfgNome.value || "Rifa Online Pro";
+    
+    doc.setFontSize(18);
+    doc.text(`Lista de Participantes Confirmados`, 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Rifa: ${title}`, 14, 30);
+    doc.text(`Data: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 38);
+    
+    const tableData = paidParticipants.map(p => [p.numero, p.nome, p.whatsapp]);
+    const totalArrecadado = (paidParticipants.length * RIFA_VALOR).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    
+    doc.autoTable({
+        head: [['Nº', 'Nome do Cliente', 'WhatsApp']],
+        body: tableData,
+        foot: [['', 'TOTAL ARRECADADO', totalArrecadado]],
+        startY: 45,
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+        footStyles: { fillColor: [22, 101, 52], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 5 }
+    });
+    
+    doc.save(`participantes-pagos-${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+};
 
 // Global functions for buttons
 window.confirmarPagamento = (id) => updateDoc(doc(db, 'rifa_numeros', id), { status: 'pago' });
