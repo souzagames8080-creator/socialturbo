@@ -1,7 +1,7 @@
 import { 
     auth, db, 
     signInWithEmailAndPassword, onAuthStateChanged, signOut,
-    collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs 
+    collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc 
 } from "./firebase.js";
 
 const loginScreen = document.getElementById('login-screen');
