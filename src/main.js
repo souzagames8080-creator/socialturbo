@@ -9,35 +9,50 @@ const rifaDesc = document.getElementById('rifa-descricao');
 const rifaValor = document.getElementById('rifa-valor');
 
 let selectedNumber = null;
+// Identificar qual rifa carregar (SaaS)
+const urlParams = new URLSearchParams(window.location.search);
+const USER_ID = urlParams.get('u'); // Ex: ?u=UID_DO_CLIENTE
+
 let occupiedNumbers = {}; 
 let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
 
 // Ouvir Configurações dinâmicas
-onSnapshot(doc(db, 'config', 'geral'), (docSnap) => {
-    if (docSnap.exists()) {
-        RIFA_INFO = docSnap.data();
-        rifaNome.innerText = RIFA_INFO.nome;
-        rifaDesc.innerText = RIFA_INFO.descricao;
-        rifaValor.innerText = Number(RIFA_INFO.valor).toFixed(2).replace('.', ',');
-        if (RIFA_INFO.logoUrl) {
-            document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
+if (USER_ID) {
+    onSnapshot(doc(db, 'rifas', USER_ID), (docSnap) => {
+        if (docSnap.exists()) {
+            RIFA_INFO = docSnap.data();
+            rifaNome.innerText = RIFA_INFO.nome;
+            rifaDesc.innerText = RIFA_INFO.descricao;
+            rifaValor.innerText = Number(RIFA_INFO.valor).toFixed(2).replace('.', ',');
+            if (RIFA_INFO.logoUrl) {
+                document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
+            }
+            if (RIFA_INFO.corDestaque) {
+                document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
+                const badge = document.querySelector('.bg-blue-600');
+                if (badge) badge.style.backgroundColor = RIFA_INFO.corDestaque;
+            }
+        } else {
+            rifaNome.innerText = "Rifa não encontrada";
+            rifaDesc.innerText = "Este link pode estar incorreto.";
         }
-        if (RIFA_INFO.corDestaque) {
-            document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
-            // Apply to specific backgrounds that aren't just CSS variables
-            const badge = document.querySelector('.bg-blue-600');
-            if (badge) badge.style.backgroundColor = RIFA_INFO.corDestaque;
-            const btn = document.querySelector('button[type="submit"]');
-            if (btn) btn.style.backgroundColor = RIFA_INFO.corDestaque;
-        }
-    }
-});
+    });
+} else {
+    rifaNome.innerText = "Bem-vindo ao Social Turbo";
+    rifaDesc.innerText = "Comece criando sua própria rifa no painel administrativo.";
+}
 
 const RIFA_TOTAL = 100;
 
 // Gerar Grid Inicial
 function renderGrid() {
     grid.innerHTML = '';
+    
+    if (!USER_ID) {
+        grid.innerHTML = `<div class='col-span-full py-20 text-center opacity-50 font-bold'>COLE O LINK COMPLETO DA SUA RIFA</div>`;
+        return;
+    }
+
     for (let i = 1; i <= RIFA_TOTAL; i++) {
         const status = occupiedNumbers[i] || 'disponivel';
         const card = document.createElement('div');
@@ -54,29 +69,26 @@ function renderGrid() {
 
 // Ouvir mudanças no Firestore
 let initialLoad = true;
-onSnapshot(collection(db, 'rifa_numeros'), (snapshot) => {
-    occupiedNumbers = {};
-    const now = Date.now();
-    
-    snapshot.forEach(doc => {
-        const data = doc.data();
+if (USER_ID) {
+    onSnapshot(collection(db, 'rifas', USER_ID, 'numeros'), (snapshot) => {
+        occupiedNumbers = {};
+        const now = Date.now();
         
-        if (data.status === 'reservado' && data.timestamp_reserva) {
-            const reservaDate = data.timestamp_reserva.toDate ? data.timestamp_reserva.toDate().getTime() : now;
-            if (now - reservaDate > 15 * 60 * 1000) {
-                return;
-            }
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            occupiedNumbers[data.numero] = data.status;
+        });
+        
+        renderGrid();
+        if (initialLoad) {
+            document.body.classList.add('loaded');
+            initialLoad = false;
         }
-        
-        occupiedNumbers[data.numero] = data.status;
     });
-    
+} else {
     renderGrid();
-    if (initialLoad) {
-        document.body.classList.add('loaded');
-        initialLoad = false;
-    }
-});
+}
+
 
 function openModal(num) {
     selectedNumber = num;
@@ -96,7 +108,7 @@ form.onsubmit = async (e) => {
 
     try {
         const numId = String(selectedNumber);
-        await setDoc(doc(db, 'rifa_numeros', numId), {
+        await setDoc(doc(db, 'rifas', USER_ID, 'numeros', numId), {
             numero: selectedNumber,
             nome,
             whatsapp,

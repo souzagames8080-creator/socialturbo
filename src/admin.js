@@ -41,55 +41,145 @@ cfgCorText.oninput = () => {
 };
 
 // Load Config
-onSnapshot(doc(db, 'config', 'geral'), (docSnap) => {
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        RIFA_VALOR = Number(data.valor) || 20;
-        cfgNome.value = data.nome || "";
-        cfgValor.value = data.valor || "";
-        cfgDesc.value = data.descricao || "";
-        cfgLogo.value = data.logoUrl || "";
-        cfgCor.value = data.corDestaque || "#2563EB";
-        cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
-        cfgWhatsapp.value = data.whatsappAdmin || "";
-    } else {
-        console.log("Configuração inicial não encontrada. O administrador pode criar uma clicando em salvar.");
-    }
-}, (error) => {
-    console.error("Erro ao carregar configurações:", error);
-});
-
-// Save Config
-configForm.onsubmit = async (e) => {
-    e.preventDefault();
-    try {
-        await setDoc(doc(db, 'config', 'geral'), {
-            nome: cfgNome.value,
-            valor: Number(cfgValor.value),
-            descricao: cfgDesc.value,
-            logoUrl: cfgLogo.value,
-            corDestaque: cfgCor.value || "#2563eb",
-            whatsappAdmin: cfgWhatsapp.value
-        });
-        alert("Configurações salvas com sucesso!");
-    } catch (error) {
-        alert("Erro ao salvar: " + error.message);
-    }
-};
+let configUnsubscribe = null;
+let currentNumbersUnsubscribe = null;
 
 // Auth State
 onAuthStateChanged(auth, (user) => {
     if (user) {
         loginScreen.classList.add('hidden');
         adminPanel.classList.remove('hidden');
-        document.body.style.background = '#f8fafc'; // Fundo claro para o admin facilitar leitura
-        loadData();
+        document.body.style.background = '#f8fafc'; 
+        
+        // Generate My Link
+        const myLinkInput = document.getElementById('my-link');
+        const baseUrl = window.location.origin;
+        myLinkInput.value = `${baseUrl}/?u=${user.uid}`;
+
+        // Listen to User Specific Rifa Config
+        if (configUnsubscribe) configUnsubscribe();
+        configUnsubscribe = onSnapshot(doc(db, 'rifas', user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                RIFA_VALOR = Number(data.valor) || 20;
+                cfgNome.value = data.nome || "";
+                cfgValor.value = data.valor || "";
+                cfgDesc.value = data.descricao || "";
+                cfgLogo.value = data.logoUrl || "";
+                cfgCor.value = data.corDestaque || "#2563EB";
+                cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
+                cfgWhatsapp.value = data.whatsappAdmin || "";
+            }
+        });
+
+        // Listen to User Specific Numbers
+        if (currentNumbersUnsubscribe) currentNumbersUnsubscribe();
+        const q = query(collection(db, 'rifas', user.uid, 'numeros'), orderBy('numero', 'asc'));
+        currentNumbersUnsubscribe = onSnapshot(q, (snapshot) => {
+            renderTable(snapshot);
+        });
+
     } else {
         loginScreen.classList.remove('hidden');
         adminPanel.classList.add('hidden');
         document.body.style.background = 'radial-gradient(circle at top right, #0f172a, #020617)';
     }
 });
+
+// Copy Link
+window.copyLink = () => {
+    const linkInput = document.getElementById('my-link');
+    linkInput.select();
+    document.execCommand('copy');
+    alert("Link copiado com sucesso! Divulgue para seus clientes.");
+};
+
+// Render Table Function
+function renderTable(snapshot) {
+    let pagos = 0;
+    let reservados = 0;
+    let html = '';
+    const now = Date.now();
+    paidParticipants = [];
+
+    snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const id = docSnap.id;
+        
+        if (data.status === 'reservado' && data.timestamp_reserva) {
+             const reservaDate = data.timestamp_reserva.toDate ? data.timestamp_reserva.toDate().getTime() : now;
+             reservados++;
+        } else if (data.status === 'pago') {
+            pagos++;
+            paidParticipants.push({
+                numero: String(data.numero).padStart(2, '0'),
+                nome: data.nome,
+                whatsapp: data.whatsapp
+            });
+        }
+
+        html += `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-10 py-6">
+                    <div class="flex items-center gap-4">
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">${String(data.numero).padStart(2, '0')}</span>
+                        <span class="text-slate-900 uppercase italic tracking-tighter">${data.nome}</span>
+                    </div>
+                </td>
+                <td class="px-10 py-6">
+                    <a href="https://wa.me/${data.whatsapp.replace(/\D/g,'')}" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.27-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        ${data.whatsapp}
+                    </a>
+                </td>
+                <td class="px-10 py-6">
+                    <span class="px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest italic ${data.status === 'pago' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                        ${data.status}
+                    </span>
+                </td>
+                <td class="px-10 py-6 text-right">
+                    <div class="flex justify-end gap-3">
+                        ${data.status === 'reservado' ? `
+                            <button onclick="confirmarPagamento('${id}')" title="Confirmar Pagamento" class="bg-green-50 text-green-600 p-3 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        ` : ''}
+                        <button onclick="cancelarReserva('${id}')" title="Remover / Cancelar" class="bg-red-50 text-red-400 p-3 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    tableBody.innerHTML = html;
+    statArrecadado.innerText = `R$ ${(pagos * RIFA_VALOR).toFixed(2).replace('.', ',')}`;
+    statPagos.innerText = String(pagos).padStart(2, '0');
+    statReservados.innerText = String(reservados).padStart(2, '0');
+    statDisponiveis.innerText = String(RIFA_TOTAL - pagos - reservados).padStart(2, '0');
+}
+
+// Save Config
+configForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if(!user) return;
+    try {
+        await setDoc(doc(db, 'rifas', user.uid), {
+            nome: cfgNome.value,
+            valor: Number(cfgValor.value),
+            descricao: cfgDesc.value,
+            logoUrl: cfgLogo.value,
+            corDestaque: cfgCor.value || "#2563eb",
+            whatsappAdmin: cfgWhatsapp.value,
+            ownerId: user.uid
+        });
+        alert("Configurações salvas com sucesso!");
+    } catch (error) {
+        alert("Erro ao salvar: " + error.message);
+    }
+};
 
 // Login
 loginForm.onsubmit = async (e) => {
@@ -243,12 +333,15 @@ generatePdfBtn.onclick = () => {
 
 // Reset Logic
 resetRifaBtn.onclick = async () => {
-    if (!confirm("⚠️ ATENÇÃO: Isso apagará TODOS os números reservados e pagos. Tem certeza que deseja resetar a rifa?")) {
+    const user = auth.currentUser;
+    if(!user) return;
+    
+    if (!confirm("⚠️ ATENÇÃO: Isso apagará TODOS os números reservados e pagos desta rifa. Tem certeza?")) {
         return;
     }
 
     try {
-        const q = query(collection(db, 'rifa_numeros'));
+        const q = query(collection(db, 'rifas', user.uid, 'numeros'));
         const snapshot = await getDocs(q);
         const batch = writeBatch(db);
 
@@ -257,7 +350,7 @@ resetRifaBtn.onclick = async () => {
         });
 
         await batch.commit();
-        alert("Rifa resetada com sucesso! Todos os números estão disponíveis novamente.");
+        alert("Rifa resetada com sucesso!");
     } catch (error) {
         console.error("Erro ao resetar rifa:", error);
         alert("Erro ao resetar: " + error.message);
@@ -265,5 +358,13 @@ resetRifaBtn.onclick = async () => {
 };
 
 // Global functions for buttons
-window.confirmarPagamento = (id) => updateDoc(doc(db, 'rifa_numeros', id), { status: 'pago' });
-window.cancelarReserva = (id) => deleteDoc(doc(db, 'rifa_numeros', id));
+window.confirmarPagamento = (id) => {
+    const user = auth.currentUser;
+    if(!user) return;
+    updateDoc(doc(db, 'rifas', user.uid, 'numeros', id), { status: 'pago' });
+};
+window.cancelarReserva = (id) => {
+    const user = auth.currentUser;
+    if(!user) return;
+    deleteDoc(doc(db, 'rifas', user.uid, 'numeros', id));
+};
