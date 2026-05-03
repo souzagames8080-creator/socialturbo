@@ -21,49 +21,17 @@ onAuthStateChanged(auth, (user) => {
 });
 
 let occupiedNumbers = {}; 
-let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
-
-// Ouvir Configurações dinâmicas
-if (USER_ID) {
-    // Render grid immediately with 100 slots while loading occupied numbers
-    renderGrid();
-
-    onSnapshot(doc(db, 'rifas', USER_ID), (docSnap) => {
-        if (docSnap.exists()) {
-            RIFA_INFO = docSnap.data();
-            rifaNome.innerText = RIFA_INFO.nome || "Rifa Online";
-            rifaDesc.innerText = RIFA_INFO.descricao || "Participe já!";
-            rifaValor.innerText = Number(RIFA_INFO.valor || 0).toFixed(2).replace('.', ',');
-            if (RIFA_INFO.logoUrl) {
-                document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
-            }
-            if (RIFA_INFO.corDestaque) {
-                document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
-                const badge = document.querySelector('.bg-blue-600');
-                if (badge) badge.style.backgroundColor = RIFA_INFO.corDestaque;
-            }
-        } else {
-            rifaNome.innerText = "Rifa não configurada";
-            rifaDesc.innerText = "O administrador ainda não configurou esta rifa.";
-        }
-    }, (err) => {
-        console.error("Erro config snapshot:", err);
-        rifaNome.innerText = "Erro ao carregar";
-    });
-} else {
-    rifaNome.innerText = "Bem-vindo ao Social Turbo";
-    rifaDesc.innerText = "Crie sua própria rifa no painel administrativo.";
-    renderGrid();
-}
-
 const RIFA_TOTAL = 100;
+let RIFA_VALOR = 0;
+let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
 
 // Gerar Grid Inicial
 function renderGrid() {
+    if (!grid) return;
     grid.innerHTML = '';
     
     if (!USER_ID) {
-        grid.innerHTML = `<div class='col-span-full py-20 text-center opacity-50 font-bold'>COLE O LINK COMPLETO DA SUA RIFA</div>`;
+        grid.innerHTML = `<div class='col-span-full py-20 text-center opacity-50 font-bold uppercase tracking-widest italic'>Aguardando link do administrador...</div>`;
         return;
     }
 
@@ -81,26 +49,50 @@ function renderGrid() {
     }
 }
 
-// Ouvir mudanças no Firestore
 let initialLoad = true;
+// Configurações e Listeners
 if (USER_ID) {
+    // Ouvir Configurações
+    onSnapshot(doc(db, 'rifas', USER_ID), (docSnap) => {
+        if (docSnap.exists()) {
+            RIFA_INFO = docSnap.data();
+            RIFA_VALOR = Number(RIFA_INFO.valor || 0);
+            rifaNome.innerText = RIFA_INFO.nome || "Rifa Online";
+            rifaDesc.innerText = RIFA_INFO.descricao || "Participe já!";
+            rifaValor.innerText = RIFA_VALOR.toFixed(2).replace('.', ',');
+            
+            if (RIFA_INFO.logoUrl) {
+                document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
+            }
+            if (RIFA_INFO.corDestaque) {
+                document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
+                const badge = document.querySelector('.bg-blue-600');
+                if (badge) badge.style.backgroundColor = RIFA_INFO.corDestaque;
+            }
+            renderGrid();
+        } else {
+            rifaNome.innerText = "Rifa não encontrada";
+            rifaDesc.innerText = "Verifique se o link está correto.";
+            renderGrid();
+        }
+    });
+
+    // Ouvir Números
     onSnapshot(collection(db, 'rifas', USER_ID, 'numeros'), (snapshot) => {
         occupiedNumbers = {};
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.numero) {
-                occupiedNumbers[data.numero] = data.status;
-            }
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.numero) occupiedNumbers[data.numero] = data.status;
         });
-        
         renderGrid();
         if (initialLoad) {
             document.body.classList.add('loaded');
             initialLoad = false;
         }
-    }, (err) => {
-        console.error("Erro numeros snapshot:", err);
     });
+} else {
+    document.body.classList.add('loaded');
+    renderGrid();
 }
 
 

@@ -30,10 +30,10 @@ service cloud.firestore {
       match /numeros/{numeroId} {
         allow read: if true;
         
-        // Dono tem controle total
+        // Dono tem controle total (para apagar, confirmar pago, etc)
         allow write: if isOwner(userId);
 
-        // Público pode reservar
+        // Público pode criar ou atualizar se estiver disponível e for uma reserva válida
         allow create, update: if (
           (resource == null || resource.data.status == 'disponivel') &&
           isValidReservation()

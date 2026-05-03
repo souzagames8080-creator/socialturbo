@@ -193,6 +193,11 @@ configForm.onsubmit = async (e) => {
     const user = auth.currentUser;
     if(!user) return;
     try {
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Sessão expirada. Por favor, faça login novamente.");
+            return;
+        }
         await setDoc(doc(db, 'rifas', user.uid), {
             nome: cfgNome.value || "Minha Rifa",
             valor: Number(cfgValor.value) || 20,
@@ -205,7 +210,11 @@ configForm.onsubmit = async (e) => {
         alert("Configurações salvas com sucesso!");
     } catch (error) {
         console.error("Erro ao salvar config:", error);
-        alert("Erro ao salvar: " + error.message);
+        if (error.message.includes('permission')) {
+            alert("Erro de permissão: Tente sair e entrar novamente no painel.");
+        } else {
+            alert("Erro ao salvar: " + error.message);
+        }
     }
 };
 
