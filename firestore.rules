@@ -15,7 +15,17 @@ service cloud.firestore {
 
     match /rifa_numeros/{numeroId} {
       allow read: if true;
-      // ...
+      
+      // Público pode reservar se o documento não existir ou estiver disponível
+      allow create, update: if (
+        (request.resource.data.status == 'reservado' && 
+         (resource == null || resource.data.status == 'disponivel') &&
+         request.resource.data.keys().hasAll(['nome', 'whatsapp', 'status', 'numero', 'timestamp_reserva'])
+        ) ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
     }
 
     match /config/{configId} {

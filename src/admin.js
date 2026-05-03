@@ -38,14 +38,18 @@ cfgCorText.oninput = () => {
 onSnapshot(doc(db, 'config', 'geral'), (docSnap) => {
     if (docSnap.exists()) {
         const data = docSnap.data();
-        RIFA_VALOR = Number(data.valor);
+        RIFA_VALOR = Number(data.valor) || 20;
         cfgNome.value = data.nome || "";
-        cfgValor.value = data.valor || 0;
+        cfgValor.value = data.valor || "";
         cfgDesc.value = data.descricao || "";
         cfgLogo.value = data.logoUrl || "";
         cfgCor.value = data.corDestaque || "#2563EB";
         cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
+    } else {
+        console.log("Configuração inicial não encontrada. O administrador pode criar uma clicando em salvar.");
     }
+}, (error) => {
+    console.error("Erro ao carregar configurações:", error);
 });
 
 // Save Config
