@@ -13,32 +13,35 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isMasterAdmin() {
+      return isSignedIn() && request.auth.token.email == 'souzagames8080@gmail.com';
+    }
+
     // Validação de reserva de número
     function isValidReservation() {
       let data = request.resource.data;
       return data.status == 'reservado' && 
              data.keys().hasAll(['nome', 'whatsapp', 'status', 'numero', 'timestamp_reserva']) &&
-             data.keys().size() == 5 &&
-             data.nome is string && data.nome.size() > 2 &&
-             data.whatsapp is string && data.whatsapp.size() >= 8;
+             data.keys().size() == 5;
     }
 
     match /rifas/{userId} {
       allow read: if true;
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) || isMasterAdmin();
 
       match /numeros/{numeroId} {
         allow read: if true;
-        
-        // Dono tem controle total (para apagar, confirmar pago, etc)
-        allow write: if isOwner(userId);
+        allow write: if isOwner(userId) || isMasterAdmin();
 
-        // Público pode criar ou atualizar se estiver disponível e for uma reserva válida
         allow create, update: if (
           (resource == null || resource.data.status == 'disponivel') &&
           isValidReservation()
         );
       }
+    }
+
+    match /rifas {
+      allow list: if isMasterAdmin();
     }
   }
 }

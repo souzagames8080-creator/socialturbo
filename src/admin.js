@@ -66,6 +66,38 @@ toggleAuthBtn.onclick = () => {
     }
 };
 
+// Master Admin Logic
+const masterAdminSection = document.getElementById('master-admin-section');
+const masterUsersList = document.getElementById('master-users-list');
+
+function initMasterDashboard() {
+    if (auth.currentUser.email !== 'souzagames8080@gmail.com') return;
+    
+    masterAdminSection.classList.remove('hidden');
+    
+    onSnapshot(collection(db, 'rifas'), (snapshot) => {
+        let html = '';
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            
+            html += `
+                <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
+                    <td class="px-10 py-6">
+                        <div class="font-black text-slate-900 uppercase italic text-sm">${data.nome || 'Sem Nome'}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">${id}</div>
+                    </td>
+                    <td class="px-10 py-6 text-slate-600 font-bold">${data.whatsappAdmin || 'Não informado'}</td>
+                    <td class="px-10 py-6 text-right">
+                        <a href="/?u=${id}" target="_blank" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all">VISUALIZAR PÁGINA</a>
+                    </td>
+                </tr>
+            `;
+        });
+        masterUsersList.innerHTML = html;
+    });
+}
+
 // Auth State
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -73,6 +105,8 @@ onAuthStateChanged(auth, (user) => {
         adminPanel.classList.remove('hidden');
         document.body.style.background = '#f8fafc'; 
         
+        initMasterDashboard();
+
         // Generate My Link
         const myLinkInput = document.getElementById('my-link');
         const viewRifaBtn = document.getElementById('view-rifa-btn');
