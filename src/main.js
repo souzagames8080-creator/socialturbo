@@ -13,7 +13,12 @@ let selectedNumber = null;
 const urlParams = new URLSearchParams(window.location.search);
 const USER_ID = urlParams.get('u'); // Ex: ?u=UID_DO_CLIENTE
 
-// Auto-redirecionar se estiver logado e sem ID no link
+// Redirecionar para login caso acesse a raiz sem rifa
+if (!USER_ID) {
+    window.location.href = "/admin.html";
+}
+
+// Auto-redirecionar se estiver logado e sem ID no link em cache
 onAuthStateChanged(auth, (user) => {
     if (user && !USER_ID) {
         window.location.href = `/?u=${user.uid}`;

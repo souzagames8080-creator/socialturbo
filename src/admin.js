@@ -77,7 +77,7 @@ function initMasterDashboard() {
     if (isMaster) {
         masterAdminSection.classList.remove('hidden');
         clientDashboardSection.classList.add('hidden'); // Oculta o editor do próprio master
-        document.querySelector('h1').innerText = 'PAINEL MASTER';
+        document.querySelector('h1').innerText = 'RIFA ONLINE PRO';
         
         onSnapshot(collection(db, 'rifas'), (snapshot) => {
             let html = '';
