@@ -9,7 +9,8 @@
         "descricao": { "type": "string" },
         "valor": { "type": "number" },
         "logoUrl": { "type": "string" },
-        "corDestaque": { "type": "string" }
+        "corDestaque": { "type": "string" },
+        "whatsappAdmin": { "type": "string" }
       }
     },
     "RifaNumero": {

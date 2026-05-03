@@ -106,7 +106,7 @@ form.onsubmit = async (e) => {
 
         // Gerar link do WhatsApp
         const msg = window.encodeURIComponent(`Olá! Gostaria de reservar o número ${selectedNumber} da rifa ${RIFA_INFO.nome}. Meu nome é ${nome}.`);
-        const phone = "5585992908713"; 
+        const phone = RIFA_INFO.whatsappAdmin || "5585992908713"; 
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${msg}`;
         
         window.open(whatsappUrl, '_blank');

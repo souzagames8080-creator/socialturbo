@@ -29,6 +29,7 @@ const cfgDesc = document.getElementById('cfg-desc');
 const cfgLogo = document.getElementById('cfg-logo');
 const cfgCor = document.getElementById('cfg-cor');
 const cfgCorText = document.getElementById('cfg-cor-text');
+const cfgWhatsapp = document.getElementById('cfg-whatsapp');
 
 // Sync Color inputs
 cfgCor.oninput = () => cfgCorText.value = cfgCor.value.toUpperCase();
@@ -49,6 +50,7 @@ onSnapshot(doc(db, 'config', 'geral'), (docSnap) => {
         cfgLogo.value = data.logoUrl || "";
         cfgCor.value = data.corDestaque || "#2563EB";
         cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
+        cfgWhatsapp.value = data.whatsappAdmin || "";
     } else {
         console.log("Configuração inicial não encontrada. O administrador pode criar uma clicando em salvar.");
     }
@@ -65,7 +67,8 @@ configForm.onsubmit = async (e) => {
             valor: Number(cfgValor.value),
             descricao: cfgDesc.value,
             logoUrl: cfgLogo.value,
-            corDestaque: cfgCor.value || "#2563eb"
+            corDestaque: cfgCor.value || "#2563eb",
+            whatsappAdmin: cfgWhatsapp.value
         });
         alert("Configurações salvas com sucesso!");
     } catch (error) {
