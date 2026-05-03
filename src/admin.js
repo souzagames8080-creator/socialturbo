@@ -135,13 +135,21 @@ function initMasterDashboard() {
 window.masterRenew = async (uid) => {
     try {
         const docRef = doc(db, 'rifas', uid);
-        const docSnap = await getDocs(query(collection(db, 'rifas'))); // Simple way for AI context
         const rifaDoc = await getDoc(docRef);
-        const currentExp = rifaDoc.data().expiraEm ? rifaDoc.data().expiraEm.toDate().getTime() : Date.now();
+        const data = rifaDoc.data();
+        
+        let currentExp = Date.now();
+        if (data.expiraEm) {
+            currentExp = data.expiraEm.toDate ? data.expiraEm.toDate().getTime() : new Date(data.expiraEm).getTime();
+        }
+        
         const newExp = new Date(Math.max(Date.now(), currentExp) + (30 * 24 * 60 * 60 * 1000));
         await updateDoc(docRef, { expiraEm: newExp, status: 'ativo' });
         alert("Assinatura renovada por 30 dias!");
-    } catch (e) { alert("Erro: " + e.message); }
+    } catch (e) { 
+        console.error(e);
+        alert("Erro ao renovar: " + e.message); 
+    }
 };
 
 window.masterToggleBlock = async (uid, currentStatus) => {
@@ -188,7 +196,7 @@ onAuthStateChanged(auth, (user) => {
                 // Check if blocked or expired (not for master admin)
                 if (user.email !== 'souzagames8080@gmail.com') {
                     const now = Date.now();
-                    const expiraEm = data.expiraEm ? data.expiraEm.toDate().getTime() : 0;
+                    const expiraEm = data.expiraEm ? (data.expiraEm.toDate ? data.expiraEm.toDate().getTime() : new Date(data.expiraEm).getTime()) : 0;
                     if (data.status === 'bloqueado' || expiraEm < now) {
                         alert("⚠️ SUA CONTA ESTÁ BLOQUEADA OU VENCIDA. Entre em contato com o suporte.");
                         signOut(auth);
