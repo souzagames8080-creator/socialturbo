@@ -75,8 +75,13 @@ onAuthStateChanged(auth, (user) => {
         
         // Generate My Link
         const myLinkInput = document.getElementById('my-link');
+        const viewRifaBtn = document.getElementById('view-rifa-btn');
         const baseUrl = window.location.origin;
-        myLinkInput.value = `${baseUrl}/?u=${user.uid}`;
+        const fullLink = `${baseUrl}/?u=${user.uid}`;
+        
+        myLinkInput.value = fullLink;
+        viewRifaBtn.href = fullLink;
+        viewRifaBtn.classList.remove('hidden');
 
         // Listen to User Specific Rifa Config
         if (configUnsubscribe) configUnsubscribe();

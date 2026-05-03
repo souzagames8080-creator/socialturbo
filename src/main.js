@@ -1,4 +1,4 @@
-import { db, collection, doc, setDoc, onSnapshot, serverTimestamp } from "./firebase.js";
+import { auth, db, onAuthStateChanged, doc, onSnapshot, collection, setDoc, serverTimestamp } from "./firebase.js";
 
 const grid = document.getElementById('numeros-grid');
 const modal = document.getElementById('reserva-modal');
@@ -12,6 +12,13 @@ let selectedNumber = null;
 // Identificar qual rifa carregar (SaaS)
 const urlParams = new URLSearchParams(window.location.search);
 const USER_ID = urlParams.get('u'); // Ex: ?u=UID_DO_CLIENTE
+
+// Auto-redirecionar se estiver logado e sem ID no link
+onAuthStateChanged(auth, (user) => {
+    if (user && !USER_ID) {
+        window.location.href = `/?u=${user.uid}`;
+    }
+});
 
 let occupiedNumbers = {}; 
 let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
