@@ -1,7 +1,7 @@
 import { 
     auth, db, 
     signInWithEmailAndPassword, onAuthStateChanged, signOut,
-    collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc 
+    collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc, writeBatch 
 } from "./firebase.js";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -22,6 +22,7 @@ let RIFA_VALOR = 20.00;
 let paidParticipants = [];
 
 const generatePdfBtn = document.getElementById('generate-pdf-btn');
+const resetRifaBtn = document.getElementById('reset-rifa-btn');
 const configForm = document.getElementById('config-form');
 const cfgNome = document.getElementById('cfg-nome');
 const cfgValor = document.getElementById('cfg-valor');
@@ -237,6 +238,29 @@ generatePdfBtn.onclick = () => {
     } catch (error) {
         console.error("Erro ao gerar PDF:", error);
         alert("Falha ao gerar PDF. Verifique o console para mais detalhes.");
+    }
+};
+
+// Reset Logic
+resetRifaBtn.onclick = async () => {
+    if (!confirm("⚠️ ATENÇÃO: Isso apagará TODOS os números reservados e pagos. Tem certeza que deseja resetar a rifa?")) {
+        return;
+    }
+
+    try {
+        const q = query(collection(db, 'rifa_numeros'));
+        const snapshot = await getDocs(q);
+        const batch = writeBatch(db);
+
+        snapshot.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+        });
+
+        await batch.commit();
+        alert("Rifa resetada com sucesso! Todos os números estão disponíveis novamente.");
+    } catch (error) {
+        console.error("Erro ao resetar rifa:", error);
+        alert("Erro ao resetar: " + error.message);
     }
 };
 

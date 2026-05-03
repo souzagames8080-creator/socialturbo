@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, getDoc, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, getDoc, deleteDoc, writeBatch } from "firebase/firestore";
 import firebaseConfig from "../firebase-applet-config.json";
 
 // Initialize Firebase
@@ -11,5 +11,5 @@ const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export { 
   auth, db, 
   signInWithEmailAndPassword, onAuthStateChanged, signOut,
-  collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, getDoc, deleteDoc 
+  collection, doc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, getDoc, deleteDoc, writeBatch 
 };
