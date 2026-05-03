@@ -162,17 +162,19 @@ onAuthStateChanged(auth, (user) => {
         adminPanel.classList.remove('hidden');
         document.body.style.background = '#f8fafc'; 
         
-        initMasterDashboard();
-
         // Generate My Link
         const myLinkInput = document.getElementById('my-link');
         const viewRifaBtn = document.getElementById('view-rifa-btn');
         const baseUrl = window.location.origin;
         const fullLink = `${baseUrl}/?u=${user.uid}`;
         
-        myLinkInput.value = fullLink;
-        viewRifaBtn.href = fullLink;
-        viewRifaBtn.classList.remove('hidden');
+        if (myLinkInput) myLinkInput.value = fullLink;
+        if (viewRifaBtn) {
+            viewRifaBtn.href = fullLink;
+            viewRifaBtn.classList.remove('hidden');
+        }
+
+        initMasterDashboard();
 
         // Listen to User Specific Rifa Config
         if (configUnsubscribe) configUnsubscribe();
