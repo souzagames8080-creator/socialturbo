@@ -196,10 +196,16 @@ onAuthStateChanged(auth, (user) => {
                 // Check if blocked or expired (not for master admin)
                 if (user.email !== 'souzagames8080@gmail.com') {
                     const now = Date.now();
-                    const expiraEm = data.expiraEm ? (data.expiraEm.toDate ? data.expiraEm.toDate().getTime() : new Date(data.expiraEm).getTime()) : 0;
-                    if (data.status === 'bloqueado' || expiraEm < now) {
+                    let expiraEm = 0;
+                    
+                    if (data.expiraEm) {
+                        expiraEm = data.expiraEm.toDate ? data.expiraEm.toDate().getTime() : new Date(data.expiraEm).getTime();
+                    }
+
+                    if (data.status === 'bloqueado' || (expiraEm > 0 && expiraEm < now)) {
                         alert("⚠️ SUA CONTA ESTÁ BLOQUEADA OU VENCIDA. Entre em contato com o suporte.");
                         signOut(auth);
+                        window.location.reload();
                         return;
                     }
                 }
@@ -312,12 +318,7 @@ configForm.onsubmit = async (e) => {
     const user = auth.currentUser;
     if(!user) return;
     try {
-        const user = auth.currentUser;
-        if (!user) {
-            alert("Sessão expirada. Por favor, faça login novamente.");
-            return;
-        }
-        await setDoc(doc(db, 'rifas', user.uid), {
+        await updateDoc(doc(db, 'rifas', user.uid), {
             nome: cfgNome.value || "Minha Rifa",
             valor: Number(cfgValor.value) || 20,
             descricao: cfgDesc.value || "Participe!",
