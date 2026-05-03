@@ -69,53 +69,63 @@ toggleAuthBtn.onclick = () => {
 // Master Admin Logic
 const masterAdminSection = document.getElementById('master-admin-section');
 const masterUsersList = document.getElementById('master-users-list');
+const clientDashboardSection = document.getElementById('client-dashboard-section');
 
 function initMasterDashboard() {
-    if (auth.currentUser.email !== 'souzagames8080@gmail.com') return;
+    const isMaster = auth.currentUser.email === 'souzagames8080@gmail.com';
     
-    masterAdminSection.classList.remove('hidden');
-    
-    onSnapshot(collection(db, 'rifas'), (snapshot) => {
-        let html = '';
-        const now = Date.now();
-        snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            const id = docSnap.id;
-            const expiraEm = data.expiraEm ? data.expiraEm.toDate().getTime() : 0;
-            const isExpired = expiraEm < now;
-            const status = data.status || 'ativo';
-            
-            html += `
-                <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
-                    <td class="px-10 py-6">
-                        <div class="flex items-center gap-3">
-                            <div class="w-2 h-2 rounded-full ${status === 'bloqueado' ? 'bg-red-500' : (isExpired ? 'bg-yellow-500' : 'bg-green-500')}"></div>
-                            <div>
-                                <div class="font-black text-slate-900 uppercase italic text-sm">${data.nome || 'Sem Nome'}</div>
-                                <div class="text-[10px] text-slate-400 font-mono">${id}</div>
+    if (isMaster) {
+        masterAdminSection.classList.remove('hidden');
+        clientDashboardSection.classList.add('hidden'); // Oculta o editor do próprio master
+        document.querySelector('h1').innerText = 'PAINEL MASTER';
+        
+        onSnapshot(collection(db, 'rifas'), (snapshot) => {
+            let html = '';
+            const now = Date.now();
+            snapshot.forEach(docSnap => {
+                if (docSnap.id === auth.currentUser.uid) return; // Não listar a si mesmo se tiver rifa
+                
+                const data = docSnap.data();
+                const id = docSnap.id;
+                const expiraEm = data.expiraEm ? data.expiraEm.toDate().getTime() : 0;
+                const isExpired = expiraEm < now;
+                const status = data.status || 'ativo';
+                
+                html += `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
+                        <td class="px-10 py-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full ${status === 'bloqueado' ? 'bg-red-500' : (isExpired ? 'bg-yellow-500' : 'bg-green-500')}"></div>
+                                <div>
+                                    <div class="font-black text-slate-900 uppercase italic text-sm">${data.nome || 'Sem Nome'}</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">${id}</div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="px-10 py-6 text-slate-600 font-bold text-xs">${data.whatsappAdmin || 'Não informado'}</td>
-                    <td class="px-10 py-6">
-                        <div class="text-xs font-black ${isExpired ? 'text-red-500' : 'text-slate-900'}">${new Date(expiraEm).toLocaleDateString('pt-BR')}</div>
-                        <div class="text-[9px] uppercase font-bold text-slate-400">${isExpired ? 'VENCIDO' : 'EM DIA'}</div>
-                    </td>
-                    <td class="px-10 py-6 text-right">
-                        <div class="flex justify-end gap-2">
-                            <button onclick="masterRenew('${id}')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-blue-700 transition-all">+30 DIAS</button>
-                            <button onclick="masterToggleBlock('${id}', '${status}')" class="${status === 'bloqueado' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'} px-3 py-2 rounded-lg text-[9px] font-black uppercase transition-all">
-                                ${status === 'bloqueado' ? 'DESBLOQUEAR' : 'BLOQUEAR'}
-                            </button>
-                            <button onclick="masterDelete('${id}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-red-500 hover:text-white transition-all text-xs">EXCLUIR</button>
-                            <a href="/?u=${id}" target="_blank" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-slate-900 hover:text-white transition-all text-xs flex items-center">VER</a>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                        </td>
+                        <td class="px-10 py-6 text-slate-600 font-bold text-xs">${data.whatsappAdmin || 'Não informado'}</td>
+                        <td class="px-10 py-6">
+                            <div class="text-xs font-black ${isExpired ? 'text-red-500' : 'text-slate-900'}">${new Date(expiraEm).toLocaleDateString('pt-BR')}</div>
+                            <div class="text-[9px] uppercase font-bold text-slate-400">${isExpired ? 'VENCIDO' : 'EM DIA'}</div>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="masterRenew('${id}')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-blue-700 transition-all">+30 DIAS</button>
+                                <button onclick="masterToggleBlock('${id}', '${status}')" class="${status === 'bloqueado' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'} px-3 py-2 rounded-lg text-[9px] font-black uppercase transition-all">
+                                    ${status === 'bloqueado' ? 'DESBLOQUEAR' : 'BLOQUEAR'}
+                                </button>
+                                <button onclick="masterDelete('${id}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-red-500 hover:text-white transition-all">EXCLUIR</button>
+                                <a href="/?u=${id}" target="_blank" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-slate-900 hover:text-white transition-all flex items-center">VER</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            masterUsersList.innerHTML = html;
         });
-        masterUsersList.innerHTML = html;
-    });
+    } else {
+        masterAdminSection.classList.add('hidden');
+        clientDashboardSection.classList.remove('hidden');
+    }
 }
 
 // Master Action Functions
