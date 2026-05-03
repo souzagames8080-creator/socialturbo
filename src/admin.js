@@ -3,8 +3,8 @@ import {
     signInWithEmailAndPassword, onAuthStateChanged, signOut,
     collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc 
 } from "./firebase.js";
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const loginScreen = document.getElementById('login-screen');
 const adminPanel = document.getElementById('admin-panel');
@@ -199,35 +199,42 @@ setInterval(async () => {
 
 // PDF Generation Logic
 generatePdfBtn.onclick = () => {
+    console.log("Iniciando geração de PDF...");
     if (paidParticipants.length === 0) {
         alert("Nenhum pagamento confirmado para gerar o relatório.");
         return;
     }
 
-    const doc = new jsPDF();
-    const title = cfgNome.value || "Rifa Online Pro";
-    
-    doc.setFontSize(18);
-    doc.text(`Lista de Participantes Confirmados`, 14, 20);
-    doc.setFontSize(12);
-    doc.text(`Rifa: ${title}`, 14, 30);
-    doc.text(`Data: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 38);
-    
-    const tableData = paidParticipants.map(p => [p.numero, p.nome, p.whatsapp]);
-    const totalArrecadado = (paidParticipants.length * RIFA_VALOR).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    
-    doc.autoTable({
-        head: [['Nº', 'Nome do Cliente', 'WhatsApp']],
-        body: tableData,
-        foot: [['', 'TOTAL ARRECADADO', totalArrecadado]],
-        startY: 45,
-        theme: 'grid',
-        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
-        footStyles: { fillColor: [22, 101, 52], textColor: [255, 255, 255], fontStyle: 'bold' },
-        styles: { fontSize: 10, cellPadding: 5 }
-    });
-    
-    doc.save(`participantes-pagos-${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+    try {
+        const doc = new jsPDF();
+        const title = cfgNome.value || "Rifa Online Pro";
+        
+        doc.setFontSize(18);
+        doc.text(`Lista de Participantes Confirmados`, 14, 20);
+        doc.setFontSize(12);
+        doc.text(`Rifa: ${title}`, 14, 30);
+        doc.text(`Data: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 38);
+        
+        const tableData = paidParticipants.map(p => [p.numero, p.nome, p.whatsapp]);
+        const totalArrecadado = (paidParticipants.length * RIFA_VALOR).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        autoTable(doc, {
+            head: [['Nº', 'Nome do Cliente', 'WhatsApp']],
+            body: tableData,
+            foot: [['', 'TOTAL ARRECADADO', totalArrecadado]],
+            startY: 45,
+            theme: 'grid',
+            headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+            footStyles: { fillColor: [22, 101, 52], textColor: [255, 255, 255], fontStyle: 'bold' },
+            styles: { fontSize: 10, cellPadding: 5 }
+        });
+        
+        doc.save(`participantes-pagos-${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+        console.log("PDF gerado com sucesso.");
+    } catch (error) {
+        console.error("Erro ao gerar PDF:", error);
+        alert("Falha ao gerar PDF. Verifique o console para mais detalhes.");
+    }
 };
 
 // Global functions for buttons
