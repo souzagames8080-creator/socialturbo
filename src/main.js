@@ -25,12 +25,15 @@ let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logo
 
 // Ouvir Configurações dinâmicas
 if (USER_ID) {
+    // Render grid immediately with 100 slots while loading occupied numbers
+    renderGrid();
+
     onSnapshot(doc(db, 'rifas', USER_ID), (docSnap) => {
         if (docSnap.exists()) {
             RIFA_INFO = docSnap.data();
-            rifaNome.innerText = RIFA_INFO.nome;
-            rifaDesc.innerText = RIFA_INFO.descricao;
-            rifaValor.innerText = Number(RIFA_INFO.valor).toFixed(2).replace('.', ',');
+            rifaNome.innerText = RIFA_INFO.nome || "Rifa Online";
+            rifaDesc.innerText = RIFA_INFO.descricao || "Participe já!";
+            rifaValor.innerText = Number(RIFA_INFO.valor || 0).toFixed(2).replace('.', ',');
             if (RIFA_INFO.logoUrl) {
                 document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
             }
@@ -40,13 +43,17 @@ if (USER_ID) {
                 if (badge) badge.style.backgroundColor = RIFA_INFO.corDestaque;
             }
         } else {
-            rifaNome.innerText = "Rifa não encontrada";
-            rifaDesc.innerText = "Este link pode estar incorreto.";
+            rifaNome.innerText = "Rifa não configurada";
+            rifaDesc.innerText = "O administrador ainda não configurou esta rifa.";
         }
+    }, (err) => {
+        console.error("Erro config snapshot:", err);
+        rifaNome.innerText = "Erro ao carregar";
     });
 } else {
     rifaNome.innerText = "Bem-vindo ao Social Turbo";
-    rifaDesc.innerText = "Comece criando sua própria rifa no painel administrativo.";
+    rifaDesc.innerText = "Crie sua própria rifa no painel administrativo.";
+    renderGrid();
 }
 
 const RIFA_TOTAL = 100;
@@ -79,11 +86,11 @@ let initialLoad = true;
 if (USER_ID) {
     onSnapshot(collection(db, 'rifas', USER_ID, 'numeros'), (snapshot) => {
         occupiedNumbers = {};
-        const now = Date.now();
-        
         snapshot.forEach(doc => {
             const data = doc.data();
-            occupiedNumbers[data.numero] = data.status;
+            if (data.numero) {
+                occupiedNumbers[data.numero] = data.status;
+            }
         });
         
         renderGrid();
@@ -91,9 +98,9 @@ if (USER_ID) {
             document.body.classList.add('loaded');
             initialLoad = false;
         }
+    }, (err) => {
+        console.error("Erro numeros snapshot:", err);
     });
-} else {
-    renderGrid();
 }
 
 

@@ -9,28 +9,36 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return isSignedIn() && request.auth.token.email == 'souzagames8080@gmail.com';
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    match /rifa_numeros/{numeroId} {
-      allow read: if true;
-      
-      // Público pode reservar se o documento não existir ou estiver disponível
-      allow create, update: if (
-        (request.resource.data.status == 'reservado' && 
-         (resource == null || resource.data.status == 'disponivel') &&
-         request.resource.data.keys().hasAll(['nome', 'whatsapp', 'status', 'numero', 'timestamp_reserva'])
-        ) ||
-        isAdmin()
-      );
-
-      allow delete: if isAdmin();
+    // Validação de reserva de número
+    function isValidReservation() {
+      let data = request.resource.data;
+      return data.status == 'reservado' && 
+             data.keys().hasAll(['nome', 'whatsapp', 'status', 'numero', 'timestamp_reserva']) &&
+             data.keys().size() == 5 &&
+             data.nome is string && data.nome.size() > 2 &&
+             data.whatsapp is string && data.whatsapp.size() >= 8;
     }
 
-    match /config/{configId} {
+    match /rifas/{userId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isOwner(userId);
+
+      match /numeros/{numeroId} {
+        allow read: if true;
+        
+        // Dono tem controle total
+        allow write: if isOwner(userId);
+
+        // Público pode reservar
+        allow create, update: if (
+          (resource == null || resource.data.status == 'disponivel') &&
+          isValidReservation()
+        );
+      }
     }
   }
 }
