@@ -27,7 +27,18 @@ service cloud.firestore {
 
     match /rifas/{userId} {
       allow read: if true;
-      allow write: if isOwner(userId) || isMasterAdmin();
+      
+      // Permitir escrita se for o dono ou master admin
+      allow write: if (isOwner(userId) || isMasterAdmin()) && (
+        // Se for o dono (não master), não pode alterar status ou expiraEm
+        (isMasterAdmin() || (
+          isOwner(userId) && 
+          request.resource.data.status == resource.data.status &&
+          request.resource.data.expiraEm == resource.data.expiraEm
+        )) ||
+        // Caso seja criação de conta nova (resource é null)
+        (resource == null && isOwner(userId))
+      );
 
       match /numeros/{numeroId} {
         allow read: if true;

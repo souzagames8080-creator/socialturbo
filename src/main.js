@@ -56,6 +56,17 @@ if (USER_ID) {
     onSnapshot(doc(db, 'rifas', USER_ID), (docSnap) => {
         if (docSnap.exists()) {
             RIFA_INFO = docSnap.data();
+
+            // Verificação de Bloqueio/Vencimento
+            const now = Date.now();
+            const expiraEm = RIFA_INFO.expiraEm ? RIFA_INFO.expiraEm.toDate().getTime() : 0;
+            if (RIFA_INFO.status === 'bloqueado' || expiraEm < now) {
+                rifaNome.innerText = "RIFA SUSPENSA";
+                rifaDesc.innerText = "Esta rifa não está mais aceitando participações.";
+                grid.innerHTML = "<div class='col-span-full py-20 text-center opacity-50 font-black uppercase italic'>ESTA PÁGINA FOI DESATIVADA PELO ADMINISTRADOR</div>";
+                return;
+            }
+
             RIFA_VALOR = Number(RIFA_INFO.valor || 0);
             rifaNome.innerText = RIFA_INFO.nome || "Rifa Online";
             rifaDesc.innerText = RIFA_INFO.descricao || "Participe já!";

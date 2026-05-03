@@ -1,7 +1,7 @@
 import { 
     auth, db, 
     signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut,
-    collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc, writeBatch 
+    collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, getDoc, setDoc, writeBatch 
 } from "./firebase.js";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -77,19 +77,39 @@ function initMasterDashboard() {
     
     onSnapshot(collection(db, 'rifas'), (snapshot) => {
         let html = '';
+        const now = Date.now();
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             const id = docSnap.id;
+            const expiraEm = data.expiraEm ? data.expiraEm.toDate().getTime() : 0;
+            const isExpired = expiraEm < now;
+            const status = data.status || 'ativo';
             
             html += `
                 <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
                     <td class="px-10 py-6">
-                        <div class="font-black text-slate-900 uppercase italic text-sm">${data.nome || 'Sem Nome'}</div>
-                        <div class="text-[10px] text-slate-400 font-mono">${id}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full ${status === 'bloqueado' ? 'bg-red-500' : (isExpired ? 'bg-yellow-500' : 'bg-green-500')}"></div>
+                            <div>
+                                <div class="font-black text-slate-900 uppercase italic text-sm">${data.nome || 'Sem Nome'}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">${id}</div>
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-10 py-6 text-slate-600 font-bold">${data.whatsappAdmin || 'Não informado'}</td>
+                    <td class="px-10 py-6 text-slate-600 font-bold text-xs">${data.whatsappAdmin || 'Não informado'}</td>
+                    <td class="px-10 py-6">
+                        <div class="text-xs font-black ${isExpired ? 'text-red-500' : 'text-slate-900'}">${new Date(expiraEm).toLocaleDateString('pt-BR')}</div>
+                        <div class="text-[9px] uppercase font-bold text-slate-400">${isExpired ? 'VENCIDO' : 'EM DIA'}</div>
+                    </td>
                     <td class="px-10 py-6 text-right">
-                        <a href="/?u=${id}" target="_blank" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all">VISUALIZAR PÁGINA</a>
+                        <div class="flex justify-end gap-2">
+                            <button onclick="masterRenew('${id}')" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-blue-700 transition-all">+30 DIAS</button>
+                            <button onclick="masterToggleBlock('${id}', '${status}')" class="${status === 'bloqueado' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'} px-3 py-2 rounded-lg text-[9px] font-black uppercase transition-all">
+                                ${status === 'bloqueado' ? 'DESBLOQUEAR' : 'BLOQUEAR'}
+                            </button>
+                            <button onclick="masterDelete('${id}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-red-500 hover:text-white transition-all text-xs">EXCLUIR</button>
+                            <a href="/?u=${id}" target="_blank" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-slate-900 hover:text-white transition-all text-xs flex items-center">VER</a>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -97,6 +117,33 @@ function initMasterDashboard() {
         masterUsersList.innerHTML = html;
     });
 }
+
+// Master Action Functions
+window.masterRenew = async (uid) => {
+    try {
+        const docRef = doc(db, 'rifas', uid);
+        const docSnap = await getDocs(query(collection(db, 'rifas'))); // Simple way for AI context
+        const rifaDoc = await getDoc(docRef);
+        const currentExp = rifaDoc.data().expiraEm ? rifaDoc.data().expiraEm.toDate().getTime() : Date.now();
+        const newExp = new Date(Math.max(Date.now(), currentExp) + (30 * 24 * 60 * 60 * 1000));
+        await updateDoc(docRef, { expiraEm: newExp, status: 'ativo' });
+        alert("Assinatura renovada por 30 dias!");
+    } catch (e) { alert("Erro: " + e.message); }
+};
+
+window.masterToggleBlock = async (uid, currentStatus) => {
+    try {
+        await updateDoc(doc(db, 'rifas', uid), { status: currentStatus === 'bloqueado' ? 'ativo' : 'bloqueado' });
+    } catch (e) { alert("Erro: " + e.message); }
+};
+
+window.masterDelete = async (uid) => {
+    if (!confirm("⚠️ EXCLUIR CLIENTE? Isso apagará a rifa e todos os números PERMANENTEMENTE.")) return;
+    try {
+        await deleteDoc(doc(db, 'rifas', uid));
+        alert("Cliente excluído.");
+    } catch (e) { alert("Erro: " + e.message); }
+};
 
 // Auth State
 onAuthStateChanged(auth, (user) => {
@@ -122,6 +169,18 @@ onAuthStateChanged(auth, (user) => {
         configUnsubscribe = onSnapshot(doc(db, 'rifas', user.uid), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
+
+                // Check if blocked or expired (not for master admin)
+                if (user.email !== 'souzagames8080@gmail.com') {
+                    const now = Date.now();
+                    const expiraEm = data.expiraEm ? data.expiraEm.toDate().getTime() : 0;
+                    if (data.status === 'bloqueado' || expiraEm < now) {
+                        alert("⚠️ SUA CONTA ESTÁ BLOQUEADA OU VENCIDA. Entre em contato com o suporte.");
+                        signOut(auth);
+                        return;
+                    }
+                }
+
                 RIFA_VALOR = Number(data.valor) || 20;
                 cfgNome.value = data.nome || "";
                 cfgValor.value = data.valor || "";
@@ -263,6 +322,10 @@ loginForm.onsubmit = async (e) => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
+            // 30 days from now
+            const expiraEm = new Date();
+            expiraEm.setDate(expiraEm.getDate() + 30);
+
             // Create initial empty rifa config for the new user
             await setDoc(doc(db, 'rifas', user.uid), {
                 nome: regNome.value || "Minha Rifa",
@@ -270,9 +333,11 @@ loginForm.onsubmit = async (e) => {
                 descricao: "Participe da minha rifa!",
                 corDestaque: "#2563eb",
                 whatsappAdmin: "",
+                status: 'ativo',
+                expiraEm: expiraEm,
                 ownerId: user.uid
             });
-            alert("Conta criada com sucesso! Agora você pode gerenciar sua rifa.");
+            alert("Conta criada com sucesso! Você tem 30 dias de acesso grátis.");
         } else {
             await signInWithEmailAndPassword(auth, email, password);
         }
