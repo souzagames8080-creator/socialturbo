@@ -31,6 +31,9 @@ const cfgLogo = document.getElementById('cfg-logo');
 const cfgCor = document.getElementById('cfg-cor');
 const cfgCorText = document.getElementById('cfg-cor-text');
 const cfgWhatsapp = document.getElementById('cfg-whatsapp');
+const cfgMetodo = document.getElementById('cfg-metodo');
+const cfgDataSorteio = document.getElementById('cfg-data-sorteio');
+const cfgGanhadorOficial = document.getElementById('cfg-ganhador-oficial');
 
 // Sync Color inputs
 cfgCor.oninput = () => cfgCorText.value = cfgCor.value.toUpperCase();
@@ -201,6 +204,9 @@ onAuthStateChanged(auth, (user) => {
                 cfgCor.value = data.corDestaque || "#2563EB";
                 cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
                 cfgWhatsapp.value = data.whatsappAdmin || "";
+                cfgMetodo.value = data.metodoSorteio || "loteria";
+                cfgDataSorteio.value = data.dataSorteio || "";
+                cfgGanhadorOficial.value = data.ganhadorOficial || "";
             }
         });
 
@@ -310,6 +316,9 @@ configForm.onsubmit = async (e) => {
             logoUrl: cfgLogo.value || "",
             corDestaque: cfgCor.value || "#2563eb",
             whatsappAdmin: cfgWhatsapp.value || "",
+            metodoSorteio: cfgMetodo.value || "loteria",
+            dataSorteio: cfgDataSorteio.value || "",
+            ganhadorOficial: cfgGanhadorOficial.value || "",
             ownerId: user.uid
         });
         alert("Configurações salvas com sucesso!");

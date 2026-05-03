@@ -29,6 +29,8 @@ let occupiedNumbers = {};
 const RIFA_TOTAL = 100;
 let RIFA_VALOR = 0;
 let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
+let countdownInterval = null;
+let allParticipants = [];
 
 // Gerar Grid Inicial
 function renderGrid() {
@@ -80,6 +82,13 @@ if (USER_ID) {
             if (RIFA_INFO.logoUrl) {
                 document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
             }
+
+            // --- NOVO: Contagem Regressiva ---
+            initCountdown(RIFA_INFO.dataSorteio, RIFA_INFO.metodoSorteio);
+
+            // --- NOVO: Ganhador ---
+            checkWinner(RIFA_INFO.ganhadorOficial);
+            
             if (RIFA_INFO.corDestaque) {
                 document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
                 const badge = document.querySelector('.bg-blue-600');
@@ -96,11 +105,23 @@ if (USER_ID) {
     // Ouvir Números
     onSnapshot(collection(db, 'rifas', USER_ID, 'numeros'), (snapshot) => {
         occupiedNumbers = {};
+        allParticipants = [];
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
-            if (data.numero) occupiedNumbers[data.numero] = data.status;
+            if (data.numero) {
+                occupiedNumbers[data.numero] = data.status;
+                if (data.status === 'pago') {
+                    allParticipants.push(data);
+                }
+            }
         });
         renderGrid();
+        
+        // Re-checar ganhador se a lista de participantes mudar
+        if (RIFA_INFO && RIFA_INFO.ganhadorOficial) {
+            checkWinner(RIFA_INFO.ganhadorOficial);
+        }
+
         if (initialLoad) {
             document.body.classList.add('loaded');
             initialLoad = false;
@@ -150,3 +171,97 @@ form.onsubmit = async (e) => {
         alert("Ops! Algo deu errado. Tente novamente.");
     }
 };
+
+// ========================
+// 🎯 NOVAS FUNÇÕES (CONTADOR/GANHADOR)
+// ========================
+
+function initCountdown(targetDateStr, metodo) {
+    const container = document.getElementById('countdown-container');
+    const drawDateDisplay = document.getElementById('draw-date-formatted');
+    const drawMethodDesc = document.getElementById('draw-method-desc');
+    
+    if (!targetDateStr) {
+        container.classList.add('hidden');
+        return;
+    }
+
+    container.classList.remove('hidden');
+    drawDateDisplay.innerText = formatarData(targetDateStr);
+    
+    if (metodo === 'loteria') {
+        drawMethodDesc.innerText = "Sorteio baseado na Loteria Federal";
+        document.getElementById('draw-info').innerText = "SORTEIO PELA LOTERIA FEDERAL";
+    } else {
+        drawMethodDesc.innerText = "Sorteio Manual (Acompanhe ao vivo)";
+        document.getElementById('draw-info').innerText = "SORTEIO EM BREVE";
+    }
+
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    const targetDate = new Date(targetDateStr).getTime();
+
+    countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            document.getElementById('draw-info').innerText = "SORTEIO EM ANDAMENTO OU FINALIZADO";
+            document.querySelectorAll('.timer-num').forEach(el => el.innerText = '00');
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = String(days).padStart(2, '0');
+        document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+    }, 1000);
+}
+
+function checkWinner(winnerNumber) {
+    const banner = document.getElementById('winner-banner');
+    const winnerNameEl = document.getElementById('winner-name');
+    const winnerNumEl = document.getElementById('winner-number');
+    const winnerWaEl = document.getElementById('winner-whatsapp');
+
+    if (!winnerNumber) {
+        banner.classList.add('hidden');
+        return;
+    }
+
+    const winner = allParticipants.find(p => String(p.numero) === String(winnerNumber));
+    
+    if (winner) {
+        banner.classList.remove('hidden');
+        winnerNameEl.innerText = winner.nome;
+        winnerNumEl.innerText = `Nº ${String(winner.numero).padStart(2, '0')}`;
+        winnerWaEl.innerText = mascararWhatsapp(winner.whatsapp);
+        // Ocultar contador se já temos ganhador oficial
+        document.getElementById('countdown-container').classList.add('hidden');
+    } else {
+        banner.classList.add('hidden');
+    }
+}
+
+function formatarData(dataStr) {
+    if (!dataStr) return "";
+    const [date, time] = dataStr.split('T');
+    const [y, m, d] = date.split('-');
+    return `${d}/${m}/${y} às ${time}`;
+}
+
+function mascararWhatsapp(tel) {
+    if (!tel) return "";
+    const limpo = tel.replace(/\D/g, '');
+    if (limpo.length < 8) return tel;
+    const inicio = limpo.substring(0, 2);
+    const meio = "*****";
+    const fim = limpo.substring(limpo.length - 3);
+    return `${inicio}${meio}${fim}`;
+}

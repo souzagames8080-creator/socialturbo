@@ -76,6 +76,18 @@ body {
   border-radius: 2.5rem;
 }
 
+.timer-box {
+  @apply flex flex-col items-center bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[70px] md:min-w-[100px];
+}
+
+.timer-num {
+  @apply text-2xl md:text-3xl font-black italic tracking-tighter text-white block leading-none mb-2;
+}
+
+.timer-label {
+  @apply text-[8px] uppercase font-black tracking-widest text-slate-500;
+}
+
 @keyframes float {
   0% { transform: translateY(0px) rotate(12deg); }
   50% { transform: translateY(-10px) rotate(15deg); }

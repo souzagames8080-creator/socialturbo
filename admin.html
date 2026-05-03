@@ -140,6 +140,21 @@
                             <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">DESCRIÇÃO CURTA</label>
                             <input type="text" id="cfg-desc" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-bold text-slate-900 focus:border-blue-500 outline-none">
                         </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">MÉTODO DE SORTEIO</label>
+                            <select id="cfg-metodo" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-bold text-slate-900 focus:border-blue-500 outline-none">
+                                <option value="loteria">LOTERIA FEDERAL</option>
+                                <option value="manual">SORTEIO MANUAL (LIVE)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">DATA DO SORTEIO</label>
+                            <input type="datetime-local" id="cfg-data-sorteio" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-bold text-slate-900 focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nº GANHADOR (OFICIAL)</label>
+                            <input type="number" id="cfg-ganhador-oficial" placeholder="Ex: 45" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-bold text-slate-900 focus:border-blue-500 outline-none border-2 border-dashed border-slate-200">
+                        </div>
                         <div class="md:col-span-3 bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-4">
                             <label class="block text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">SEU LINK DE VENDA</label>
                             <div class="flex gap-2">
