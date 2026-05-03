@@ -1,6 +1,6 @@
 import { 
     auth, db, 
-    signInWithEmailAndPassword, onAuthStateChanged, signOut,
+    signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut,
     collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, getDocs, setDoc, writeBatch 
 } from "./firebase.js";
 import jsPDF from "jspdf";
@@ -43,6 +43,28 @@ cfgCorText.oninput = () => {
 // Load Config
 let configUnsubscribe = null;
 let currentNumbersUnsubscribe = null;
+
+const toggleAuthBtn = document.getElementById('toggle-auth');
+const signupFields = document.getElementById('signup-fields');
+const submitAuthBtn = document.getElementById('submit-auth-btn');
+const regNome = document.getElementById('reg-nome');
+
+let isRegistering = false;
+
+toggleAuthBtn.onclick = () => {
+    isRegistering = !isRegistering;
+    if (isRegistering) {
+        signupFields.classList.remove('hidden');
+        submitAuthBtn.innerText = 'CRIAR MINHA CONTA';
+        toggleAuthBtn.innerText = 'Já tem conta? Entre aqui';
+        document.querySelector('#login-screen h1').innerText = 'NOVO CADASTRO';
+    } else {
+        signupFields.classList.add('hidden');
+        submitAuthBtn.innerText = 'ENTRAR NO PAINEL';
+        toggleAuthBtn.innerText = 'Não tem conta? Cadastre-se';
+        document.querySelector('#login-screen h1').innerText = 'PAINEL ADMIN';
+    }
+};
 
 // Auth State
 onAuthStateChanged(auth, (user) => {
@@ -181,15 +203,32 @@ configForm.onsubmit = async (e) => {
     }
 };
 
-// Login
+// Login / Register
 loginForm.onsubmit = async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    
     try {
-        await signInWithEmailAndPassword(auth, email, password);
+        if (isRegistering) {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            // Create initial empty rifa config for the new user
+            await setDoc(doc(db, 'rifas', user.uid), {
+                nome: regNome.value || "Minha Rifa",
+                valor: 20,
+                descricao: "Participe da minha rifa!",
+                corDestaque: "#2563eb",
+                whatsappAdmin: "",
+                ownerId: user.uid
+            });
+            alert("Conta criada com sucesso! Agora você pode gerenciar sua rifa.");
+        } else {
+            await signInWithEmailAndPassword(auth, email, password);
+        }
     } catch (error) {
-        alert("Acesso negado: " + error.message);
+        alert("Erro na autenticação: " + error.message);
     }
 };
 
@@ -276,7 +315,10 @@ function loadData() {
 
 // Auto Cleanup Expired
 setInterval(async () => {
-    const q = query(collection(db, 'rifa_numeros'));
+    const user = auth.currentUser;
+    if(!user) return;
+
+    const q = query(collection(db, 'rifas', user.uid, 'numeros'));
     const snapshot = await getDocs(q);
     const now = Date.now();
     snapshot.forEach(async (docSnap) => {
@@ -285,7 +327,7 @@ setInterval(async () => {
             const reservaDate = data.timestamp_reserva.toDate ? data.timestamp_reserva.toDate().getTime() : now;
             if (now - reservaDate > 15 * 60 * 1000) {
                 console.log(`Limpando reserva expirada: ${data.numero}`);
-                await deleteDoc(doc(db, 'rifa_numeros', docSnap.id));
+                await deleteDoc(doc(db, 'rifas', user.uid, 'numeros', docSnap.id));
             }
         }
     });

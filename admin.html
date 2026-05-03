@@ -16,6 +16,10 @@
                 <p class="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] italic">Acesse Management System</p>
             </div>
             <form id="login-form" class="space-y-6">
+                <div id="signup-fields" class="hidden">
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 italic">NOME COMPLETO</label>
+                    <input type="text" id="reg-nome" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-5 font-bold focus:border-blue-500 transition-all outline-none text-slate-900" placeholder="Seu Nome">
+                </div>
                 <div>
                     <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 italic">E-MAIL</label>
                     <input type="email" id="email" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-5 font-bold focus:border-blue-500 transition-all outline-none text-slate-900" placeholder="seu@email.com">
@@ -24,10 +28,13 @@
                     <label class="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 italic">SENHA</label>
                     <input type="password" id="password" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-5 font-bold focus:border-blue-500 transition-all outline-none text-slate-900" placeholder="••••••••">
                 </div>
-                <button type="submit" class="w-full bg-slate-900 text-white rounded-2xl py-6 font-black text-xs uppercase italic tracking-widest hover:bg-black transition-all shadow-2xl">
+                <button type="submit" id="submit-auth-btn" class="w-full bg-slate-900 text-white rounded-2xl py-6 font-black text-xs uppercase italic tracking-widest hover:bg-black transition-all shadow-2xl">
                     ENTRAR NO PAINEL
                 </button>
             </form>
+            <div class="mt-8 text-center">
+                <button id="toggle-auth" class="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline italic">Não tem conta? Cadastre-se</button>
+            </div>
         </div>
     </div>
 
