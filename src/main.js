@@ -1,4 +1,8 @@
-import { auth, db, onAuthStateChanged, doc, onSnapshot, collection, setDoc, serverTimestamp } from "./firebase.js";
+import { 
+    auth, db, onAuthStateChanged, 
+    doc, onSnapshot, collection, setDoc, serverTimestamp,
+    query, where, getDocs, getDoc
+} from "./firebase.js";
 
 const grid = document.getElementById('numeros-grid');
 const modal = document.getElementById('reserva-modal');
@@ -31,8 +35,9 @@ let RIFA_VALOR = 0;
 let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
 let countdownInterval = null;
 let allParticipants = [];
+let ACTUAL_UID = null;
 
-// Gerar Grid Inicial
+// Funções de Inicialização Reativa
 function renderGrid() {
     if (!grid) return;
     grid.innerHTML = '';
@@ -64,18 +69,18 @@ function renderGrid() {
     }
 }
 
-let initialLoad = true;
-// Configurações e Listeners
-if (USER_ID) {
+function setupListeners(uid) {
+    ACTUAL_UID = uid;
+    
     // Ouvir Configurações
-    onSnapshot(doc(db, 'rifas', USER_ID), (docSnap) => {
+    onSnapshot(doc(db, 'rifas', uid), (docSnap) => {
         if (docSnap.exists()) {
             RIFA_INFO = docSnap.data();
 
             // Verificação de Bloqueio/Vencimento
             const now = Date.now();
             const expiraEm = RIFA_INFO.expiraEm ? RIFA_INFO.expiraEm.toDate().getTime() : 0;
-            if (RIFA_INFO.status === 'bloqueado' || expiraEm < now) {
+            if (RIFA_INFO.status === 'bloqueado' || (expiraEm > 0 && expiraEm < now)) {
                 rifaNome.innerText = "RIFA SUSPENSA";
                 rifaDesc.innerText = "Esta rifa não está mais aceitando participações.";
                 grid.innerHTML = "<div class='col-span-full py-20 text-center opacity-50 font-black uppercase italic'>ESTA PÁGINA FOI DESATIVADA PELO ADMINISTRADOR</div>";
@@ -91,13 +96,8 @@ if (USER_ID) {
                 document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
             }
 
-            // --- NOVO: Contagem Regressiva ---
             initCountdown(RIFA_INFO.dataSorteio, RIFA_INFO.metodoSorteio);
-
-            // --- NOVO: Ganhador ---
             checkWinner(RIFA_INFO);
-            
-            // --- NOVO: Live Stream ---
             renderLiveStream(RIFA_INFO);
             
             if (RIFA_INFO.corDestaque) {
@@ -106,15 +106,11 @@ if (USER_ID) {
                 if (badge) badge.style.backgroundColor = RIFA_INFO.corDestaque;
             }
             renderGrid();
-        } else {
-            rifaNome.innerText = "Rifa não encontrada";
-            rifaDesc.innerText = "Verifique se o link está correto.";
-            renderGrid();
         }
     });
 
     // Ouvir Números
-    onSnapshot(collection(db, 'rifas', USER_ID, 'numeros'), (snapshot) => {
+    onSnapshot(collection(db, 'rifas', uid, 'numeros'), (snapshot) => {
         occupiedNumbers = {};
         allParticipants = [];
         snapshot.forEach(docSnap => {
@@ -127,10 +123,8 @@ if (USER_ID) {
             }
         });
         
-        // --- Atualizar Estatísticas ---
         const totalNum = RIFA_INFO.totalNumeros || 100;
         const soldCount = Object.values(occupiedNumbers).filter(s => s === 'pago').length;
-        const reservedCount = Object.values(occupiedNumbers).filter(s => s === 'reservado').length;
         const remainingCount = totalNum - soldCount;
         const percent = Math.round((remainingCount / totalNum) * 100);
 
@@ -142,7 +136,6 @@ if (USER_ID) {
 
         renderGrid();
         
-        // Re-checar ganhador se a lista de participantes mudar
         if (RIFA_INFO) {
             checkWinner(RIFA_INFO);
             renderLiveStream(RIFA_INFO);
@@ -153,10 +146,46 @@ if (USER_ID) {
             initialLoad = false;
         }
     });
-} else {
-    document.body.classList.add('loaded');
-    renderGrid();
 }
+
+async function resolveRifa() {
+    if (!USER_ID) {
+        document.body.classList.add('loaded');
+        renderGrid();
+        return;
+    }
+
+    try {
+        // 1. Tentar por UID direto (mais rápido)
+        const docSnap = await getDoc(doc(db, 'rifas', USER_ID));
+        if (docSnap.exists()) {
+            setupListeners(USER_ID);
+        } else {
+            // 2. Tentar por Slug
+            const q = query(collection(db, 'rifas'), where('slug', '==', USER_ID));
+            const querySnap = await getDocs(q);
+            if (!querySnap.empty) {
+                setupListeners(querySnap.docs[0].id);
+            } else {
+                rifaNome.innerText = "Rifa não encontrada";
+                rifaDesc.innerText = "Verifique se o link está correto.";
+                document.body.classList.add('loaded');
+                renderGrid();
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        rifaNome.innerText = "Erro ao carregar";
+        document.body.classList.add('loaded');
+    }
+}
+
+// Iniciar resolução
+resolveRifa();
+
+let initialLoad = true;
+// Listener redundante removido para dar lugar ao setupListeners
+// (as linhas 69-158 antigas foram incorporadas acima)
 
 
 function openModal(num) {
@@ -181,7 +210,7 @@ form.onsubmit = async (e) => {
 
     try {
         const numId = String(selectedNumber);
-        await setDoc(doc(db, 'rifas', USER_ID, 'numeros', numId), {
+        await setDoc(doc(db, 'rifas', ACTUAL_UID, 'numeros', numId), {
             numero: selectedNumber,
             nome,
             whatsapp,

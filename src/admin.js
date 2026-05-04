@@ -40,6 +40,7 @@ const cfgPremio3 = document.getElementById('cfg-premio3');
 const cfgGanhador1 = document.getElementById('cfg-ganhador1');
 const cfgGanhador2 = document.getElementById('cfg-ganhador2');
 const cfgGanhador3 = document.getElementById('cfg-ganhador3');
+const cfgSlug = document.getElementById('cfg-slug');
 const cfgShowLive = document.getElementById('cfg-show-live');
 const cfgLiveUrl = document.getElementById('cfg-live-url');
 const liveUrlContainer = document.getElementById('live-url-container');
@@ -187,15 +188,15 @@ onAuthStateChanged(auth, (user) => {
         adminPanel.classList.remove('hidden');
         document.body.style.background = '#f8fafc'; 
         
-        // Generate My Link
+        // Generate My Link (UID) - Initial
         const myLinkInput = document.getElementById('my-link');
         const viewRifaBtn = document.getElementById('view-rifa-btn');
         const baseUrl = window.location.origin;
-        const fullLink = `${baseUrl}/?u=${user.uid}`;
         
-        if (myLinkInput) myLinkInput.value = fullLink;
+        let initialLink = `${baseUrl}/?u=${user.uid}`;
+        if (myLinkInput) myLinkInput.value = initialLink;
         if (viewRifaBtn) {
-            viewRifaBtn.href = fullLink;
+            viewRifaBtn.href = initialLink;
             viewRifaBtn.classList.remove('hidden');
         }
 
@@ -230,6 +231,7 @@ onAuthStateChanged(auth, (user) => {
                 cfgValor.value = data.valor || "";
                 cfgTotal.value = data.totalNumeros || 100;
                 cfgDesc.value = data.descricao || "";
+                cfgSlug.value = data.slug || "";
                 cfgLogo.value = data.logoUrl || "";
                 cfgCor.value = data.corDestaque || "#2563EB";
                 cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
@@ -245,6 +247,13 @@ onAuthStateChanged(auth, (user) => {
                 cfgShowLive.checked = data.showLive || false;
                 cfgLiveUrl.value = data.liveUrl || "";
                 if (data.showLive) liveUrlContainer.classList.remove('hidden');
+
+                // Update link with slug if available
+                const finalSlug = data.slug || user.uid;
+                const baseUrl = window.location.origin;
+                const fullLink = `${baseUrl}/?u=${finalSlug}`;
+                if (myLinkInput) myLinkInput.value = fullLink;
+                if (viewRifaBtn) viewRifaBtn.href = fullLink;
             }
         });
 
@@ -353,6 +362,7 @@ configForm.onsubmit = async (e) => {
             valor: Number(cfgValor.value) || 20,
             totalNumeros: Number(cfgTotal.value) || 100,
             descricao: cfgDesc.value || "Participe!",
+            slug: cfgSlug.value.trim().toLowerCase().replace(/\s+/g, '-') || "",
             logoUrl: cfgLogo.value || "",
             corDestaque: cfgCor.value || "#2563eb",
             whatsappAdmin: cfgWhatsapp.value || "",
