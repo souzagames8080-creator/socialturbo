@@ -12,7 +12,7 @@ const rifaNome = document.getElementById('rifa-nome');
 const rifaDesc = document.getElementById('rifa-descricao');
 const rifaValor = document.getElementById('rifa-valor');
 
-let selectedNumber = null;
+let selectedNumbers = [];
 // Identificar qual rifa carregar (SaaS)
 const urlParams = new URLSearchParams(window.location.search);
 const USER_ID = urlParams.get('u'); // Ex: ?u=UID_DO_CLIENTE
@@ -62,12 +62,47 @@ function renderGrid() {
         card.innerText = label;
         
         if (status === 'disponivel') {
-            card.onclick = () => openModal(i);
+            const isSelected = selectedNumbers.includes(i);
+            if (isSelected) card.classList.add('selected');
+            card.onclick = () => toggleSelection(i);
         }
         
         grid.appendChild(card);
     }
 }
+
+function toggleSelection(num) {
+    const index = selectedNumbers.indexOf(num);
+    if (index > -1) {
+        selectedNumbers.splice(index, 1);
+    } else {
+        selectedNumbers.push(num);
+    }
+    
+    updateSelectionBar();
+    renderGrid();
+}
+
+function updateSelectionBar() {
+    const bar = document.getElementById('selection-bar');
+    const countEl = document.getElementById('selected-count');
+    const totalEl = document.getElementById('selected-total');
+
+    if (selectedNumbers.length > 0) {
+        bar.classList.remove('translate-y-32');
+        countEl.innerText = String(selectedNumbers.length).padStart(2, '0');
+        const totalPrice = selectedNumbers.length * RIFA_VALOR;
+        totalEl.innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+    } else {
+        bar.classList.add('translate-y-32');
+    }
+}
+
+window.clearSelection = () => {
+    selectedNumbers = [];
+    updateSelectionBar();
+    renderGrid();
+};
 
 function setupListeners(uid) {
     ACTUAL_UID = uid;
@@ -188,13 +223,16 @@ let initialLoad = true;
 // (as linhas 69-158 antigas foram incorporadas acima)
 
 
-function openModal(num) {
-    selectedNumber = num;
-    let label = String(num).padStart(2, '0');
-    const totalToRender = Number(RIFA_INFO.totalNumeros) || 100;
-    if (totalToRender === 100 && num === 100) label = "00";
+window.openModal = () => {
+    if (selectedNumbers.length === 0) return;
     
-    displayNum.innerText = label;
+    const labels = selectedNumbers.map(n => {
+        let l = String(n).padStart(2, '0');
+        if (Number(RIFA_INFO.totalNumeros) === 100 && n === 100) l = "00";
+        return l;
+    }).join(', ');
+    
+    displayNum.innerText = labels;
     modal.classList.add('active');
 }
 
@@ -205,25 +243,43 @@ window.closeModal = () => {
 
 form.onsubmit = async (e) => {
     e.preventDefault();
+    if (selectedNumbers.length === 0) return;
+
     const nome = document.getElementById('nome').value;
     const whatsapp = document.getElementById('whatsapp').value;
 
     try {
-        const numId = String(selectedNumber);
-        await setDoc(doc(db, 'rifas', ACTUAL_UID, 'numeros', numId), {
-            numero: selectedNumber,
-            nome,
-            whatsapp,
-            status: 'reservado',
-            timestamp_reserva: serverTimestamp()
+        // Reservar todos em paralelo
+        const promises = selectedNumbers.map(num => {
+            const numId = String(num);
+            return setDoc(doc(db, 'rifas', ACTUAL_UID, 'numeros', numId), {
+                numero: num,
+                nome,
+                whatsapp,
+                status: 'reservado',
+                timestamp_reserva: serverTimestamp()
+            });
         });
 
-        // Gerar link do WhatsApp
-        const msg = window.encodeURIComponent(`Olá! Gostaria de reservar o número ${selectedNumber} da rifa ${RIFA_INFO.nome}. Meu nome é ${nome}.`);
+        await Promise.all(promises);
+
+        // Gerar link do WhatsApp com todos os números
+        const numsStr = selectedNumbers.map(n => {
+             let l = String(n).padStart(2, '0');
+             if (Number(RIFA_INFO.totalNumeros) === 100 && n === 100) l = "00";
+             return l;
+        }).join(', ');
+
+        const msgTexto = `Olá! Gostaria de reservar os números (${numsStr}) da rifa ${RIFA_INFO.nome}. Meu nome é ${nome}.`;
+        const msg = window.encodeURIComponent(msgTexto);
         const phone = RIFA_INFO.whatsappAdmin || "5585992908713"; 
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${msg}`;
         
         window.open(whatsappUrl, '_blank');
+        
+        // Limpar tudo
+        selectedNumbers = [];
+        updateSelectionBar();
         closeModal();
     } catch (error) {
         console.error("Erro ao reservar:", error);
