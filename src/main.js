@@ -97,6 +97,9 @@ if (USER_ID) {
             // --- NOVO: Ganhador ---
             checkWinner(RIFA_INFO);
             
+            // --- NOVO: Live Stream ---
+            renderLiveStream(RIFA_INFO);
+            
             if (RIFA_INFO.corDestaque) {
                 document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
                 const badge = document.querySelector('.bg-blue-600');
@@ -142,6 +145,7 @@ if (USER_ID) {
         // Re-checar ganhador se a lista de participantes mudar
         if (RIFA_INFO) {
             checkWinner(RIFA_INFO);
+            renderLiveStream(RIFA_INFO);
         }
 
         if (initialLoad) {
@@ -295,6 +299,35 @@ function checkWinner(data) {
         document.getElementById('countdown-container').classList.add('hidden');
     } else {
         banner.classList.add('hidden');
+    }
+}
+
+function getYouTubeID(url) {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : url;
+}
+
+function renderLiveStream(data) {
+    const container = document.getElementById('live-container');
+    const iframe = document.getElementById('live-iframe');
+
+    if (data.showLive && data.liveUrl) {
+        const videoId = getYouTubeID(data.liveUrl);
+        if (videoId) {
+            const currentSrc = iframe.src;
+            const newSrc = `https://www.youtube.com/embed/${videoId}`;
+            if (currentSrc !== newSrc) {
+                iframe.src = newSrc;
+            }
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
+    } else {
+        container.classList.add('hidden');
+        iframe.src = "";
     }
 }
 

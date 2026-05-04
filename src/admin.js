@@ -40,6 +40,14 @@ const cfgPremio3 = document.getElementById('cfg-premio3');
 const cfgGanhador1 = document.getElementById('cfg-ganhador1');
 const cfgGanhador2 = document.getElementById('cfg-ganhador2');
 const cfgGanhador3 = document.getElementById('cfg-ganhador3');
+const cfgShowLive = document.getElementById('cfg-show-live');
+const cfgLiveUrl = document.getElementById('cfg-live-url');
+const liveUrlContainer = document.getElementById('live-url-container');
+
+// Toggle live URL container
+cfgShowLive.onchange = () => {
+    liveUrlContainer.classList.toggle('hidden', !cfgShowLive.checked);
+};
 
 // Sync Color inputs
 cfgCor.oninput = () => cfgCorText.value = cfgCor.value.toUpperCase();
@@ -234,6 +242,9 @@ onAuthStateChanged(auth, (user) => {
                 cfgGanhador1.value = data.ganhador1 || "";
                 cfgGanhador2.value = data.ganhador2 || "";
                 cfgGanhador3.value = data.ganhador3 || "";
+                cfgShowLive.checked = data.showLive || false;
+                cfgLiveUrl.value = data.liveUrl || "";
+                if (data.showLive) liveUrlContainer.classList.remove('hidden');
             }
         });
 
@@ -353,6 +364,8 @@ configForm.onsubmit = async (e) => {
             ganhador1: cfgGanhador1.value || "",
             ganhador2: cfgGanhador2.value || "",
             ganhador3: cfgGanhador3.value || "",
+            showLive: cfgShowLive.checked,
+            liveUrl: cfgLiveUrl.value || "",
             ownerId: user.uid
         });
         alert("Configurações salvas com sucesso!");

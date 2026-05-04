@@ -23,6 +23,18 @@
             </div>
         </header>
 
+        <!-- Live Stream do Sorteio -->
+        <div id="live-container" class="mb-12 hidden">
+            <div class="glass-panel overflow-hidden border-2 border-red-600/50 relative">
+                <div class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full font-black text-[10px] tracking-[0.2em] flex items-center gap-2 animate-pulse z-20">
+                    <div class="w-2 h-2 bg-white rounded-full"></div> AO VIVO
+                </div>
+                <div class="aspect-video w-full">
+                    <iframe id="live-iframe" class="w-full h-full" src="" title="Live Sorteio" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+
         <!-- Banner do Ganhador -->
         <div id="winner-banner" class="mb-12 hidden">
             <div class="bg-slate-900 md:p-10 p-6 rounded-3xl md:rounded-[3rem] shadow-2xl border border-white/5 relative overflow-hidden">
