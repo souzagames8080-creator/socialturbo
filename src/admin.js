@@ -42,9 +42,18 @@ const cfgGanhador2 = document.getElementById('cfg-ganhador2');
 const cfgGanhador3 = document.getElementById('cfg-ganhador3');
 const cfgSlug = document.getElementById('cfg-slug');
 const cfgGrupo = document.getElementById('cfg-grupo');
+const cfgSuporte = document.getElementById('cfg-suporte');
 const cfgShowLive = document.getElementById('cfg-show-live');
 const cfgLiveUrl = document.getElementById('cfg-live-url');
 const liveUrlContainer = document.getElementById('live-url-container');
+
+// Multi-Rifa Globals
+let CURRENT_RIFA_ID = null;
+const rifasListContainer = document.getElementById('rifas-list-container');
+const rifasGrid = document.getElementById('rifas-grid');
+const manageRifaContainer = document.getElementById('manage-rifa-container');
+const editingRifaNameDisplay = document.getElementById('editing-rifa-name');
+const editingRifaSlugDisplay = document.getElementById('editing-rifa-slug-display');
 
 // Toggle live URL container
 cfgShowLive.onchange = () => {
@@ -202,70 +211,7 @@ onAuthStateChanged(auth, (user) => {
         }
 
         initMasterDashboard();
-
-        // Listen to User Specific Rifa Config
-        if (configUnsubscribe) configUnsubscribe();
-        configUnsubscribe = onSnapshot(doc(db, 'rifas', user.uid), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-
-                // Check if blocked or expired (not for master admin)
-                if (user.email !== 'souzagames8080@gmail.com') {
-                    const now = Date.now();
-                    let expiraEm = 0;
-                    
-                    if (data.expiraEm) {
-                        expiraEm = data.expiraEm.toDate ? data.expiraEm.toDate().getTime() : new Date(data.expiraEm).getTime();
-                    }
-
-                    if (data.status === 'bloqueado' || (expiraEm > 0 && expiraEm < now)) {
-                        alert("⚠️ SUA CONTA ESTÁ BLOQUEADA OU VENCIDA. Entre em contato com o suporte.");
-                        signOut(auth);
-                        window.location.reload();
-                        return;
-                    }
-                }
-
-                RIFA_VALOR = Number(data.valor) || 20;
-                RIFA_TOTAL = Number(data.totalNumeros) || 100;
-                cfgNome.value = data.nome || "";
-                cfgValor.value = data.valor || "";
-                cfgTotal.value = data.totalNumeros || 100;
-                cfgDesc.value = data.descricao || "";
-                cfgSlug.value = data.slug || "";
-                cfgGrupo.value = data.linkGrupo || "";
-                cfgLogo.value = data.logoUrl || "";
-                cfgCor.value = data.corDestaque || "#2563EB";
-                cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
-                cfgWhatsapp.value = data.whatsappAdmin || "";
-                cfgMetodo.value = data.metodoSorteio || "loteria";
-                cfgDataSorteio.value = data.dataSorteio || "";
-                cfgPremio1.value = data.premio1 || "";
-                cfgPremio2.value = data.premio2 || "";
-                cfgPremio3.value = data.premio3 || "";
-                cfgGanhador1.value = data.ganhador1 || "";
-                cfgGanhador2.value = data.ganhador2 || "";
-                cfgGanhador3.value = data.ganhador3 || "";
-                cfgShowLive.checked = data.showLive || false;
-                cfgLiveUrl.value = data.liveUrl || "";
-                if (data.showLive) liveUrlContainer.classList.remove('hidden');
-
-                // Update link with slug if available
-                const finalSlug = data.slug || user.uid;
-                const baseUrl = window.location.origin;
-                const fullLink = `${baseUrl}/?u=${finalSlug}`;
-                if (myLinkInput) myLinkInput.value = fullLink;
-                if (viewRifaBtn) viewRifaBtn.href = fullLink;
-            }
-        });
-
-        // Listen to User Specific Numbers
-        if (currentNumbersUnsubscribe) currentNumbersUnsubscribe();
-        const q = query(collection(db, 'rifas', user.uid, 'numeros'), orderBy('numero', 'asc'));
-        currentNumbersUnsubscribe = onSnapshot(q, (snapshot) => {
-            renderTable(snapshot);
-        });
-
+        loadUserRifas(user.uid);
     } else {
         loginScreen.classList.remove('hidden');
         adminPanel.classList.add('hidden');
@@ -353,18 +299,133 @@ function renderTable(snapshot) {
     statDisponiveis.innerText = String(RIFA_TOTAL - pagos - reservados).padStart(2, '0');
 }
 
-// Save Config
+// Multi-Rifa Core Logic
+window.loadUserRifas = (uid) => {
+    const q = query(collection(db, 'rifas'), orderBy('nome'));
+    onSnapshot(q, (snapshot) => {
+        let html = '';
+        let count = 0;
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.ownerId === uid) {
+                count++;
+                const id = docSnap.id;
+                html += `
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col gap-4 group hover:border-blue-500 transition-all">
+                        <div class="flex justify-between items-start">
+                            <div class="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl overflow-hidden shadow-inner">
+                                <img src="${data.logoUrl || 'https://cdn-icons-png.flaticon.com/512/5968/5968260.png'}" class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all shadow-sm">
+                            </div>
+                            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase italic tracking-widest">${data.status || 'Ativo'}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-slate-900 uppercase italic tracking-tighter text-lg leading-none">${data.nome || 'Rifa Sem Nome'}</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">${data.totalNumeros} Números</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button onclick="manageRifa('${id}')" class="bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase italic tracking-widest hover:bg-blue-600 transition-all shadow-lg flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                GERENCIAR
+                            </button>
+                            <a href="/?u=${data.slug || id}" target="_blank" class="bg-blue-50 text-blue-600 py-3 rounded-xl font-black text-[9px] uppercase italic tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                VISITAR
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        rifasGrid.innerHTML = html || `
+            <div class="col-span-full py-20 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100">
+                <p class="text-slate-400 font-black uppercase tracking-[0.2em] text-sm italic">Nenhuma rifa encontrada</p>
+                <button onclick="createNewRifa()" class="mt-4 text-blue-600 font-black text-xs uppercase tracking-widest hover:underline">Criar Primeira Rifa</button>
+            </div>
+        `;
+    });
+};
+
+window.createNewRifa = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const name = prompt("Nome da Campanha:");
+    if (!name) return;
+    try {
+        const newRef = doc(collection(db, 'rifas'));
+        const expiraEm = new Date();
+        expiraEm.setDate(expiraEm.getDate() + 30);
+        await setDoc(newRef, {
+            nome: name,
+            valor: 20,
+            totalNumeros: 100,
+            descricao: "Participe!",
+            corDestaque: "#2563eb",
+            status: 'ativo',
+            expiraEm: expiraEm,
+            ownerId: user.uid,
+            timestamp: new Date()
+        });
+        manageRifa(newRef.id);
+    } catch (e) { alert("Erro ao criar: " + e.message); }
+};
+
+window.manageRifa = (rifaId) => {
+    CURRENT_RIFA_ID = rifaId;
+    rifasListContainer.classList.add('hidden');
+    manageRifaContainer.classList.remove('hidden');
+    if (configUnsubscribe) configUnsubscribe();
+    configUnsubscribe = onSnapshot(doc(db, 'rifas', rifaId), (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            RIFA_VALOR = Number(data.valor) || 20;
+            RIFA_TOTAL = Number(data.totalNumeros) || 100;
+            editingRifaNameDisplay.innerText = data.nome || "Ajustar";
+            editingRifaSlugDisplay.innerText = data.slug || rifaId;
+            cfgNome.value = data.nome || "";
+            cfgValor.value = data.valor || "";
+            cfgTotal.value = data.totalNumeros || 100;
+            cfgDesc.value = data.descricao || "";
+            cfgSlug.value = data.slug || "";
+            cfgGrupo.value = data.linkGrupo || "";
+            cfgSuporte.value = data.whatsappSuporte || "";
+            cfgLogo.value = data.logoUrl || "";
+            cfgCor.value = data.corDestaque || "#2563EB";
+            cfgWhatsapp.value = data.whatsappAdmin || "";
+            cfgMetodo.value = data.metodoSorteio || "loteria";
+            cfgDataSorteio.value = data.dataSorteio || "";
+            cfgPremio1.value = data.premio1 || "";
+            cfgGanhador1.value = data.ganhador1 || "";
+            cfgShowLive.checked = data.showLive || false;
+            cfgLiveUrl.value = data.liveUrl || "";
+            document.getElementById('my-link').value = `${window.location.origin}/?u=${data.slug || rifaId}`;
+        }
+    });
+
+    if (currentNumbersUnsubscribe) currentNumbersUnsubscribe();
+    const q = query(collection(db, 'rifas', rifaId, 'numeros'), orderBy('numero', 'asc'));
+    currentNumbersUnsubscribe = onSnapshot(q, (snapshot) => renderTable(snapshot));
+};
+
+window.backToRifasList = () => {
+    CURRENT_RIFA_ID = null;
+    rifasListContainer.classList.remove('hidden');
+    manageRifaContainer.classList.add('hidden');
+    if (configUnsubscribe) configUnsubscribe();
+    if (currentNumbersUnsubscribe) currentNumbersUnsubscribe();
+};
+
+// Update remaining functions to use CURRENT_RIFA_ID
 configForm.onsubmit = async (e) => {
     e.preventDefault();
-    const user = auth.currentUser;
-    if(!user) return;
+    if(!CURRENT_RIFA_ID) return;
     try {
-        await updateDoc(doc(db, 'rifas', user.uid), {
+        await updateDoc(doc(db, 'rifas', CURRENT_RIFA_ID), {
             nome: cfgNome.value || "Minha Rifa",
             valor: Number(cfgValor.value) || 20,
             totalNumeros: Number(cfgTotal.value) || 100,
             descricao: cfgDesc.value || "Participe!",
             linkGrupo: cfgGrupo.value || "",
+            whatsappSuporte: cfgSuporte.value || "",
             slug: cfgSlug.value.trim().toLowerCase().replace(/\s+/g, '-') || "",
             logoUrl: cfgLogo.value || "",
             corDestaque: cfgCor.value || "#2563eb",
@@ -372,162 +433,30 @@ configForm.onsubmit = async (e) => {
             metodoSorteio: cfgMetodo.value || "loteria",
             dataSorteio: cfgDataSorteio.value || "",
             premio1: cfgPremio1.value || "",
-            premio2: cfgPremio2.value || "",
-            premio3: cfgPremio3.value || "",
             ganhador1: cfgGanhador1.value || "",
-            ganhador2: cfgGanhador2.value || "",
-            ganhador3: cfgGanhador3.value || "",
             showLive: cfgShowLive.checked,
-            liveUrl: cfgLiveUrl.value || "",
-            ownerId: user.uid
+            liveUrl: cfgLiveUrl.value || ""
         });
-        alert("Configurações salvas com sucesso!");
-    } catch (error) {
-        console.error("Erro ao salvar config:", error);
-        if (error.message.includes('permission')) {
-            alert("Erro de permissão: Tente sair e entrar novamente no painel.");
-        } else {
-            alert("Erro ao salvar: " + error.message);
-        }
-    }
+        alert("Salvo com sucesso!");
+    } catch (e) { alert("Erro: " + e.message); }
 };
 
-// Login / Register
-loginForm.onsubmit = async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    try {
-        if (isRegistering) {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            
-            // 30 days from now
-            const expiraEm = new Date();
-            expiraEm.setDate(expiraEm.getDate() + 30);
-
-            // Create initial empty rifa config for the new user
-            await setDoc(doc(db, 'rifas', user.uid), {
-                nome: regNome.value || "Minha Rifa",
-                valor: 20,
-                descricao: "Participe da minha rifa!",
-                corDestaque: "#2563eb",
-                whatsappAdmin: "",
-                status: 'ativo',
-                expiraEm: expiraEm,
-                ownerId: user.uid
-            });
-            alert("Conta criada com sucesso! Você tem 30 dias de acesso grátis.");
-        } else {
-            await signInWithEmailAndPassword(auth, email, password);
-        }
-    } catch (error) {
-        alert("Erro na autenticação: " + error.message);
-    }
-};
-
-// Logout
-logoutBtn.onclick = () => signOut(auth);
-
-// Auto Cleanup Expired
-setInterval(async () => {
-    const user = auth.currentUser;
-    if(!user) return;
-
-    try {
-        const q = query(collection(db, 'rifas', user.uid, 'numeros'));
-        const snapshot = await getDocs(q);
-        const now = Date.now();
-        snapshot.forEach(async (docSnap) => {
-            const data = docSnap.data();
-            if (data.status === 'reservado' && data.timestamp_reserva) {
-                const reservaDate = data.timestamp_reserva.toDate ? data.timestamp_reserva.toDate().getTime() : now;
-                if (now - reservaDate > 15 * 60 * 1000) {
-                    console.log(`Limpando reserva expirada: ${data.numero}`);
-                    await deleteDoc(doc(db, 'rifas', user.uid, 'numeros', docSnap.id));
-                }
-            }
-        });
-    } catch (error) {
-        console.error("Erro no cleanup:", error);
-    }
-}, 60000); // Check every minute
-
-// PDF Generation Logic
-generatePdfBtn.onclick = () => {
-    console.log("Iniciando geração de PDF...");
-    if (paidParticipants.length === 0) {
-        alert("Nenhum pagamento confirmado para gerar o relatório.");
-        return;
-    }
-
-    try {
-        const doc = new jsPDF();
-        const title = cfgNome.value || "Rifa Online Pro";
-        
-        doc.setFontSize(18);
-        doc.text(`Lista de Participantes Confirmados`, 14, 20);
-        doc.setFontSize(12);
-        doc.text(`Rifa: ${title}`, 14, 30);
-        doc.text(`Data: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 38);
-        
-        const tableData = paidParticipants.map(p => [p.numero, p.nome, p.whatsapp]);
-        const totalArrecadado = (paidParticipants.length * RIFA_VALOR).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        autoTable(doc, {
-            head: [['Nº', 'Nome do Cliente', 'WhatsApp']],
-            body: tableData,
-            foot: [['', 'TOTAL ARRECADADO', totalArrecadado]],
-            startY: 45,
-            theme: 'grid',
-            headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
-            footStyles: { fillColor: [22, 101, 52], textColor: [255, 255, 255], fontStyle: 'bold' },
-            styles: { fontSize: 10, cellPadding: 5 }
-        });
-        
-        doc.save(`participantes-pagos-${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
-        console.log("PDF gerado com sucesso.");
-    } catch (error) {
-        console.error("Erro ao gerar PDF:", error);
-        alert("Falha ao gerar PDF. Verifique o console para mais detalhes.");
-    }
-};
-
-// Reset Logic
-resetRifaBtn.onclick = async () => {
-    const user = auth.currentUser;
-    if(!user) return;
-    
-    if (!confirm("⚠️ ATENÇÃO: Isso apagará TODOS os números reservados e pagos desta rifa. Tem certeza?")) {
-        return;
-    }
-
-    try {
-        const q = query(collection(db, 'rifas', user.uid, 'numeros'));
-        const snapshot = await getDocs(q);
-        const batch = writeBatch(db);
-
-        snapshot.forEach((docSnap) => {
-            batch.delete(docSnap.ref);
-        });
-
-        await batch.commit();
-        alert("Rifa resetada com sucesso!");
-    } catch (error) {
-        console.error("Erro ao resetar rifa:", error);
-        alert("Erro ao resetar: " + error.message);
-    }
-};
-
-// Global functions for buttons
 window.confirmarPagamento = (id) => {
-    const user = auth.currentUser;
-    if(!user) return;
-    updateDoc(doc(db, 'rifas', user.uid, 'numeros', id), { status: 'pago' });
+    if(!CURRENT_RIFA_ID) return;
+    updateDoc(doc(db, 'rifas', CURRENT_RIFA_ID, 'numeros', id), { status: 'pago' });
 };
 window.cancelarReserva = (id) => {
-    const user = auth.currentUser;
-    if(!user) return;
-    deleteDoc(doc(db, 'rifas', user.uid, 'numeros', id));
+    if(!CURRENT_RIFA_ID) return;
+    deleteDoc(doc(db, 'rifas', CURRENT_RIFA_ID, 'numeros', id));
 };
+resetRifaBtn.onclick = async () => {
+    if(!CURRENT_RIFA_ID || !confirm("Limpar todos os números desta rifa?")) return;
+    try {
+        const snapshot = await getDocs(collection(db, 'rifas', CURRENT_RIFA_ID, 'numeros'));
+        const batch = writeBatch(db);
+        snapshot.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        alert("Rifa resetada!");
+    } catch (e) { alert("Erro: " + e.message); }
+};
+

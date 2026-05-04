@@ -144,6 +144,16 @@ function setupListeners(uid) {
             } else {
                 groupBanner.classList.add('hidden');
             }
+
+            // --- NOVO: Botão de Suporte ---
+            const supportBtn = document.getElementById('support-btn');
+            if (RIFA_INFO.whatsappSuporte) {
+                const phoneSup = RIFA_INFO.whatsappSuporte.replace(/\D/g, '');
+                supportBtn.href = `https://wa.me/${phoneSup}?text=${window.encodeURIComponent("Olá, estou com uma dúvida sobre a rifa " + (RIFA_INFO.nome || ""))}`;
+                supportBtn.classList.remove('hidden');
+            } else {
+                supportBtn.classList.add('hidden');
+            }
             
             if (RIFA_INFO.corDestaque) {
                 document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
