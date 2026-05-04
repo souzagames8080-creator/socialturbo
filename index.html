@@ -6,33 +6,33 @@
     <title>Rifa Online | Participe Agora</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 overflow-x-hidden">
     <div class="max-w-4xl mx-auto relative">
-        <header class="text-center mb-16 pt-12 relative">
+        <header class="text-center mb-10 md:mb-16 pt-8 md:pt-12 relative">
             <!-- Decoração de Dinheiro -->
-            <img src="https://static.vecteezy.com/system/resources/previews/021/186/515/original/200-reais-brazilian-money-3d-png.png" class="absolute -top-20 -left-10 w-48 md:w-80 opacity-40 rotate-12 pointer-events-none z-0" alt="money">
-            <img src="https://static.vecteezy.com/system/resources/previews/021/186/515/original/200-reais-brazilian-money-3d-png.png" class="absolute -top-20 -right-10 w-48 md:w-80 opacity-40 -rotate-12 pointer-events-none z-0" alt="money">
+            <img src="https://static.vecteezy.com/system/resources/previews/021/186/515/original/200-reais-brazilian-money-3d-png.png" class="absolute -top-10 md:-top-20 -left-6 md:-left-10 w-32 md:w-80 opacity-40 rotate-12 pointer-events-none z-0" alt="money">
+            <img src="https://static.vecteezy.com/system/resources/previews/021/186/515/original/200-reais-brazilian-money-3d-png.png" class="absolute -top-10 md:-top-20 -right-6 md:-right-10 w-32 md:w-80 opacity-40 -rotate-12 pointer-events-none z-0" alt="money">
             
             <div class="relative z-10">
-                <img src="https://i.postimg.cc/654Vc93H/logo-rifa.png" class="h-96 md:h-[550px] mx-auto mb-2 drop-shadow-[0_0_50px_rgba(255,255,255,0.3)] object-contain transition-all hover:scale-105 duration-500" id="rifa-logo" alt="Logo Rifa">
-                <h1 id="rifa-nome" class="text-5xl font-black text-white mb-2 uppercase italic tracking-tighter">Rifa Online Pro</h1>
-                <p id="rifa-descricao" class="text-slate-400 font-bold max-w-lg mx-auto uppercase text-[10px] tracking-widest italic">Participe e concorra agora mesmo!</p>
+                <img src="https://i.postimg.cc/654Vc93H/logo-rifa.png" class="h-40 md:h-[550px] mx-auto mb-2 drop-shadow-[0_0_50px_rgba(255,255,255,0.3)] object-contain transition-all hover:scale-105 duration-500" id="rifa-logo" alt="Logo Rifa">
+                <h1 id="rifa-nome" class="text-3xl md:text-5xl font-black text-white mb-2 uppercase italic tracking-tighter">Rifa Online Pro</h1>
+                <p id="rifa-descricao" class="text-slate-400 font-bold max-w-lg mx-auto uppercase text-[9px] md:text-[10px] tracking-widest italic">Participe e concorra agora mesmo!</p>
             </div>
-            <div class="inline-block mt-8 bg-blue-600 text-white px-10 py-3 rounded-2xl font-black text-3xl shadow-2xl shadow-blue-500/20 italic tracking-tighter">
+            <div class="inline-block mt-6 md:mt-8 bg-blue-600 text-white px-6 md:px-10 py-2 md:py-3 rounded-2xl font-black text-xl md:text-3xl shadow-2xl shadow-blue-500/20 italic tracking-tighter">
                 R$ <span id="rifa-valor">0,00</span>
             </div>
         </header>
 
         <!-- Banner do Ganhador -->
         <div id="winner-banner" class="mb-12 hidden animate-bounce">
-            <div class="bg-green-600 p-10 rounded-[3rem] shadow-2xl shadow-green-500/20 text-center relative overflow-hidden">
+            <div class="bg-green-600 p-6 md:p-10 rounded-2xl md:rounded-[3rem] shadow-2xl shadow-green-500/20 text-center relative overflow-hidden">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                 <div class="relative z-10">
-                    <p class="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-4">🎉 PARABÉNS AO GANHADOR!</p>
-                    <h2 id="winner-name" class="text-5xl font-black text-white italic uppercase tracking-tighter mb-2">---</h2>
-                    <div class="flex items-center justify-center gap-4 mb-4">
-                        <span id="winner-number" class="bg-white text-green-700 px-6 py-2 rounded-2xl text-2xl font-black italic tracking-tighter">Nº 00</span>
-                        <span id="winner-whatsapp" class="text-green-100 font-bold tracking-widest text-lg">00*****000</span>
+                    <p class="text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-4">🎉 PARABÉNS AO GANHADOR!</p>
+                    <h2 id="winner-name" class="text-3xl md:text-5xl font-black text-white italic uppercase tracking-tighter mb-2">---</h2>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
+                        <span id="winner-number" class="bg-white text-green-700 px-6 py-2 rounded-2xl text-xl md:text-2xl font-black italic tracking-tighter">Nº 00</span>
+                        <span id="winner-whatsapp" class="text-green-100 font-bold tracking-widest text-base md:text-lg">00*****000</span>
                     </div>
                     <p class="text-[9px] text-green-200 font-bold uppercase italic tracking-widest">Sorteio realizado com sucesso!</p>
                 </div>
@@ -41,11 +41,11 @@
 
         <!-- Contagem Regressiva -->
         <div id="countdown-container" class="mb-12 hidden">
-            <div class="glass-panel p-10 text-center relative overflow-hidden">
+            <div class="glass-panel p-6 md:p-10 text-center relative overflow-hidden">
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-blue-600"></div>
-                <p id="draw-info" class="text-[10px] uppercase font-black tracking-[0.3em] mb-6 text-slate-400">AGUARDANDO SORTEIO</p>
+                <p id="draw-info" class="text-[9px] md:text-[10px] uppercase font-black tracking-[0.2em] md:tracking-[0.3em] mb-6 text-slate-400">AGUARDANDO SORTEIO</p>
                 
-                <div class="flex justify-center gap-4 md:gap-8">
+                <div class="grid grid-cols-4 gap-2 md:flex md:justify-center md:gap-8">
                     <div class="timer-box">
                         <span id="days" class="timer-num">00</span>
                         <span class="timer-label">Dias</span>
@@ -58,7 +58,7 @@
                         <span id="minutes" class="timer-num">00</span>
                         <span class="timer-label">Mins</span>
                     </div>
-                    <div class="timer-box border-none!">
+                    <div class="timer-box">
                         <span id="seconds" class="timer-num text-blue-500">00</span>
                         <span class="timer-label">Segs</span>
                     </div>
@@ -75,8 +75,8 @@
             </div>
         </div>
 
-        <section class="glass-panel p-10 mb-12 shadow-2xl">
-            <div class="flex flex-wrap justify-center gap-8 mb-12 text-[10px] font-black uppercase tracking-[0.2em] italic">
+        <section class="glass-panel p-4 md:p-10 mb-12 shadow-2xl">
+            <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 md:mb-12 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] italic">
                 <div class="flex items-center gap-3">
                     <div class="w-5 h-5 bg-white/5 border border-white/10 rounded-lg"></div> Disponível
                 </div>
