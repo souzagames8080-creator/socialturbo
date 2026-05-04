@@ -135,6 +135,16 @@ function setupListeners(uid) {
             checkWinner(RIFA_INFO);
             renderLiveStream(RIFA_INFO);
             
+            // --- NOVO: Grupo WhatsApp ---
+            const groupBanner = document.getElementById('group-banner');
+            const groupLink = document.getElementById('group-link');
+            if (RIFA_INFO.linkGrupo) {
+                groupBanner.classList.remove('hidden');
+                groupLink.href = RIFA_INFO.linkGrupo;
+            } else {
+                groupBanner.classList.add('hidden');
+            }
+            
             if (RIFA_INFO.corDestaque) {
                 document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
                 const badge = document.querySelector('.bg-blue-600');

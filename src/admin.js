@@ -41,6 +41,7 @@ const cfgGanhador1 = document.getElementById('cfg-ganhador1');
 const cfgGanhador2 = document.getElementById('cfg-ganhador2');
 const cfgGanhador3 = document.getElementById('cfg-ganhador3');
 const cfgSlug = document.getElementById('cfg-slug');
+const cfgGrupo = document.getElementById('cfg-grupo');
 const cfgShowLive = document.getElementById('cfg-show-live');
 const cfgLiveUrl = document.getElementById('cfg-live-url');
 const liveUrlContainer = document.getElementById('live-url-container');
@@ -232,6 +233,7 @@ onAuthStateChanged(auth, (user) => {
                 cfgTotal.value = data.totalNumeros || 100;
                 cfgDesc.value = data.descricao || "";
                 cfgSlug.value = data.slug || "";
+                cfgGrupo.value = data.linkGrupo || "";
                 cfgLogo.value = data.logoUrl || "";
                 cfgCor.value = data.corDestaque || "#2563EB";
                 cfgCorText.value = (data.corDestaque || "#2563EB").toUpperCase();
@@ -362,6 +364,7 @@ configForm.onsubmit = async (e) => {
             valor: Number(cfgValor.value) || 20,
             totalNumeros: Number(cfgTotal.value) || 100,
             descricao: cfgDesc.value || "Participe!",
+            linkGrupo: cfgGrupo.value || "",
             slug: cfgSlug.value.trim().toLowerCase().replace(/\s+/g, '-') || "",
             logoUrl: cfgLogo.value || "",
             corDestaque: cfgCor.value || "#2563eb",
