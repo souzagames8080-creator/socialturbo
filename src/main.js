@@ -127,6 +127,16 @@ function setupListeners(uid) {
             rifaDesc.innerText = RIFA_INFO.descricao || "Participe já!";
             rifaValor.innerText = RIFA_VALOR.toFixed(2).replace('.', ',');
             
+            // --- NOVO: Flyer do Sorteio ---
+            const flyerContainer = document.getElementById('rifa-flyer-container');
+            const flyerImg = document.getElementById('rifa-flyer');
+            if (RIFA_INFO.flyerUrl) {
+                flyerImg.src = RIFA_INFO.flyerUrl;
+                flyerContainer.classList.remove('hidden');
+            } else {
+                flyerContainer.classList.add('hidden');
+            }
+            
             if (RIFA_INFO.logoUrl) {
                 document.getElementById('rifa-logo').src = RIFA_INFO.logoUrl;
             }

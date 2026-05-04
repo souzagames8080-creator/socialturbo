@@ -29,6 +29,7 @@ const cfgValor = document.getElementById('cfg-valor');
 const cfgTotal = document.getElementById('cfg-total');
 const cfgDesc = document.getElementById('cfg-desc');
 const cfgLogo = document.getElementById('cfg-logo');
+const cfgFlyer = document.getElementById('cfg-flyer');
 const cfgCor = document.getElementById('cfg-cor');
 const cfgCorText = document.getElementById('cfg-cor-text');
 const cfgWhatsapp = document.getElementById('cfg-whatsapp');
@@ -389,6 +390,7 @@ window.manageRifa = (rifaId) => {
             cfgGrupo.value = data.linkGrupo || "";
             cfgSuporte.value = data.whatsappSuporte || "";
             cfgLogo.value = data.logoUrl || "";
+            cfgFlyer.value = data.flyerUrl || "";
             cfgCor.value = data.corDestaque || "#2563EB";
             cfgWhatsapp.value = data.whatsappAdmin || "";
             cfgMetodo.value = data.metodoSorteio || "loteria";
@@ -428,6 +430,7 @@ configForm.onsubmit = async (e) => {
             whatsappSuporte: cfgSuporte.value || "",
             slug: cfgSlug.value.trim().toLowerCase().replace(/\s+/g, '-') || "",
             logoUrl: cfgLogo.value || "",
+            flyerUrl: cfgFlyer.value || "",
             corDestaque: cfgCor.value || "#2563eb",
             whatsappAdmin: cfgWhatsapp.value || "",
             metodoSorteio: cfgMetodo.value || "loteria",
