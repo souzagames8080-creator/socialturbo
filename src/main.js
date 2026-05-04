@@ -26,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 let occupiedNumbers = {}; 
-const RIFA_TOTAL = 100;
+let RIFA_TOTAL = 100;
 let RIFA_VALOR = 0;
 let RIFA_INFO = { nome: "Carregando...", descricao: "Aguarde...", valor: 0, logoUrl: "" };
 let countdownInterval = null;
@@ -42,11 +42,19 @@ function renderGrid() {
         return;
     }
 
-    for (let i = 1; i <= RIFA_TOTAL; i++) {
+    const totalToRender = Number(RIFA_INFO.totalNumeros) || 100;
+    
+    for (let i = 1; i <= totalToRender; i++) {
         const status = occupiedNumbers[i] || 'disponivel';
         const card = document.createElement('div');
         card.className = `num-card status-${status}`;
-        card.innerText = String(i).padStart(2, '0');
+        
+        let label = String(i).padStart(2, '0');
+        if (totalToRender === 100 && i === 100) {
+            label = "00";
+        }
+        
+        card.innerText = label;
         
         if (status === 'disponivel') {
             card.onclick = () => openModal(i);
@@ -149,7 +157,11 @@ if (USER_ID) {
 
 function openModal(num) {
     selectedNumber = num;
-    displayNum.innerText = String(num).padStart(3, '0');
+    let label = String(num).padStart(2, '0');
+    const totalToRender = Number(RIFA_INFO.totalNumeros) || 100;
+    if (totalToRender === 100 && num === 100) label = "00";
+    
+    displayNum.innerText = label;
     modal.classList.add('active');
 }
 
@@ -260,7 +272,12 @@ function checkWinner(data) {
             if (winner) {
                 card.classList.remove('hidden');
                 nameEl.innerText = winner.nome;
-                numEl.innerText = `Nº ${String(winner.numero).padStart(2, '0')}`;
+                
+                let label = String(winner.numero).padStart(2, '0');
+                const totalToRender = Number(RIFA_INFO.totalNumeros) || 100;
+                if (totalToRender === 100 && winner.numero === 100) label = "00";
+                
+                numEl.innerText = `Nº ${label}`;
                 waEl.innerText = mascararWhatsapp(winner.whatsapp);
                 premioEl.innerText = w.premio || "PRÊMIO SURPRESA";
                 foundAny = true;

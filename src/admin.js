@@ -17,7 +17,7 @@ const statPagos = document.getElementById('stat-pagos');
 const statReservados = document.getElementById('stat-reservados');
 const statDisponiveis = document.getElementById('stat-disponiveis');
 
-const RIFA_TOTAL = 100;
+let RIFA_TOTAL = 100;
 let RIFA_VALOR = 20.00;
 let paidParticipants = [];
 
@@ -26,6 +26,7 @@ const resetRifaBtn = document.getElementById('reset-rifa-btn');
 const configForm = document.getElementById('config-form');
 const cfgNome = document.getElementById('cfg-nome');
 const cfgValor = document.getElementById('cfg-valor');
+const cfgTotal = document.getElementById('cfg-total');
 const cfgDesc = document.getElementById('cfg-desc');
 const cfgLogo = document.getElementById('cfg-logo');
 const cfgCor = document.getElementById('cfg-cor');
@@ -216,8 +217,10 @@ onAuthStateChanged(auth, (user) => {
                 }
 
                 RIFA_VALOR = Number(data.valor) || 20;
+                RIFA_TOTAL = Number(data.totalNumeros) || 100;
                 cfgNome.value = data.nome || "";
                 cfgValor.value = data.valor || "";
+                cfgTotal.value = data.totalNumeros || 100;
                 cfgDesc.value = data.descricao || "";
                 cfgLogo.value = data.logoUrl || "";
                 cfgCor.value = data.corDestaque || "#2563EB";
@@ -273,18 +276,24 @@ function renderTable(snapshot) {
              reservados++;
         } else if (data.status === 'pago') {
             pagos++;
+            let numLabel = String(data.numero).padStart(2, '0');
+            if (RIFA_TOTAL === 100 && data.numero === 100) numLabel = "00";
+            
             paidParticipants.push({
-                numero: String(data.numero).padStart(2, '0'),
+                numero: numLabel,
                 nome: data.nome,
                 whatsapp: data.whatsapp
             });
         }
 
+        let numLabel = String(data.numero).padStart(2, '0');
+        if (RIFA_TOTAL === 100 && data.numero === 100) numLabel = "00";
+
         html += `
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="px-10 py-6">
                     <div class="flex items-center gap-4">
-                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">${String(data.numero).padStart(2, '0')}</span>
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">${numLabel}</span>
                         <span class="text-slate-900 uppercase italic tracking-tighter">${data.nome}</span>
                     </div>
                 </td>
@@ -331,6 +340,7 @@ configForm.onsubmit = async (e) => {
         await updateDoc(doc(db, 'rifas', user.uid), {
             nome: cfgNome.value || "Minha Rifa",
             valor: Number(cfgValor.value) || 20,
+            totalNumeros: Number(cfgTotal.value) || 100,
             descricao: cfgDesc.value || "Participe!",
             logoUrl: cfgLogo.value || "",
             corDestaque: cfgCor.value || "#2563eb",
