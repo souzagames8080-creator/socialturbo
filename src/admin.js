@@ -33,7 +33,12 @@ const cfgCorText = document.getElementById('cfg-cor-text');
 const cfgWhatsapp = document.getElementById('cfg-whatsapp');
 const cfgMetodo = document.getElementById('cfg-metodo');
 const cfgDataSorteio = document.getElementById('cfg-data-sorteio');
-const cfgGanhadorOficial = document.getElementById('cfg-ganhador-oficial');
+const cfgPremio1 = document.getElementById('cfg-premio1');
+const cfgPremio2 = document.getElementById('cfg-premio2');
+const cfgPremio3 = document.getElementById('cfg-premio3');
+const cfgGanhador1 = document.getElementById('cfg-ganhador1');
+const cfgGanhador2 = document.getElementById('cfg-ganhador2');
+const cfgGanhador3 = document.getElementById('cfg-ganhador3');
 
 // Sync Color inputs
 cfgCor.oninput = () => cfgCorText.value = cfgCor.value.toUpperCase();
@@ -220,7 +225,12 @@ onAuthStateChanged(auth, (user) => {
                 cfgWhatsapp.value = data.whatsappAdmin || "";
                 cfgMetodo.value = data.metodoSorteio || "loteria";
                 cfgDataSorteio.value = data.dataSorteio || "";
-                cfgGanhadorOficial.value = data.ganhadorOficial || "";
+                cfgPremio1.value = data.premio1 || "";
+                cfgPremio2.value = data.premio2 || "";
+                cfgPremio3.value = data.premio3 || "";
+                cfgGanhador1.value = data.ganhador1 || "";
+                cfgGanhador2.value = data.ganhador2 || "";
+                cfgGanhador3.value = data.ganhador3 || "";
             }
         });
 
@@ -327,7 +337,12 @@ configForm.onsubmit = async (e) => {
             whatsappAdmin: cfgWhatsapp.value || "",
             metodoSorteio: cfgMetodo.value || "loteria",
             dataSorteio: cfgDataSorteio.value || "",
-            ganhadorOficial: cfgGanhadorOficial.value || "",
+            premio1: cfgPremio1.value || "",
+            premio2: cfgPremio2.value || "",
+            premio3: cfgPremio3.value || "",
+            ganhador1: cfgGanhador1.value || "",
+            ganhador2: cfgGanhador2.value || "",
+            ganhador3: cfgGanhador3.value || "",
             ownerId: user.uid
         });
         alert("Configurações salvas com sucesso!");

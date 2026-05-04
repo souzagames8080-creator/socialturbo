@@ -87,7 +87,7 @@ if (USER_ID) {
             initCountdown(RIFA_INFO.dataSorteio, RIFA_INFO.metodoSorteio);
 
             // --- NOVO: Ganhador ---
-            checkWinner(RIFA_INFO.ganhadorOficial);
+            checkWinner(RIFA_INFO);
             
             if (RIFA_INFO.corDestaque) {
                 document.documentElement.style.setProperty('--accent-color', RIFA_INFO.corDestaque);
@@ -118,8 +118,8 @@ if (USER_ID) {
         renderGrid();
         
         // Re-checar ganhador se a lista de participantes mudar
-        if (RIFA_INFO && RIFA_INFO.ganhadorOficial) {
-            checkWinner(RIFA_INFO.ganhadorOficial);
+        if (RIFA_INFO) {
+            checkWinner(RIFA_INFO);
         }
 
         if (initialLoad) {
@@ -224,25 +224,43 @@ function initCountdown(targetDateStr, metodo) {
     }, 1000);
 }
 
-function checkWinner(winnerNumber) {
+function checkWinner(data) {
     const banner = document.getElementById('winner-banner');
-    const winnerNameEl = document.getElementById('winner-name');
-    const winnerNumEl = document.getElementById('winner-number');
-    const winnerWaEl = document.getElementById('winner-whatsapp');
+    const winners = [
+        { num: data.ganhador1, premio: data.premio1, id: 1 },
+        { num: data.ganhador2, premio: data.premio2, id: 2 },
+        { num: data.ganhador3, premio: data.premio3, id: 3 }
+    ];
 
-    if (!winnerNumber) {
-        banner.classList.add('hidden');
-        return;
-    }
+    let foundAny = false;
 
-    const winner = allParticipants.find(p => String(p.numero) === String(winnerNumber));
-    
-    if (winner) {
+    winners.forEach(w => {
+        const card = document.getElementById(`winner${w.id}-card`);
+        const nameEl = document.getElementById(`winner${w.id}-name`);
+        const numEl = document.getElementById(`winner${w.id}-number`);
+        const waEl = document.getElementById(`winner${w.id}-whatsapp`);
+        const premioEl = document.getElementById(`winner${w.id}-premio`);
+
+        if (w.num) {
+            const winner = allParticipants.find(p => String(p.numero) === String(w.num));
+            if (winner) {
+                card.classList.remove('hidden');
+                nameEl.innerText = winner.nome;
+                numEl.innerText = `Nº ${String(winner.numero).padStart(2, '0')}`;
+                waEl.innerText = mascararWhatsapp(winner.whatsapp);
+                premioEl.innerText = w.premio || "PRÊMIO SURPRESA";
+                foundAny = true;
+            } else {
+                card.classList.add('hidden');
+            }
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+
+    if (foundAny) {
         banner.classList.remove('hidden');
-        winnerNameEl.innerText = winner.nome;
-        winnerNumEl.innerText = `Nº ${String(winner.numero).padStart(2, '0')}`;
-        winnerWaEl.innerText = mascararWhatsapp(winner.whatsapp);
-        // Ocultar contador se já temos ganhador oficial
+        // Ocultar contador se já temos ganhadores oficiais
         document.getElementById('countdown-container').classList.add('hidden');
     } else {
         banner.classList.add('hidden');

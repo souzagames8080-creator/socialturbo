@@ -24,17 +24,55 @@
         </header>
 
         <!-- Banner do Ganhador -->
-        <div id="winner-banner" class="mb-12 hidden animate-bounce">
-            <div class="bg-green-600 p-6 md:p-10 rounded-2xl md:rounded-[3rem] shadow-2xl shadow-green-500/20 text-center relative overflow-hidden">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        <div id="winner-banner" class="mb-12 hidden">
+            <div class="bg-slate-900 md:p-10 p-6 rounded-3xl md:rounded-[3rem] shadow-2xl border border-white/5 relative overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-green-500/10 rounded-full blur-[100px]"></div>
                 <div class="relative z-10">
-                    <p class="text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-4">🎉 PARABÉNS AO GANHADOR!</p>
-                    <h2 id="winner-name" class="text-3xl md:text-5xl font-black text-white italic uppercase tracking-tighter mb-2">---</h2>
-                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
-                        <span id="winner-number" class="bg-white text-green-700 px-6 py-2 rounded-2xl text-xl md:text-2xl font-black italic tracking-tighter">Nº 00</span>
-                        <span id="winner-whatsapp" class="text-green-100 font-bold tracking-widest text-base md:text-lg">00*****000</span>
+                    <div class="text-center mb-10">
+                        <p class="text-green-500 text-[10px] font-black uppercase tracking-[0.4em] mb-2">🏆 RESULTADO OFICIAL</p>
+                        <h2 class="text-3xl md:text-5xl font-black text-white italic uppercase tracking-tighter">OS GRANDES VENCEDORES</h2>
                     </div>
-                    <p class="text-[9px] text-green-200 font-bold uppercase italic tracking-widest">Sorteio realizado com sucesso!</p>
+
+                    <div id="winners-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Ganhador 1 -->
+                        <div id="winner1-card" class="bg-white/5 border border-white/10 p-6 rounded-2xl md:scale-110 relative z-20 shadow-2xl hidden">
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-slate-900 px-4 py-1 rounded-full font-black text-[10px] tracking-widest uppercase italic">1º COLOCADO</div>
+                            <div class="text-center mt-2">
+                                <p id="winner1-premio" class="text-yellow-400 font-black italic text-sm mb-4">---</p>
+                                <h3 id="winner1-name" class="text-xl font-black text-white uppercase italic tracking-tighter mb-1 truncate">---</h3>
+                                <div class="bg-white/10 py-2 rounded-xl mb-4">
+                                    <span id="winner1-number" class="text-2xl font-black text-white italic">Nº 00</span>
+                                </div>
+                                <p id="winner1-whatsapp" class="text-xs text-slate-400 font-bold tracking-widest">00*****000</p>
+                            </div>
+                        </div>
+
+                        <!-- Ganhador 2 -->
+                        <div id="winner2-card" class="bg-white/5 border border-white/10 p-6 rounded-2xl relative hidden">
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-400 text-slate-900 px-4 py-1 rounded-full font-black text-[10px] tracking-widest uppercase italic">2º LUGAR</div>
+                            <div class="text-center mt-2">
+                                <p id="winner2-premio" class="text-slate-400 font-black italic text-sm mb-4">---</p>
+                                <h3 id="winner2-name" class="text-xl font-black text-white uppercase italic tracking-tighter mb-1 truncate">---</h3>
+                                <div class="bg-white/10 py-2 rounded-xl mb-4">
+                                    <span id="winner2-number" class="text-2xl font-black text-white italic">Nº 00</span>
+                                </div>
+                                <p id="winner2-whatsapp" class="text-xs text-slate-400 font-bold tracking-widest">00*****000</p>
+                            </div>
+                        </div>
+
+                        <!-- Ganhador 3 -->
+                        <div id="winner3-card" class="bg-white/5 border border-white/10 p-6 rounded-2xl relative hidden">
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-700 text-white px-4 py-1 rounded-full font-black text-[10px] tracking-widest uppercase italic">3º LUGAR</div>
+                            <div class="text-center mt-2">
+                                <p id="winner3-premio" class="text-amber-700 font-black italic text-sm mb-4">---</p>
+                                <h3 id="winner3-name" class="text-xl font-black text-white uppercase italic tracking-tighter mb-1 truncate">---</h3>
+                                <div class="bg-white/10 py-2 rounded-xl mb-4">
+                                    <span id="winner3-number" class="text-2xl font-black text-white italic">Nº 00</span>
+                                </div>
+                                <p id="winner3-whatsapp" class="text-xs text-slate-400 font-bold tracking-widest">00*****000</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
