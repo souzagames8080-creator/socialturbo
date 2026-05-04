@@ -115,6 +115,20 @@ if (USER_ID) {
                 }
             }
         });
+        
+        // --- Atualizar Estatísticas ---
+        const totalNum = RIFA_INFO.totalNumeros || 100;
+        const soldCount = Object.values(occupiedNumbers).filter(s => s === 'pago').length;
+        const reservedCount = Object.values(occupiedNumbers).filter(s => s === 'reservado').length;
+        const remainingCount = totalNum - soldCount;
+        const percent = Math.round((remainingCount / totalNum) * 100);
+
+        document.getElementById('total-rifa-num').innerText = totalNum;
+        document.getElementById('sold-rifa-num').innerText = soldCount;
+        document.getElementById('remaining-rifa-num').innerText = remainingCount;
+        document.getElementById('remaining-percent').innerText = `${percent}%`;
+        document.getElementById('progress-circle').setAttribute('stroke-dasharray', `${percent}, 100`);
+
         renderGrid();
         
         // Re-checar ganhador se a lista de participantes mudar
