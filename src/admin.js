@@ -311,32 +311,32 @@ function renderTable(snapshot) {
 
         html += `
             <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="px-10 py-6">
-                    <div class="flex items-center gap-4">
-                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">${numLabel}</span>
-                        <span class="text-slate-900 uppercase italic tracking-tighter">${data.nome}</span>
-                    </div>
+                <td class="px-6 md:px-10 py-4 md:py-6 text-center md:text-left">
+                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">${numLabel}</span>
                 </td>
-                <td class="px-10 py-6">
+                <td class="px-4 md:px-10 py-4 md:py-6">
+                    <span class="text-slate-900 uppercase italic tracking-tighter">${data.nome}</span>
+                </td>
+                <td class="px-4 md:px-10 py-4 md:py-6">
                     <a href="https://wa.me/${data.whatsapp.replace(/\D/g,'')}" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.27-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                        ${data.whatsapp}
+                        <span class="hidden sm:inline">${data.whatsapp}</span>
                     </a>
                 </td>
-                <td class="px-10 py-6">
-                    <span class="px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest italic ${data.status === 'pago' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                <td class="px-4 md:px-10 py-4 md:py-6">
+                    <span class="px-3 md:px-4 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest italic ${data.status === 'pago' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
                         ${data.status}
                     </span>
                 </td>
-                <td class="px-10 py-6 text-right">
-                    <div class="flex justify-end gap-3">
+                <td class="px-4 md:px-10 py-4 md:py-6 text-right">
+                    <div class="flex justify-end gap-2 md:gap-3">
                         ${data.status === 'reservado' ? `
-                            <button onclick="confirmarPagamento('${id}')" title="Confirmar Pagamento" class="bg-green-50 text-green-600 p-3 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <button onclick="confirmarPagamento('${id}')" title="Confirmar Pagamento" class="bg-green-50 text-green-600 p-2 md:p-3 rounded-lg md:rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="md:w-4 md:h-4"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             </button>
                         ` : ''}
-                        <button onclick="cancelarReserva('${id}')" title="Remover / Cancelar" class="bg-red-50 text-red-400 p-3 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        <button onclick="cancelarReserva('${id}')" title="Remover / Cancelar" class="bg-red-50 text-red-400 p-2 md:p-3 rounded-lg md:rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="md:w-4 md:h-4"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </button>
                     </div>
                 </td>
