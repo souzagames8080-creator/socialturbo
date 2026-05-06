@@ -416,7 +416,67 @@ window.backToRifasList = () => {
     if (currentNumbersUnsubscribe) currentNumbersUnsubscribe();
 };
 
-// Update remaining functions to use CURRENT_RIFA_ID
+// Logout
+logoutBtn.onclick = () => signOut(auth);
+
+// Login / Register
+loginForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        if (isRegistering) {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            // 30 days from now
+            const expiraEm = new Date();
+            expiraEm.setDate(expiraEm.getDate() + 30);
+
+            // Create initial empty rifa config for the new user
+            await setDoc(doc(db, 'rifas', user.uid), {
+                nome: regNome.value || "Minha Rifa",
+                valor: 20,
+                totalNumeros: 100,
+                descricao: "Participe da minha rifa!",
+                corDestaque: "#2563eb",
+                whatsappAdmin: "",
+                status: 'ativo',
+                expiraEm: expiraEm,
+                ownerId: user.uid,
+                timestamp: new Date()
+            });
+            alert("Conta criada com sucesso! Você tem 30 dias de acesso gratuito.");
+        } else {
+            await signInWithEmailAndPassword(auth, email, password);
+        }
+    } catch (error) {
+        alert("Erro na autenticação: " + error.message);
+    }
+};
+
+// Auto Cleanup Expired Reservations
+setInterval(async () => {
+    if (!CURRENT_RIFA_ID) return;
+    try {
+        const q = query(collection(db, 'rifas', CURRENT_RIFA_ID, 'numeros'));
+        const snapshot = await getDocs(q);
+        const now = Date.now();
+        snapshot.forEach(async (docSnap) => {
+            const data = docSnap.data();
+            if (data.status === 'reservado' && data.timestamp_reserva) {
+                const reservaDate = data.timestamp_reserva.toDate ? data.timestamp_reserva.toDate().getTime() : now;
+                if (now - reservaDate > 15 * 60 * 1000) {
+                    await deleteDoc(doc(db, 'rifas', CURRENT_RIFA_ID, 'numeros', docSnap.id));
+                }
+            }
+        });
+    } catch (error) {
+        console.error("Erro no cleanup:", error);
+    }
+}, 60000); // Check every minute
+
 configForm.onsubmit = async (e) => {
     e.preventDefault();
     if(!CURRENT_RIFA_ID) return;
